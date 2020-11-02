@@ -1,0 +1,103 @@
+#Introduction to questionnaire design
+
+Surveys or questionnaires play an important role in many research and studies. A well-designed questionnaire will help researchers collect data required to answer research questions with strong *validity* and *reliability*. This section aims to provide some guidelines to create such questionnaires.
+
+The most important thing to keep in mind when designing a questionnaire is that, we are asking the respondents a favour. Therefore, the questionnaire needs to be as easy and less time-consuming as possible, while gathering enough information for our research questions. Our goal is to create a **short**, **easy**, **inviting** but still **sound** and **logical** questionnaire.
+
+There are four main steps to achieve our goal:
+
+1. Plan the study.
+2. Prepare the questions.
+3. Put together the questionnaire.
+4. Pretest the questionnaire. 
+
+##Plan the study
+
+Planning the study ahead allows us to create a questionnaire that meets our research goal while keeping it short and concise. In the questionnaire, we want to include questions that provide *enough*, but *not more* than what we need. Consider the following when planning a study:
+
+- What is the **topic** of interest?
+
+    > In this piece of introduction, let us consider an example about a survey about **mental health among students**, etc.  
+
+- What is the **target population**, i.e the population of interest and to draw conclusion on?
+
+    > Suppose researchers want to make conclusions on the mental health of students at University of Waterloo exclusively, instead of, for example, the mental health of students in Ontario province. Then, the target population would be all students at University of Waterloo.
+
+- To whom or to which **groups** do you want to report to? (for example, the demographic groups, etc.)
+
+    > Suppose researchers want to report or compare the results of students' mental health based on *genders*, *faculty*, *country of origin*, etc.  
+
+- What are the **research questions**, i.e. hypotheses?
+
+    > Students from which faculty are more stressful? What are the usual mental health problems among students at University of Waterloo?
+
+- What analysis tools will be used after the data has been collected?
+
+    > R, SAS, STATA, etc.
+
+Examining as many aspects of the study as possible will paint a picture of what the questionnaire should include, **what questions** need to be asked, and **to whom** the questionnaire should be designed for and sent to, etc. It is helpful to **write down the plan** for future reference and futher discussion.
+
+##Prepare the questions
+
+In this step, we design the questions based on the research plan we have laid out. There are many considerations that can be made in this step: the *type* of questions, the *categories or options* for the questions, the *wordings* of the questions, the *order* of the questions, etc. All of these will affect the **difficulty** of the questionnaire, the respondents’ **willingness** to answer or to answer **correctly** and **truthfully**, and also the analysis that will be carried out.
+
+For every question, think about the process that the survey respondents have to go through to answer and try to find ways to help them give the answers that are in line with your research goal. 
+
+- How to define or decompose certain **concepts**? Is it fair to assume that the respondents **understand** the wordings or notions? Is there any chance that the respondents might misunderstand the definitions, wordings, or the question itself?
+
+    > Consider the term *depression*. What symptoms does it include? Can every student at University of Waterloo differentiate *depression* and *sadness*?
+
+- How long ago since the event you want to ask occurred until the respondents read the question in the survey? Is it easy for the respondents to **recall** and **retrieve** these information? Is there any cue in the survey or record the respondents can refer to?
+
+    > *"When is the last time that you meet a psychiatrist?"*. Maybe for some people the answer will be a long time ago such that they cannot remember. An appointment record can help with retrieving this information. 
+
+- Do the respondents need to **estimate** or **judge** for the answer? What can be some references for these estimates or judgements?
+
+    > *"How many hours do you spend on social media per week?"*. 3 hours a day will give an estimate of 21 hours a week. Some references can be, for example, everyday they spend one hour on social media thirty minutes after waking up and one hour before bed. Waking up and before bed are routines that can be remembered easily. 
+
+- Can the respondents easily map their answers to the options provided? Are **all possible answers** included in the question’s answer categories? How to help the respondents’ answers to be expressed precisely?
+
+    > *"What do you think are the reasons for your sadness?"*. If this question is formed with a "choose one of the following" format, the respondents might not able to express all of their answers. 
+    
+    > *"How do you rate your happiness?"* A scale of 1-10 will imply 1 as a little happy or very unhappy? In this case, for a scale of -5-5, it will be easier and more straightforward for respondents to imply -5 as very unhappy, 0 as indifference, 5 as very happy.    
+
+Notes:
+
+- The **context** of the question can affect the respondents’ thought process and hence their answers. It is important to make sure that the context is expressed or explained clearly: the general question is
+asked before the specific questions; and questions are asked in groups or modules.
+
+    > We can have a block of questions asking about the their symptoms of mental conditions, and another block of questions asking about their attempts to get better, etc.
+    
+    > If "How do you find your performance at school?" is asked before "How do you rate your hapiness?" The respondent may associate *happiness* with *performance at school*, and ignore their happiness with family and friends, for example.
+
+- The **order** of the answer options can also affect the validity of the answers. Consider the natural order of the answer options (e.g. alphabetical order). If there is none, randomize the order in questions with long lists of options.
+
+    > Consider the questions **Choose three of the biggest reasons why you are unhappy**, and there is then a long list of options, the respondents will be likely to choose the first or the last few options, since they are not patient to go through the long list and choose their best three. 
+
+- Pay attention to **sensitive** questions, i.e., the questions that respondents might hesitate to answer due to reasons such as privacy or shame. If the concern is **privacy**, you can create options based on wide groups (e.g., range of income, range of age, etc.), instead of requiring the exact information. If the concern is shame, or, **social desirability**, consider ways that will ease the respondents to the answer.
+
+    > If you want to ask about alcohol consumption, you can add a few sentences about the benefits of wine to health, which will make it is more relaxing for respondents to answer truthfully about their alcohol consumption.
+
+##Putting the questions together
+
+- In the beginning, give some introduction about the research topic and its importance to give the respondents some **motivation** to answer the questionnaire. Mention the **research organizations, investigators or sponsors** and an **estimate of the length** of the questionaire. Do not forget to include statements about **privacy and confidentiality** from the [Office of Research Ethics](https://uwaterloo.ca/research/office-research-ethics). Including relevant **graphics** may appeal to the respondents that this is an easy-to-answer survey.
+
+    > For example, this sentence can be included at the beginning of the questionnaire. *The information gained from survey will help the school better understand and take reasonable measures catering to students regarding mental health.* 
+
+- **Start** with some questions that are related to the topic and **easy to answer**, for example, the “Have you ever” questions with “Yes-No” answers. This will help ease the respondents to the questionnaire. Try to group the questions in to modules to create a **logical flow** that is easy for respondents to follow. In between these modules, some short introductions can be added to make the transitions smooth. Try to ask **sensitive questions near the end** when the respondents are comfortable with giving their answers or opinions. At the end, ask the **demographic questions** that you need. You can mention that these questions are for “statistical purpose” only.
+
+- Finally, give the respondents a big **thank you**. If there is any incentives for completing the survey, ask for the respondents’ contacts, again strongly stress the privacy of these contact information. It is also possible to leave some contacts if the respondents have any issue or want to give their feedback.
+
+##Pretest the questionnaire
+
+It is recommended to **pretest** the questionnaire before conducting data collection. This will help identify problems in the questionnaire, and allow for revision and improvement.
+
+Consider the pretesting the questionnaire by:
+
+- obtaining **expert review** from colleagues who have same or similar research topics, or statistical consultants who have expertise on data collection and analysis;
+
+- conducting interviews with **focus groups**, i.e. a small group in the target population. This method allows us to know whether the prospective respondents have any difficulty in understanding and answering the questions. Their feedback or advice can be used to revise the questionnaire.
+
+    > For example, conduct the survey with the students in your class first and ask for their opinions.
+
+Designing questionnaire is an iterative process. The four steps mentioned above can be revisited and revised as needed. If you have any further questions about questionnaires design, please consult a consultant at the [Statistical Consulting and Collaborative Research](https://uwaterloo.ca/statistical-consulting-and-collaborative-research-unit/), or the [Survey Research Centre](https://uwaterloo.ca/survey-research-centre/).
