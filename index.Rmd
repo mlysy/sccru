@@ -15,15 +15,11 @@ output:
       in_header: preamble.html
 ---
 
-#Preface
+#Preface {-}
 
+This book aims to give the introductions to some topics in statistical consulting. We hope that this will help audiences who have light background in statistics.
 
-
-
-
-
-
-
+For contributors to this book, please refer to the Appendix for [General Guidelines], [Formatting Guidelines] and [Github tutorials][Git and GitHub: A Quick Tutorial].
 
 
 
