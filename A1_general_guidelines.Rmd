@@ -4,15 +4,15 @@
 
 *Author: Martin Lysy*
 
-*Last Updated: Nov 09, 2020*
+*Last Updated: Nov 17, 2020*
 
-$$~$$
+--- 
 
 ## Resources
 
 - **R Markdown:** The  [**bookdown** e-book](https://bookdown.org/yihui/bookdown/) the [Definitive R Markdown Guide](https://bookdown.org/yihui/rmarkdown/) and the [R Markdown Cookbook](https://bookdown.org/yihui/rmarkdown-cookbook/).
 
-- **LaTeX:** [Basic](https://en.wikibooks.org/wiki/LaTeX/Mathematics) and [advanced](https://en.wikibooks.org/wiki/LaTeX/Advanced_Mathematics) math formatting guides.
+- **LaTeX:** <a name="a1-res:latex"> [Basic](https://en.wikibooks.org/wiki/LaTeX/Mathematics) and [advanced](https://en.wikibooks.org/wiki/LaTeX/Advanced_Mathematics) math formatting guides.
 
 - **Collaborations:** The [Pro Git book](https://git-scm.com/book/en/v2), and a quick tutorial [here][Git and GitHub: A Quick Tutorial].
 
@@ -50,9 +50,9 @@ ii.  Setting up the code for examples in a clear and well-organized manner, i.e.
 
 ### Typesetting Math
 
-Please do take a look at the [LaTeX guides](#res:latex) above, as it is easy to do this right and very annoying to redo if you do it wrong.
+Please do take a look at the [LaTeX guides](#a1-res:latex) above, as it is easy to do this right and very annoying to redo if you do it wrong.
 
-One extremely useful LaTeX feature is the ability to define macros for commonly used commands.  I strongly encourage you to use macros whenever possible.  Not only does this save a considerable amount of typing, but also often an enormous amount of search-replacing.  For example, suppose I have a canonical transformation function which I'll be using throughout the document, but I'm not quite sure how to typeset it yet.  So I define the LaTeX macro `\ctran` and use it.  If later I want to redefine how `\ctran` is typeset that's an extremely easy fix.
+One extremely useful LaTeX feature is the ability to define macros for commonly used commands.  I strongly encourage you to use macros whenever possible.  Not only does this save a considerable amount of typing, but also often an enormous amount of search-replacing.  For example, suppose I have a canonical transformation function which I'll be using throughout the document, but I'm not quite sure how to typeset it yet.  So I define the LaTeX macro `\ctran{}` and use it.  If later I want to redefine how `\ctran{}` is typeset that's an extremely easy fix.
 
 Another useful LaTeX trick is to use simple patterns to define macros for common things.  For example, I always define bold letter names (which you should use for anything that isn't a scalar) as `\xx` `\YY`, etc., and bold symbol names as `\aal` for $\boldsymbol{\alpha}$, `\TTh` for $\boldsymbol{\Theta}$, etc. 
 
@@ -60,6 +60,6 @@ As a rule-of-thumb, **avoid** defining one-letter macros.  The worst LaTeX mista
 
 For this project, LaTeX is rendered to HTML via [Mathjax](https://www.mathjax.org/), and thus the macros must be defined a bit differently than in regular LaTeX.  All LaTeX macros must be defined in [`preamble.html`](preamble.html).
 
-### Citations
+### Citations {#a1-citations}
 
-For external websites it's sufficient to provide a link as I've done in this document.  For journal articles, textbooks, conference proceedings etc. it's good practice to provide the complete citation information (in addition to a link to the resource if it can be obtained legally for free).  For such references please use [BibTeX](https://en.wikibooks.org/wiki/LaTeX/Bibliography_Management) with a module specific bibliography file `my_module_references.bib`.  Here's an example with the textbook for this class [@gelman2013bayesian].  Please see how to add multple `.bib` files to `index.Rmd` [here](https://bookdown.org/yihui/bookdown/citations.html).
+For external websites it's sufficient to provide a link as I've done in this document.  For journal articles, textbooks, conference proceedings etc. it's good practice to provide the complete citation information (in addition to a link to the resource if it can be obtained legally for free).  For such references please use [BibTeX](https://en.wikibooks.org/wiki/LaTeX/Bibliography_Management) with a module specific bibliography file `my_module_references.bib`.  Here's an example [@gelman2013bayesian].  Please see how to add multple `.bib` files to `index.Rmd` [here](https://bookdown.org/yihui/bookdown/citations.html).

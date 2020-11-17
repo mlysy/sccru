@@ -2,17 +2,21 @@
 
 *Author: Martin Lysy, Trang Bui*
 
-*Last Updated: Nov 09, 2020*
+*Last Updated: Nov 17, 2020*
 
-$$~$$
+--- 
 
-## General
+## General {#a2-general}
 
-- Let's agree to use regular font for programming languages (e.g., R, Python, C++) and bold font for packages and libraries (e.g., **TMB**, **rstan**, **NumPy**, **Tensorflow**).
+- Let's agree to use regular font for programming languages (e.g., R, Python, C++) and bold font for packages and libraries (e.g., **TMB**, **rstan**, **NumPy**, **Tensorflow**). Use `data` format for datasets, codes and arguments. For functions, use parentheses at the end, for example, `data()`. Use curly brackets `\bm{}` for LaTeX functions.
 
-- Please see Appendix [B.2.3][Citations] for how to handle citations.
+- Paste a link to packages which are mentioned for the first time. For R packages, you can use the `cran_link()` function to do this. For example, `r cran_link("rstan")`.
 
-- To refer to figures/tables/sections, the standard academic style is e.g., "Figure 2", "Section 2.5", etc.  In other words, capital letter, no bold/italics, and hyperlink for the number.  See relevant **bookdown** [chapter](https://bookdown.org/yihui/bookdown/figures.html) for how to do this!
+- Please see Appendix [B.2.3](#a1-citations) for how to handle citations.
+
+- To refer to figures/tables/sections, the standard academic style is e.g., "Figure 2", "Section 2.5", etc.  In other words, capital letter, no bold/italics, and hyperlink for the number.  See relevant **bookdown** [chapter](https://bookdown.org/yihui/bookdown/figures.html) for how to do this! 
+
+- To make cross referencing consistent in bookdown, for all labels, including r chunks, figures, tables, sections, equations, etc., use the prefix of the corresponding file as the prefix of any label. For example, use lablel `#a2-general` for this section.  
 
 - Paragraph breaks are simply indicated by one ore more empty lines.  No need for `\newline` or anything else.  This applies to elements other than text such as figures, math blocks etc.  If the figure/math block/etc is part of the paragraph, don't leave blank spaces before or after^[An exception to this is possibly within an indented region.  There you may need to leave a blank space before/after math block...I'm not 100% sure...].
 
@@ -23,6 +27,14 @@ $$~$$
     - If the items in the list are complete sentences, begin the first word in each item with a capital-case letter and end the item with period.
     - If the items are single words and phrases, begin the first word in each item with a lower-case letter and end with a colon. Use "and" (or "or", depending on the context of the list) after the next-to-last item, and use a period after the last item in the list.
     - If the items are phrases or clauses with punctuations in them, put a semicolon at the end of each item. Put "and" (or "or") after the next-to-last item in the list and period for the last item. The items are not capitalized. 
+    
+- For indentation, use four spaces before your paragraph or code chunk or equation. This will be very helpful when you have an item in an intemized list which contains more than one paragraphs or equations or code chunks.
+
+- For code chunk that takes long time to run, use `cache=TRUE` to prevent the chunk to be executed again unless the code in the chunk has been altered. More details can be found [here](https://bookdown.org/yihui/rmarkdown-cookbook/cache.html).
+
+- Use the package `r cran_link("styler")` to make the formatting of your code consistent. To do this, run the function `styler::style_file()` for your module's Rmarkdown file. Do not set the option `tidy = "styler"` to your chunk code to prevent caching issues. The details of the package can be found [here](https://styler.r-lib.org/).  
+
+- Use "" instead of '' for quotes.
 
 ## Math
 
@@ -32,19 +44,19 @@ $$~$$
 
 - Equations are part of sentences, so use punctuation in them, e.g., for observations $\XX = (\rv X N)$ such that
 
-$$
+    $$
 	\begin{aligned} 
 	X_i \mid \mu_i & \ind \N(\mu_i, \sigma_i^2) \\
 	\mu_i & \iid \N(0, \tau^2).
 	\end{aligned}
-	(\#eq:mathex)
-$$
+	(\#eq:a2-mathex)
+    $$
 
 ### Commonly-Used Math and Stats Expressions
 
 - Sequences of random variables: $X_1, \ldots, X_N$.  In fact since these are so common, I've created a macro for it: $\rv Y 5$ and $\rv [m,0] Z {m,N_m}$.
 
-- For multi-line equations with alignment, use `aligned` environment as in \@ref(eq:mathex).
+- For multi-line equations with alignment, use `aligned` environment as in \@ref(eq:a2-mathex).
 
 - The "d" in integrals:
     $$
@@ -63,6 +75,6 @@ $$
 	$$
 	The last of these is used for Hessian matrices.
 
-- Independent/IID/Normal: Please see \@ref(eq:mathex).
+- Independent/IID/Normal: Please see \@ref(eq:a2-mathex).
 
 - Variance/Covariance/Correlation: $\var(X), \cov(X), \cor(X)$.
