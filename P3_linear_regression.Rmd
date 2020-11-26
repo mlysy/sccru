@@ -2,7 +2,7 @@
 
 *Author: Ferris Zhu, Joslin Goh, Trang Bui*
 
-*Last Updated: Nov 25, 2020*
+*Last Updated: Nov 26, 2020*
 
 --- 
 
@@ -43,7 +43,9 @@ econ <- econmath[complete.cases(econmath), ]
 
 ### Variables
 
-- Dependent/Response/Explained/Predicted Variable: It is the variable we want to study, usually denoted as $y$ in linear models. In our case, the dependent variable is `score`. 
+- Dependent/Response/Explained/Predicted Variable: It is the variable we want to study, usually denoted as $y$ in linear models. In our case, the dependent variable is `score`. For a normal linear regression model, the dependent variable needs to be continuous.
+
+- Continuous data type takes any value over a continuous range. We can have measurement units for it. In R continuous data is usually defined as `num` or `int`.
 
 - Independent/Control/Explanatory/Predictor Variables: They are factors which may influence the dependent variable, denoted as $X$ in linear models. In the data set `econ`, we have factors of different data types.
     
@@ -74,7 +76,7 @@ econ <- econ[, -c(13, 14)] # remove the attgood and attexc column
 econ$mathscr <- factor(econ$mathscr, ordered = TRUE)
         ```
     
-We can check the structure of the new dat set `econ`.
+We can check the structure of the new dat set `econ`. Notice how it is different from the the `econmath` data set. 
 
 ```{r}
 str(econ)
@@ -98,7 +100,9 @@ $$
 y_i = \beta_0 + \beta_1 x_i + \epsilon_i, \quad \epsilon_i \overset{iid}{\sim} \N(0, \sigma^2)
 $$
 
-with the assumptions $\E(\epsilon_i | x) = 0$, $\var(\epsilon_i | x) = \sigma^2$. "Linear" means "linear in parameters", so
+with the assumptions $\E(\epsilon_i | x) = 0$, $\var(\epsilon_i | x) = \sigma^2$. This is called the simple linear regression model. 
+
+"Linear" here means "linear in parameters", so
 $$
 \log(y_i) = \beta_0 + \beta_1 \log(x_i) + \epsilon_i,
 $$
@@ -121,7 +125,7 @@ A simple linear regression model has the following assumptions.
 
 ###Estimation
 
-Suppose we are interested to know how a change in College GPA (`colgpa`) can change a student's final score (`score`), we can fit a simple linear regression model in R as follows:
+Suppose we are interested to know how a change in college GPA (`colgpa`) can change a student's final score (`score`), we can fit a simple linear regression model in R as follows:
 ```{r p3-slm, cache=TRUE}
 slm <- lm(score ~ colgpa, data = econ)
 ```
@@ -176,7 +180,7 @@ In our example, the result shows that the $p$-value for $\hat{\beta}_1$ is $< 2e
 summary(slm)
 ```
 
-###Confidence Interval
+###Confidence Interval {#p3-confint1}
 
 We can further study the confidence interval of $\beta_1$. It can be shown that
 $$
@@ -224,13 +228,13 @@ The construction of a confidence interval for $\beta_0$ is completely analogous.
 
 - Find the quantile such that $\Pr(|(\beta_0 - \hat\beta_0)/s_0| < q) = 1 - \alpha$ and then get the CI: $\hat\beta_0 \pm q s_0$.
 
-In R, we can get the confidence interval for the parameters by using the function `confint()`. For example, 95\% confidence intervals of $\beta_0$ and $\beta_1$ from the above `slm` model is
+In R, we can get the confidence interval for the parameters by using the function `confint()`. For example, 95\% confidence intervals of $\beta_0$ and $\beta_1$ from the above `slm` model are
 
 ```{r}
 confint(slm, level = 0.95)
 ```
 
-###Model Checking {#p3-modelcheck1}
+###Model Checking 
 
 After having fit the model, it is important that we check that the [assumptions](#p3-slm-assumption) of our model are satisfied. 
 
@@ -333,14 +337,39 @@ qqnorm(eps, main = "Perfect Linear Model", pch = 16, cex = .7)
 qqline(eps, col = "red", lty = 2)
 ```
 
+####Power transformation {#p3-powertransform}
 
 In R, we can plot the residuals vs. fitted values and the QQ plots by the simple command below
 ```{r}
-par(mfrow = c(1, 2)) # two plots side-by-side in a row
 plot(slm, which = c(1, 2), ask = FALSE)
 ```
 
+From the plots, normality assumption is satisfied since the points form a relatively good straight line. However, the residuals vs. fitted plot shows that the variability of our residuals seem to decrease as the fitted values increase, instead of having a constant variability. This is an example of the [heteroskedasticity](https://en.wikipedia.org/wiki/Heteroscedasticity) problem. 
 
+One solution to this problem is to use [power transformation](https://en.wikipedia.org/wiki/Power_transform). In R, we can find the best power transformation for the dependent variable using the `boxcox()` function.
+
+```{r}
+tmp <- boxcox(slm)
+```
+
+The best power transformation has the power
+
+```{r}
+tmp$x[which.max(tmp$y)]
+```
+
+So we can transform `score` to `score^2` so that we have a model that satisfy the homoskedasticity assumption. 
+
+```{r p3-transform, cache=TRUE}
+slm2 <- lm(score^2 ~ colgpa, data = econ)
+summary(slm2)
+```
+
+```{r}
+plot(slm2, which = c(1, 2), ask = FALSE)
+```
+
+Now we see that we have a better horizontal band of residuals. However, be aware that with power transformation, the interpretation of the model is different. Each unit increase in `colgpa` will lead to 1992.70 increase in the square of scorem, `score^2`, not `score`. 
 
 ### Simple Linear Regression vs Two-Sample $t$ Test
 
@@ -350,7 +379,7 @@ In ANOVA we have a categorical variable with different groups, and we attempt to
 
 Problems of ANOVA are in fact problems of linear regression in which the design matrix has a very special form. In other words, the study of ANOVA can be placed within the framework of linear models. ANOVA and linear regression are essentially equivalent when the two models test against the same hypotheses and use the same categorical variable.
 
-When the independent variable is a binary variable, the simple linear regression is equivalent to a two-sample $t$ test.
+When the independent variable is a binary variable, the simple linear regression is equivalent to a two-sample $t$ test, or a one-way ANOVA with two levels.
 
 Consider the example where $y =$ `score` and $x =$ `econhs`. 
 
@@ -369,7 +398,7 @@ $$
 
 ## Multiple Linear Regression
 
-The primary drawback in using simple linear regression is that it is very difficult to draw [*ceteris paribus*](https://en.wikipedia.org/wiki/Ceteris_paribus) (all things being equal) conclusions about how $x$ affects $y$. The key assumption -- that all other factors affecting $y$ are uncorrelated with $x$ -- is often unrealistic. Usually, we will want to incorporate more than one variables in our model.
+The primary drawback in using simple linear regression is that it is very difficult to draw [*ceteris paribus*](https://en.wikipedia.org/wiki/Ceteris_paribus) ("all things being equal") conclusions about how $x$ affects $y$. The key assumption -- that all other factors affecting $y$ are uncorrelated with $x$ -- is often unrealistic. Usually, we will want to incorporate more than one variables in our model.
 
 The multiple linear regression model with $n$ samples and $p$ independent varaibles can be written as
 $$
@@ -398,7 +427,7 @@ $$
 \hat\sigma^2 = \frac{\eeps'\eeps}{n-p}.
 $$
 
-### A "Partialling-Out" Interpretation {p3-partialling}
+### A "Partialling-Out" Interpretation {#p3-partialling}
 For example, if we only have 2 covariates `colgpa` and `hsgpa` in our model, the fitted model is written as
 $$
 \hat y_i = \hat\beta_0 + \hat\beta_1 colgpa + \hat\beta_2 hsgpa.
@@ -416,7 +445,7 @@ mln1 <- lm(score ~ colgpa + hsgpa, data = econ)
 summary(mln1)
 ```
 
-In this example, keeping `hsgpa` fixed, one unit increase in `colgpa` leads to an average increase of 12.6668 in `score`. Since the $p$-value for `colgpa` is less than $\alpha = 0.05$, we declare that `colgpa` is significant at 5\% level. 
+In this example, keeping `hsgpa` fixed, one unit increase in `colgpa` leads to an average increase of 12.6668 in `score`. Since the $p$-value for `colgpa` is less than $\alpha = 0.05$, we declare that `colgpa` is significant at 5\% level. The confidence intervals can be obtained in the same fashion as in Section [3.2.4](#p3-confint1).
 
 ###Interaction Effects
 Interaction can be introduced between any type of covaraites, i.e. continuous and continuous, continuous and discrete, discrete and discrete. For example, if we only have two covaraite: `colgpa` (continuous) and `calculus` (binary). We may fit a model with `calculus` as an additive main effects:
@@ -488,10 +517,9 @@ There are several ways to select a model:
 
 The algorithms above do not necessarily produce the same results. In general, backward elimination tends to perform better than forward selection. Stepwise selection is a compromise between the two approaches which can add or drop a variable at any stage. After the automatic selection, we may still need to do manual selection based on model selection criteria, such as  [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion), [$R^2$](https://en.wikipedia.org/wiki/Coefficient_of_determination) etc. These algorithms can be conducted using the R package `r cran_link("leaps")`.
 
-Another way to select the model is to use [*lasso*](https://en.wikipedia.org/wiki/Lasso_(statistics)). This minimizes the sum of the squared errors with a penalty term on the parameters. 
+Another way to select the model is to use [*LASSO*](https://en.wikipedia.org/wiki/Lasso_(statistics)). This minimizes the sum of the squared errors with a penalty term on the parameters. 
 $$
 SSE_{L_1} = \sum_{i=1}^n (y_i - \hat y_i)^2 + \lambda \sum_{i=1}^p |\beta_j|.
-
 $$
 The effect of this model is that, only "significant" indepedent variables will have nonzero coefficients. In R, we can fit lasso regression using the **glmnet** package. 
 
@@ -504,7 +532,7 @@ Mfull <- lm(score ~ (. - acteng - actmth)^2, data = econ)
 # stepwise selection
 Mstart <- lm(score ~ . - acteng - actmth, data = econ)
 Mstep <- step(object = Mstart, scope = list(lower = M0, upper = Mfull), direction = "both", trace = FALSE)
-summary(Mstep)
+summary(Mstep) # model chosen by stepwise selection
 ```
 
 ### Model Diagnostics
@@ -527,39 +555,13 @@ Here, if a pair of variables has a more blue circle, it will have a strong posit
 
 ####Homoscedasticity and Normality
 
-We can check homoscedasticity and normality in the same fashion as in [simple linear regression](#p3-modelcheck1)
+We can check homoscedasticity and normality with the same command as in Section [3.2.5.4](#p3-powertransform). 
 
 ```{r}
-par(mfrow = c(1, 2))
 plot(Mstep, which = c(1, 2), ask = FALSE)
 ```
 
-In our case, even though the normal plot looks fine, meaning our normality assumption is satisfied, the residuals vs. fitted plot shows that the variance of our residuals seem to decrease as the fitted values increase. To solve this problem, we can use [power transformation](https://en.wikipedia.org/wiki/Power_transform). In R, we can find the best power transformation for the dependent variable using the `boxcox()` function.
-
-```{r}
-tmp <- boxcox(Mstep)
-tmp$x[which.max(tmp$y)]
-```
-
-So we can transform `score` to `score^{1.9}` so that we have a model that satisfy the homoskedasticity assumption. 
-
-```{r p3-transform, cache=TRUE}
-mln4 <- lm(score^1.9 ~ age + work + study + econhs + colgpa + hsgpa +
-  act + male + calculus + mothcoll + age:study + econhs:hsgpa +
-  study:act + age:calculus + hsgpa:mothcoll + econhs:male +
-  colgpa:male + male:calculus + work:act + act:calculus + hsgpa:act,
-data = econ
-)
-summary(mln4)
-```
-
-```{r}
-par(mfrow = c(1, 2))
-plot(mln4, which = c(1, 2), ask = FALSE)
-```
-
-
-Now we see that we have a better horizontal band of residuals. However, be aware that with power transformation, the interpretation of the model is different. For example, each unit increase in `age` will lead to 68.5864 increase in `score^{1.9}`. 
+We can see the same problem from Section [3.2.5.4](#p3-powertransform) that the varibility of the residuals are not constant with respect the the fitted values (heteroskedasticity). We can proceed in the same fashion using power transformation as in Section [3.2.5.4](#p3-powertransform) to try solve this problem. 
 
 ####Multicolinearity
 
@@ -592,9 +594,9 @@ More advanced issues we didn't cover in this tutorial:
 
 - How to do general hypothesis testing in multiple linear regression?
 
-- How to deal with heteroscedasticity? (Robust test, Weighted least squares estimation etc.)
+- How to deal with *heteroscedasticity*? (Robust test, Weighted least squares estimation etc. besides power transformation)
 
-- How to interpret *influential* points (PRESS statistic, DFFITS residuals)? How to deal with outliers?
+- How to interpret *influential* points (PRESS statistic, DFFITS residuals, etc. besides leverage and Cook's distance)? How to deal with outliers?
 
 - How to deal with functional form misspecification? And further, how to do nonlinear regression?
 

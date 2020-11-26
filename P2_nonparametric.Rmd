@@ -369,7 +369,7 @@ The `p.adjust.method` argument can be used to adjust for running multiple hypoth
 
 Some options include  `"bonferroni"`, `"BH"`,   `"fdr"`, and `"none"`. 
 For a full list run the line `?PMCMRplus::frdAllPairsExactTest` to get the help page for this function. To read more about p-value adjustments and the multiple testing problem, see [here](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6099145/), [here](https://towardsdatascience.com/the-multiple-comparisons-problem-e5573e8b9578) and [here](https://en.wikipedia.org/wiki/Multiple_comparisons_problem).
-```{r}
+```{r, cache=TRUE}
 PMCMRplus::kwManyOneDunnTest(Petal.Length ~ Species, data = iris)
 ```
 
