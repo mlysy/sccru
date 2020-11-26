@@ -1,0 +1,606 @@
+#Introduction to Linear Regression
+
+*Author: Ferris Zhu, Joslin Goh, Trang Bui*
+
+*Last Updated: Nov 25, 2020*
+
+--- 
+
+##Introduction
+
+The goal of this tutorial is to introduce linear regression, an important model which are widely used in data analysis. The reasons for its popularity are
+
+- it is easy to implement;
+- the model assumptions are often found satisfactory among many datasets; and 
+- the interpretation of each parameter in the model is easy and lear.
+
+When the assumptions of the linear regression model are satisfied, the linear regression model is powerful in inference and interpretation.  
+
+### Motivating Example
+
+Throughout this tutorial, we will be considering the data set `econmath` from the R package `r cran_link("wooldridge")`. To load the data, check the data structure and preview the data set by using the following commands:
+
+```{r, warning=FALSE}
+library("wooldridge") # load the package wooldridge
+data("econmath") # load the data econmath
+```
+
+```{r}
+str(econmath) # structure of the data set
+```
+
+```{r}
+head(econmath) # preview of the data set
+```
+
+Based on the information from this data set, we want to answer the question: "What factors significantly affect a student’s score in a course?". To do this, we will try to find how the variable `score`, i.e., the final score in an economic course measured as a percentage, can be "explained" by other variables.
+
+The data set contains some missing data. In this tutorial, we will only analyse the data points that are complete. So we will discard the data points with missing field and gather them in a new data set `econ`.
+
+```{r}
+econ <- econmath[complete.cases(econmath), ]
+```
+
+### Variables
+
+- Dependent/Response/Explained/Predicted Variable: It is the variable we want to study, usually denoted as $y$ in linear models. In our case, the dependent variable is `score`. 
+
+- Independent/Control/Explanatory/Predictor Variables: They are factors which may influence the dependent variable, denoted as $X$ in linear models. In the data set `econ`, we have factors of different data types.
+    
+    - Continuous: `age` (years), `work` (hours), `study` (hours), `colgpa` (college GPA), `hsgpa` (high school GPA), `acteng` (ACT English score), `actmth` (ACT math score), `act` (ACT composite score).
+    
+    - Binary: `male` (=1 if male), `econhs` (=1 if taken economics), `calculus` (=1 if taken calculus), `fathcoll` (=1 if father has BA), `mothcoll` (=1 if mother has BA).
+    
+        ```{r}
+econ$male <- factor(econ$male)
+econ$econhs <- factor(econ$econhs)
+econ$calculus <- factor(econ$calculus)
+econ$fathcoll <- factor(econ$fathcoll)
+econ$mothcoll <- factor(econ$mothcoll)
+        ```
+ 
+    - Categorical/ordinal: We will make a factor `att`(=2 if past attendence 'excellent'; =1 if past attendence 'good'; =0 if otherwise) from two factors `attexc` (=1 if past attendence is excellent) and `attgood` (=1 if past attendence is good).
+    
+        ```{r}
+econ$att <- econ$attgood
+econ$att[econ$attexc == 1] <- 2
+econ$att <- factor(econ$att)
+econ <- econ[, -c(13, 14)] # remove the attgood and attexc column
+        ```
+
+    - Likert scale: `mathscr` (math quiz score, 0-10 scale) 
+    
+        ```{r}
+econ$mathscr <- factor(econ$mathscr, ordered = TRUE)
+        ```
+    
+We can check the structure of the new dat set `econ`.
+
+```{r}
+str(econ)
+```
+
+###List of R packages Used
+
+In this tutorial, we will be using the packages `r cran_link("corrplot")`, `r cran_link("lmtest")`, and `r cran_link("MASS")`. Use the line `install.packages(c("corrplot","caret","glmnet"))` to install required packages for this document. To install individual packages, use the line `install.packages("package name")`, e.g. `install.packages("corrplot")`.
+
+```{r, warning=FALSE}
+# load the required packages
+library(corrplot)
+library(lmtest)
+library(MASS)
+```
+
+## Simple Linear Regression
+
+Suppose we are interested to know how an indepedent variable $x$ affects $y$ and we have a *random* sample of size $n$ \{$(x_i, y_i)$: $i=1,\ldots, n$\} following the model
+$$
+y_i = \beta_0 + \beta_1 x_i + \epsilon_i, \quad \epsilon_i \overset{iid}{\sim} \N(0, \sigma^2)
+$$
+
+with the assumptions $\E(\epsilon_i | x) = 0$, $\var(\epsilon_i | x) = \sigma^2$. "Linear" means "linear in parameters", so
+$$
+\log(y_i) = \beta_0 + \beta_1 \log(x_i) + \epsilon_i,
+$$
+is still a simple linear model.
+
+### Assumptions {#p3-slm-assumption}
+A simple linear regression model has the following assumptions.
+
+- The covariates $x = (x_1, \ldots, x_n)$ are fixed and known.
+
+- The model parameters $\beta_0, \beta_1, \sigma$ are fixed but unknown.
+
+- We have a random sample of responses $y = (y_1, \ldots, y_n)$.
+
+- The conditional mean of the response $y_i$ is a linear function: $\E(y_i|x_i) = \beta_0 + \beta_1 x_i$. Equivalently, $\E(\epsilon_i | x_i) = 0.$
+
+- The conditional variance of $y_i$ is constant: $\var(y_i | x_i) = \sigma^2$. (Equivalently, $\var(\epsilon_i | x_i) = \sigma^2$.)
+
+- The errors $\epsilon_i = y_i - \beta_0 - \beta_1 x_i$ are $iid$ normals, i.e. $\epsilon_i \overset{iid}{\sim} \N(0, \sigma^2)$.
+
+###Estimation
+
+Suppose we are interested to know how a change in College GPA (`colgpa`) can change a student's final score (`score`), we can fit a simple linear regression model in R as follows:
+```{r p3-slm, cache=TRUE}
+slm <- lm(score ~ colgpa, data = econ)
+```
+Then we can check the results by
+```{r}
+summary(slm)
+```
+
+It can be shown that the estimators of coefficients $\beta_0$ and $\beta_1$ are
+$$
+\begin{aligned}
+\hat\beta_1 &= \frac{\sum_{i=1}^n (y_i - \bar{y}_n)(x_i - \bar{x}_n)}{\sum_{i=1}^n (x_i - \bar{x}_n)^2} = \frac{s_{xy}}{s_{xx}} = \hat\rho_{xy} \frac{\hat{\sigma}_y}{\hat{\sigma}_x} , \\
+\hat{\beta}_0 &= \bar{y}_n - \hat\beta_1 \bar{x}_n.
+\end{aligned}
+$$
+where $\bar{x}_n = \frac 1n \sum_{i=1}^n x_i$ and $\bar{y}_n = \frac 1n \sum_{i=1}^n y_i$
+$$
+\begin{aligned}
+s_{xx} &= \frac{1}{n-1}\sum_{i=1}^n (x_i - \bar{x}_n)^2 \qquad \hat{\sigma}_x = \sqrt{s_{xx}}\\
+s_{xy} &= \frac{1}{n-1} \sum_{i=1}^n (y_i - \bar{y}_n)(x_i - \bar{x}_n) \qquad \hat{\sigma}_y = \sqrt{s_{xy}} \\
+\hat\rho_{xy} &= \frac{s_{xy}}{\hat{\sigma}_x \hat{\sigma}_y}
+\end{aligned}
+$$
+
+We can check the estimated coefficients by:
+```{r}
+slm$coefficients
+```
+We can interpret this result as "1 point increase in College GPA will lead to 14.32 points increase in the course grade".
+
+###Hypothesis Testing 
+Suppose we want to know if the effect of `colgpa` is significant. 
+
+- Specify a null hypothesis, e.g. $H_0 : \beta_1 = 0$.
+
+- Look at the data $y$ and try to find a test statistics $T = T(y)$ such that extreme values of $T$ would be unlikely if $H_0$ were true. Besides, we need to know the distribution of $T$ under $H_0$. In our case, by likelihood ratio test method, $\hat\beta_1 / s_1$ can be chosen (with $s_1 = \hat\sigma / s_{xx}$).
+    $$
+    \hat\beta_1 / s_1 | H_0 \sim t_{(n-2)}.
+    $$
+
+- If $T_{obs}$ is the particular value of the test statistic calculated for our dataset $y_{obs}$, then 
+    $$
+    p = \Pr(T > T_{obs} | H_0)
+    $$
+    which is called the $p$-value, is the probability that a new, randomly selected dataset $y$ will have a more extreme value of the the test statistic than $y_{obs}$.
+
+- Choose a level of significance $\alpha$, usually 0.05 (5\%), and compare the $p$-value with $\alpha$. If $p < \alpha$, we reject the null hypothesis $H_0: \beta_1 = 0$ at $\alpha = 5\%$ significance level.
+
+In our example, the result shows that the $p$-value for $\hat{\beta}_1$ is $< 2e-16$, which is less than $\alpha = 0.05$, so we declare that the effect of `colgpa` is significant, or, we reject the null hypothesis that there is no effect of `colgpa` at $5\%$ significance level. 
+
+```{r}
+summary(slm)
+```
+
+###Confidence Interval
+
+We can further study the confidence interval of $\beta_1$. It can be shown that
+$$
+\hat\beta_1 \sim \N(\beta_1, \frac{\sigma^2}{s_{xx}})
+$$
+
+If $\sigma$ is known, let $\sigma_1 = \sigma / \sqrt{s_{xx}}$, then $Z = (\beta_1 - \hat\beta_1)/\sigma_1 \sim \N(0, 1)$. The $95$\% confidence interval of $\beta_1$ is given by
+$$
+\left[ \hat\beta_1 - 1.96 \sigma_1,\quad \hat\beta_1 + 1.96 \sigma_1 \right]
+$$
+
+If $\sigma$ is unknown, we use the unbiased estimator $\hat\sigma^2 = \frac{1}{n-2} \sum_{i=1}^n e_i^2$ where $e_i = y_i - \hat{y}_i$. It can be proved that $(n-2)\hat\sigma^2 / \sigma^2 \sim \chi^2_{n-2}$ which is independent of $\hat\beta_1$. Thus
+$$
+\frac{Z}{\sqrt{\hat\sigma^2 / \sigma^2}} = \frac{\beta_1 - \hat\beta_1}{\hat\sigma / \sqrt{s_{xx}}} \sim t_{(n-2)}
+$$
+
+We can build a ($1-\alpha$)-level confidence interval for $\beta_1$ as follows:
+
+- Find the quantile such that
+    $$
+    \Pr(\left| \frac{\beta_1 - \hat\beta_1}{\hat\sigma / \sqrt{s_{xx}}} \right| \leq q) = 1 - \alpha. 
+    $$
+    Note here $t_{n-2}$ is symmetric. 
+
+- Construct the CI. Let $s_1 = \hat\sigma / s_{xx}$
+    $$
+    \begin{aligned}
+    1 - \alpha &= \Pr\left(-q < \frac{\beta_1 - \hat\beta_1}{\hat\sigma / \sqrt{s_{xx}}} < q \right) \\
+    &= \Pr\left( \hat\beta_1 - q s_1 < \beta_1 < \hat\beta_1 + q s_1 \right)
+    \end{aligned}
+    $$
+
+The construction of a confidence interval for $\beta_0$ is completely analogous.
+
+- Start by writing $\hat\beta_0 = \bar{y} - \hat\beta_1 \bar{x}$ as a linear combinantion of $y_i$ and we can find
+    $$
+    \hat\beta_0 \sim \N\left(\beta_0, \sigma^2 (\frac 1n + \frac{\bar{x}^2}{s_{xx}})\right)
+    $$
+
+- Find the pivot quantity and its distribution (If $\sigma$ is unknown).
+    $$
+    \frac{\beta_0 - \hat\beta_0}{s_0} \sim t_{(n-2)}
+    $$
+    where $s_0 = \hat\sigma \sqrt{1/n + \bar{x}^2 / s_{xx}}$.
+
+- Find the quantile such that $\Pr(|(\beta_0 - \hat\beta_0)/s_0| < q) = 1 - \alpha$ and then get the CI: $\hat\beta_0 \pm q s_0$.
+
+In R, we can get the confidence interval for the parameters by using the function `confint()`. For example, 95\% confidence intervals of $\beta_0$ and $\beta_1$ from the above `slm` model is
+
+```{r}
+confint(slm, level = 0.95)
+```
+
+###Model Checking {#p3-modelcheck1}
+
+After having fit the model, it is important that we check that the [assumptions](#p3-slm-assumption) of our model are satisfied. 
+
+####Linear Trend
+
+To check the linear trend in the data, i.e. $\E(y|x) = \beta_0 + \beta_1 x$, we can use scatterplot with the fitted line or residuals vs fitted values. In the perfect case you should see a clear linear trend.
+
+    ```{r, cache = TRUE}
+n <- nrow(econ)
+x <- econ$colgpa
+y <- econ$score
+# we can first create a perfect linear model as a contrast
+x0 <- rnorm(n) # predictors
+eps <- rnorm(n) # errors
+y0 <- 1 + x0 + eps
+plm <- lm(y0 ~ x0)
+    ```
+
+The linear trend plot of our simple linear model looks like the below
+
+```{r}
+plot(x, y, pch = 16, cex = .7, xlab = "x", ylab = "y", main = "Simple Linear Model")
+abline(slm, col = "red")
+```
+
+The linear trend plot of the perfect linear model looks like the below
+
+```{r plot_plm1, echo=FALSE}
+plot(x0, y0, pch = 16, cex = .7, xlab = "x", ylab = "y", main = "Perfect Linear Model")
+abline(plm, col = "red")
+```
+
+####Conditional Homoskedasticity
+
+To check conditional homoskedasticity, i.e. $\var(\epsilon | x) = \sigma^2$, we can plot a scatterplot of residuals and fitted values. In the perfect case, you should see a horizontal band of residuals evenly distributed along with the fitted values.
+
+The residuals vs. fitted plot of our simple linear model looks like the below
+
+```{r}
+plot(
+  x = predict(slm), y = residuals(slm), # R way of calculating these
+  pch = 16, cex = .7,
+  xlab = "Fitted Values", ylab = "Residuals", main = "Simple Linear Model"
+)
+abline(h = 0, col = "red", lty = 2) # add horizontal line
+```
+
+The residuals vs. fitted plot of the perfect linear model looks like the below
+
+```{r}
+plot(
+  x = predict(plm), y = residuals(plm), # R way of calculating these
+  pch = 16, cex = .7,
+  xlab = "Fitted Values", ylab = "Residuals", main = "Perfecr Linear Model"
+)
+abline(h = 0, col = "red", lty = 2) # add horizontal line
+```
+
+####Normality
+
+To check normality of residuals, i.e. $\epsilon_i \sim \N(0, \sigma^2)$, we can plot a histogram of standardized residuals or a QQ-plot. In the perfect case, you should see a normal histogram and a straight QQ line.
+
+The residual histogram of our simple linear model looks like the below
+
+```{r}
+zres <- studres(slm)
+nbr <- 40 # may dramatically affect the histogram
+hist(zres,
+  breaks = nbr, # number of bins
+  freq = FALSE, # make area under hist = 1 (as opposed to counts)
+  xlab = "Standardized Residuals", main = "Simple Linear Model"
+)
+# add a standard normal curve for reference
+curve(dnorm, add = TRUE, col = "red")
+```
+
+The residual histogram of the perfect linear model looks like the below
+
+```{r}
+hist(eps,
+  breaks = nbr, # number of bins
+  freq = FALSE, # make area under hist = 1 (as opposed to counts)
+  xlab = "Standardized Residuals", main = "Perfect Linear Model"
+)
+# add a standard normal curve for reference
+curve(dnorm, add = TRUE, col = "red")
+```
+
+The QQ plot of our simple linear model looks like the below
+
+```{r}
+qqnorm(zres, main = "Simple Linear Model", pch = 16, cex = .7)
+qqline(zres, col = "red", lty = 2)
+```
+
+The QQ plot of the perfect linear model looks like the below
+
+```{r}
+qqnorm(eps, main = "Perfect Linear Model", pch = 16, cex = .7)
+qqline(eps, col = "red", lty = 2)
+```
+
+
+In R, we can plot the residuals vs. fitted values and the QQ plots by the simple command below
+```{r}
+par(mfrow = c(1, 2)) # two plots side-by-side in a row
+plot(slm, which = c(1, 2), ask = FALSE)
+```
+
+
+
+### Simple Linear Regression vs Two-Sample $t$ Test
+
+Analysis of variance (ANOVA) is a collection of statistical models and their associated procedures (such as "variation" among and between groups) used to analyze the differences among group means.
+
+In ANOVA we have a categorical variable with different groups, and we attempt to determine whether the measurement of a continuous variable differs between groups. On the other hand, linear regression tends to assess the relationship between a continuous response variable and one or multiple explanatory variables.
+
+Problems of ANOVA are in fact problems of linear regression in which the design matrix has a very special form. In other words, the study of ANOVA can be placed within the framework of linear models. ANOVA and linear regression are essentially equivalent when the two models test against the same hypotheses and use the same categorical variable.
+
+When the independent variable is a binary variable, the simple linear regression is equivalent to a two-sample $t$ test.
+
+Consider the example where $y =$ `score` and $x =$ `econhs`. 
+
+- Group I: `econhs` $= 1$, students who have taken economics in high school; 
+- Group II: `econhs` $= 0$, students who have not taken economics in high school.
+
+We can fit a simple linear regression model: 
+$$ 
+y_i = \beta_0 + \beta_1 x_i + \epsilon_i.
+$$
+
+The $t$ statistic (with unknown $\sigma$) for testing $H_0: \beta_1 = 0$ is equivalent to that of a two-sample $t$ test, i.e.
+$$
+t = \frac{\bar{x}_1 - \bar{x}_2}{s_1 \sqrt{\frac{1}{n_1} + \frac{1}{n_2}}} \sim t(n_1 + n_2 - 2)
+$$
+
+## Multiple Linear Regression
+
+The primary drawback in using simple linear regression is that it is very difficult to draw [*ceteris paribus*](https://en.wikipedia.org/wiki/Ceteris_paribus) (all things being equal) conclusions about how $x$ affects $y$. The key assumption -- that all other factors affecting $y$ are uncorrelated with $x$ -- is often unrealistic. Usually, we will want to incorporate more than one variables in our model.
+
+The multiple linear regression model with $n$ samples and $p$ independent varaibles can be written as
+$$
+y_i = \beta_0 + \beta_1 x_{i1} + \ldots + \beta_p x_{ip} + \epsilon_i,
+$$
+with $\epsilon_i \overset{iid}{\sim} \N(0, \sigma^2)$. We can also write the model in matrix notation:
+$$
+\yy = \XX \bbe + \eeps, \quad \eeps \sim \N(\bz, \sigma^2 \II)
+$$
+where $\yy$ is an $n \times 1$ vector, $\bbe$ is a $p \times 1$ vector of parameters and $\XX$ is an $n \times p$ matrix, called "model matrix" or "design matrix".
+
+###Estimation
+It can be shown (by OLS or MLE) that
+$$
+\hat\bbe = (\XX' \XX)^{-1} \XX' \yy, \quad \hat\bbe \sim \N(\bbe, \sigma^2 (\XX'\XX)^{-1})
+$$
+
+Consequently, the fitted response vector is given by
+$$
+\hat\yy = \XX \hat\bbe = \XX (\XX' \XX)^{-1} \XX' \yy = \HH \yy
+$$
+where $\HH$ is called the *hat* matrix which is in fact a projection matrix. From the point of view of geometry, the vector of fitted value $\hat\yy$ is the orthogonal projection of the data vector $\yy$ onto the column space of $\XX$.
+
+The residuals vector is given by $\eeps = \yy - \hat\yy = (\II - \HH) \yy$. Actually $\II - \HH$ is another orthogonal projection matrix onto the space orthogonal to the column space of $\XX$. The unbiased estimator of $\sigma^2$: 
+$$ 
+\hat\sigma^2 = \frac{\eeps'\eeps}{n-p}.
+$$
+
+### A "Partialling-Out" Interpretation {p3-partialling}
+For example, if we only have 2 covariates `colgpa` and `hsgpa` in our model, the fitted model is written as
+$$
+\hat y_i = \hat\beta_0 + \hat\beta_1 colgpa + \hat\beta_2 hsgpa.
+$$
+One way to express $\hat\beta_1$ is 
+$$
+\hat\beta_1 = \frac{\sum_{i=1}^n \hat{r}_{i1} y_i }{\sum_{i=1}^n \hat{r}_{i1}^2 },
+$$
+where $\hat{r}_{i1}$ are the OLS residuals from a simple linear regression of `colgpa` on `hsgpa`.
+
+The power of multiple regression analysis is that it provides a ceteris paribus interpretation even though the data have not been collected in a ceteris paribus fashion. $\hat\beta_1$ quantifies the effect of `colgpa` on `score` with `hsgpa` being fixed.
+
+```{r p3-mln-ex1, cache=TRUE}
+mln1 <- lm(score ~ colgpa + hsgpa, data = econ)
+summary(mln1)
+```
+
+In this example, keeping `hsgpa` fixed, one unit increase in `colgpa` leads to an average increase of 12.6668 in `score`. Since the $p$-value for `colgpa` is less than $\alpha = 0.05$, we declare that `colgpa` is significant at 5\% level. 
+
+###Interaction Effects
+Interaction can be introduced between any type of covaraites, i.e. continuous and continuous, continuous and discrete, discrete and discrete. For example, if we only have two covaraite: `colgpa` (continuous) and `calculus` (binary). We may fit a model with `calculus` as an additive main effects:
+$$
+y_i = \beta_0 + \beta_1 colgpa_i + \beta_2 I(calculus_i = 1) + \epsilon_i 
+$$
+Then the model in fact gives two parallel regression lines. That is
+$$
+\begin{aligned}
+&\E[score | colgpa = s_2, calc = yes] - \E[score | colgpa = s_1, calc = yes] \\
+= & \E[score | colgpa = s_2, calc = no] - \E[score | colgpa = s_1, calc = no] \\
+= & \beta_1 (s_2 - s_1)
+\end{aligned}
+$$
+
+```{r p3-mln-ex2, cache=TRUE}
+mln2 <- lm(score ~ colgpa + calculus, data = econ)
+summary(mln2)
+```
+
+
+If we wish to know whether the impact of `colgpa` on `score` would be different or not if a student has taken calculus before, we need to introduce the interaction term:
+$$
+y_i = \beta_0 + \beta_1 colgpa_i + \beta_2 I(calculus_i = 1) + \beta_3 (colgpa \cdot I(calculus_i = 1)) + \epsilon_i 
+$$
+
+For the group who have taken calculus before, the intercept is $\beta_0 + \beta_2$ and the slope is $\beta_1 + \beta_3 \cdot colgpa$. For the other group who have not taken calculus, the intercept is $\beta_0$ and the slope is $\beta_1$. Here, $\beta_2$ measures the difference in `score` between the two groups when `colgpa = 0`.
+
+```{r p3-mln-ex3, cache=TRUE}
+mln3 <- lm(score ~ colgpa * calculus, data = econ)
+summary(mln3)
+```
+
+We should be aware that the estimation errors of $\hat\beta_1$ and $\hat\beta_2$ would be significantly enlarged by introducing the interaction term. This is due to that `colgpa` and `calculus` are highly correlated with `colgpa:calculus`. Even if the t-test for $\beta_1$ (or $\beta_2$) is not significant, we cannot just claim the effect of `colgpa` (or `calculus`) is not significant.
+
+There are two interesting questions we may ask:
+
+- Is the effect of `colgpa` on `score` the same for the two groups of students? This question leads to a hypothesis testing problem: $H_0: \beta_3 = 0$. Note that this hypothesis puts no restrictions on the difference in $\beta_2$. A difference in `score` between the two groups is allowed under this null, but it must be the same at all levels of college GPA points. In the `mln3` output, since we have the $p$ value for `colgpa:calculus1` is greater than $\alpha = 0.05$, we declare that the effect of `colgpa` on `score` is the same for the two groups of students at 5\% significance level.
+
+- Is the average `score` identical for the two groups of students who have the same levels of `colgpa`? This leads question to a hypothesis testing $H_0: \beta_2 = \beta_3 = 0$ which requires a likelihood ratio test. In R, we can conduct the test by comparing two models 
+    $$
+    y_i = \beta_0 + \beta_1 colgpa_i + \epsilon_i 
+    $$
+    where $\beta_2 = \beta_3 = 0$ and the full original model that we consider from above 
+    $$
+    y_i = \beta_0 + \beta_1 colgpa_i + \beta_2 I(calculus_i = 1) + \beta_3 (colgpa \cdot I(calculus_i = 1)) + \epsilon_i 
+    $$
+    We will use the `lrtest()` function from R package **lmtest** with the first argument being the smaller (nested) model and the argument being the bigger model. 
+    ```{r}
+lrtest(slm, mln3)
+    ```
+    The $p$-value $1.153e-10$ is less than $\alpha = 0.05$, so we declare at 5\% significant level that the average `score` is identical for the two groups of students who have the same levels of `colgpa`.
+       
+###Model Selection
+
+The dataset `econ` has 15 independent variables, our linear regression models can contain any combination of these variables or their interaactions. That requires us to choose the best combination, i.e., the best model, that can help explain the econ final score, i.e., the dependent variable `score`. A good model should
+
+- fit the observed data well. This means that the model should explain the dependent variable very well. In linear regression, this means "minimizes the residual sum of squares."
+
+- not overfit the data. The model should be capable of making good out-of-sample predictions for new observations.
+
+Be aware that there is a trade off between "explanatory" vs "predictive power". Sometimes (e.g. in machine learning), all you care about is that the model makes good predictions. However, sometimes (e.g. in econometrics) it is also important to interpret the model. This has been why even in the era of machine learning, linear regression model is still very popular in many researches. 
+
+There are several ways to select a model:
+
+- forward selection,
+- backward selection,
+- stepwise selection,
+
+The algorithms above do not necessarily produce the same results. In general, backward elimination tends to perform better than forward selection. Stepwise selection is a compromise between the two approaches which can add or drop a variable at any stage. After the automatic selection, we may still need to do manual selection based on model selection criteria, such as  [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion), [$R^2$](https://en.wikipedia.org/wiki/Coefficient_of_determination) etc. These algorithms can be conducted using the R package `r cran_link("leaps")`.
+
+Another way to select the model is to use [*lasso*](https://en.wikipedia.org/wiki/Lasso_(statistics)). This minimizes the sum of the squared errors with a penalty term on the parameters. 
+$$
+SSE_{L_1} = \sum_{i=1}^n (y_i - \hat y_i)^2 + \lambda \sum_{i=1}^p |\beta_j|.
+
+$$
+The effect of this model is that, only "significant" indepedent variables will have nonzero coefficients. In R, we can fit lasso regression using the **glmnet** package. 
+
+In this tutorial, we will only use the `step()` function in R to do stepwise selection
+```{r p3-stepwise, cache = TRUE}
+# bounds for model selection
+M0 <- lm(score ~ 1, data = econ) # minimal model: intercept only
+# maximal model: all main effects and all interaction effects except with career
+Mfull <- lm(score ~ (. - acteng - actmth)^2, data = econ)
+# stepwise selection
+Mstart <- lm(score ~ . - acteng - actmth, data = econ)
+Mstep <- step(object = Mstart, scope = list(lower = M0, upper = Mfull), direction = "both", trace = FALSE)
+summary(Mstep)
+```
+
+### Model Diagnostics
+
+####Scatterplot 
+
+Scatterplot is always the first step which helps us check the linear relationships among our variables.
+
+```{r, cache=TRUE}
+# Linear relationships among variables
+pairs(~ age + work + study + colgpa + hsgpa + acteng + actmth + act + score, data = econ)
+```
+
+```{r, cache=TRUE, out.width = '80%'}
+tmp <- data.matrix(econ[, c(1:3, 5:9, 16)])
+corrplot(cor(tmp), method = "circle")
+```
+
+Here, if a pair of variables has a more blue circle, it will have a strong positive linear relationship, and if a pair of variables has a more red circle, it will have a strong negative linear relationship.
+
+####Homoscedasticity and Normality
+
+We can check homoscedasticity and normality in the same fashion as in [simple linear regression](#p3-modelcheck1)
+
+```{r}
+par(mfrow = c(1, 2))
+plot(Mstep, which = c(1, 2), ask = FALSE)
+```
+
+In our case, even though the normal plot looks fine, meaning our normality assumption is satisfied, the residuals vs. fitted plot shows that the variance of our residuals seem to decrease as the fitted values increase. To solve this problem, we can use [power transformation](https://en.wikipedia.org/wiki/Power_transform). In R, we can find the best power transformation for the dependent variable using the `boxcox()` function.
+
+```{r}
+tmp <- boxcox(Mstep)
+tmp$x[which.max(tmp$y)]
+```
+
+So we can transform `score` to `score^{1.9}` so that we have a model that satisfy the homoskedasticity assumption. 
+
+```{r p3-transform, cache=TRUE}
+mln4 <- lm(score^1.9 ~ age + work + study + econhs + colgpa + hsgpa +
+  act + male + calculus + mothcoll + age:study + econhs:hsgpa +
+  study:act + age:calculus + hsgpa:mothcoll + econhs:male +
+  colgpa:male + male:calculus + work:act + act:calculus + hsgpa:act,
+data = econ
+)
+summary(mln4)
+```
+
+```{r}
+par(mfrow = c(1, 2))
+plot(mln4, which = c(1, 2), ask = FALSE)
+```
+
+
+Now we see that we have a better horizontal band of residuals. However, be aware that with power transformation, the interpretation of the model is different. For example, each unit increase in `age` will lead to 68.5864 increase in `score^{1.9}`. 
+
+####Multicolinearity
+
+If two covariates are highly correlated, the regression has trouble figuring out whether the change in $y$ is due to one covariate or the other. Thus estimates of $\beta$ can change a lot from one random sample to another. This phenomenon is known as *variance inflation*. We can detect colinearity by checking the [*variance inflation factor* (VIF)](https://en.wikipedia.org/wiki/Variance_inflation_factor).
+
+```{r, results='hide'}
+X <- model.matrix(Mstep)
+VIF <- diag(solve(cor(X[, -1])))
+sqrt(VIF)
+```
+
+One example of the interpretation is that, the standard error for the coefficient for `age` is 2.3 times larger than if that predictor variable had 0 correlation with the other predictor variables.
+
+####Outliers detection
+
+Outliers are observations which have unusually large residuals compared to the others. These can be detected using the [leverage](https://en.wikipedia.org/wiki/Leverage_(statistics)) and [Cook's distance](https://en.wikipedia.org/wiki/Cook%27s_distance). In R, we can plot them by the following command
+
+```{r}
+par(mfrow = c(1, 2))
+plot(Mstep, which = c(4, 5), ask = FALSE)
+```
+
+Obsrvations with high Cook's distance will have a high influence on the output of the regression model, which can be shown in the first plot. Observations with high leverage will be far away from other observations. In the second plot, we can detect outliers by points that lie outside of the red contours of Cook's distance. In our case, we are fine as there are no points like that in the plot. 
+
+It is relatively rare that outlier observations should be deleted to improve the model's fit, as it is almost always the model which is wrong.
+
+##Further Extensions
+
+More advanced issues we didn't cover in this tutorial:
+
+- How to do general hypothesis testing in multiple linear regression?
+
+- How to deal with heteroscedasticity? (Robust test, Weighted least squares estimation etc.)
+
+- How to interpret *influential* points (PRESS statistic, DFFITS residuals)? How to deal with outliers?
+
+- How to deal with functional form misspecification? And further, how to do nonlinear regression?
+
+- Other special topics: proxy variables, instrumental variables, measurement errors, missing data, nonrandom samples etc.
+
+- Sometimes our data may vary across time and we may collect samples from a series of time points. We may further need to study time series analysis, panel data/longitudinal data. 
+
+### Recommendations
+The introductory level book by [@wooldridge] is a great starting point. It is classic, comprehensive and full of examples. But it is mainly from the perspective of econometricans. If you are more interested in the machine learning perspective of linear regression, another great book is [@ESL]. For an elegant theorectical description from a statistician, please see [@agresti].

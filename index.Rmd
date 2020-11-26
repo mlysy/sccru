@@ -7,7 +7,7 @@ date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 biblio-style: apalike
 link-citations: true
-bibliography: ["references.bib"]
+bibliography: ["references/a1-ref.bib", "references/p3-ref.bib"]
 output: 
   bookdown::gitbook:
     fig_caption: yes

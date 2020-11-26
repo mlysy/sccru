@@ -44,7 +44,7 @@ Some terms used in this document may be unclear, here is a glossary of the terms
 
 Use the line `install.packages(c("coin","PMCMRplus","boot","caret","randomForest","e1071","inTrees","DescTools", "dunn.test"))` to install required packages for this document. To install individual packages, use the line `install.packages("package name")`, e.g. `install.packages("coin")`. 
 
-Throughout this document we will use the iris data as an example. 
+Throughout this document we will use the `iris` data as an example. 
 ```{r}
 data(iris) # loads the dataset
 summary(iris) # displays summary statistics
