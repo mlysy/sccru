@@ -58,19 +58,19 @@ econ <- econmath[complete.cases(econmath), ]
 
 ### Variables
 
-- Dependent/Response/Explained/Predicted Variable: This is the variable that we want to study, usually denoted as $y$ in linear regression models. In our case, the dependent variable is `score`. For a normal linear regression model, the dependent variable needs to be continuous.
+- Dependent/Response/Explained/Predicted Variable: This is the variable that we want to study, usually denoted as $y$ in linear regression models. In our case, the dependent variable is `score`. For a [normal](https://en.wikipedia.org/wiki/Normal_distribution) linear regression model, the dependent variable needs to be continuous.
 
-- Independent/Control/Explanatory/Predictor Variables: They are factors which may influence the dependent variable, denoted as $X$ in linear models. These variables can be of different data types, continuous or discrete. 
+- Independent/Control/Explanatory/Predictor Variables: They are factors which may influence the dependent variable, denoted as $X$ in linear models. These variables can be of different data types, continuous or categorical. 
 
 - Continuous data type takes any value over a continuous range. We can have measurement units for it. In R, continuous data is usually defined as `num` or `int`. In the data set `econ`, there are variables that should be treated as continuous. These are `age` (years), `work` (hours worked per week), `study` (hours studying per week), `colgpa` (college GPA at the beginning of the semester), `hsgpa` (high school GPA), `acteng` (ACT English score), `actmth` (ACT math score), and `act` (ACT composite score). 
 
-- Discrete data type only takes values over a finite set of values (levels), while continuous data type has infinite possible values over a continuous range. In the data set `econ`, there are variables that should be treated as discrete, such as `male` (gender of the student, only takes in 2 values, 0 for female and 1 for male), `mathscr` (math quize score, only takes in 11 values from 0 to 1). However, R is treating all these variables as continuous. In fact, we can see how R define each variable in the data set using the function `str()`.
+- Categorical data type only takes values over a finite set of values (levels), while continuous data type has infinite possible values over a continuous range. In the data set `econ`, there are variables that should be treated as categorical, such as `male` (gender of the student, only takes in 2 values, 0 for female and 1 for male), `mathscr` (math quize score, only takes in 11 values from 0 to 1). However, R is treating all these variables as continuous. In fact, we can see how R define each variable in the data set using the function `str()`.
     ```{r}
 str(econ) # structure of the data set
     ```
-    To convert a variable into discrete data type in R, we use function `factor()`.
+    To convert a variable into categorical data type in R, we use function `factor()`.
     
-    - Binary variables are discrete variables that takes in only 2 values, 1 or 0. In the data set `econ`, we have `male` (=1 if male), `econhs` (=1 if taken economics), `calculus` (=1 if taken calculus), `fathcoll` (=1 if father has BA), and `mothcoll` (=1 if mother has BA).
+    - Binary variables are categorical variables that takes in only 2 values, 1 or 0. In the data set `econ`, we have `male` (=1 if male), `econhs` (=1 if taken economics), `calculus` (=1 if taken calculus), `fathcoll` (=1 if father has BA), and `mothcoll` (=1 if mother has BA).
         ```{r}
 econ$male <- factor(econ$male)
 econ$econhs <- factor(econ$econhs)
@@ -78,11 +78,11 @@ econ$calculus <- factor(econ$calculus)
 econ$fathcoll <- factor(econ$fathcoll)
 econ$mothcoll <- factor(econ$mothcoll)
         ```
-    - Variables with more than 2 levels: In the data set `econ`, there are two variables that indicate attendence: `attexc` (=1 if past attendence is excellent) and `attgood` (=1 if past attendence is good). It will make sense if we combine these two variables into one variable for attendence `att`(=2 if past attendence 'excellent'; =1 if past attendence 'good'; =0 if otherwise).
+    - Categorical variables with more than 2 levels: In the data set `econ`, there are two variables that indicate attendence: `attexc` (=1 if past attendence is excellent) and `attgood` (=1 if past attendence is good). It will make sense if we combine these two variables into one variable for attendence `att`(=2 if past attendence 'excellent'; =1 if past attendence 'good'; =0 if otherwise).
         ```{r}
 econ$att <- econ$attgood # 1 if past attendence is good
 econ$att[econ$attexc == 1] <- 2 # 2 if past attendence is excellent
-econ$att <- factor(econ$att) # turn att in to discrete variable
+econ$att <- factor(econ$att) # turn att in to categorical variable
 econ <- econ[, -c(13, 14)] # remove the attgood and attexc column
         ```
         
@@ -91,7 +91,7 @@ econ <- econ[, -c(13, 14)] # remove the attgood and attexc column
 econ$mathscr <- factor(econ$mathscr, ordered = TRUE)
         ```
 
-We can now check the structure of the new dat set `econ`. Notice how it is different from the origial `econmath` data set. The discrete variables are now treated as discrete (`Factor`) in R.  
+We can now check the structure of the new dat set `econ`. Notice how it is different from the origial `econmath` data set. The categorical variables are now treated as categorical (`Factor`) in R.  
 
 ```{r}
 str(econ)
@@ -397,7 +397,7 @@ summary(mln1)
 
 In a multiple linear regression model, the independent variables can have "combined" effect, which can be modeled as "interaction" among variables.
 
-Interaction can be introduced into the multiple regression model between any type of covaraites, i.e. continuous and continuous, continuous and discrete, discrete and discrete. For example, if we only have two covaraite: `colgpa` (continuous) and `calculus` (binary). We may fit a model with `calculus` as an additive main effects:
+Interaction can be introduced into the multiple regression model between any type of covaraites, i.e. continuous and continuous, continuous and categorical, categorical and categorical. For example, if we only have two covaraite: `colgpa` (continuous) and `calculus` (binary). We may fit a model with `calculus` as an additive main effects:
 $$
 y_i = \beta_0 + \beta_1 colgpa_i + \beta_2 I(calculus_i = 1) + \epsilon_i 
 $$
