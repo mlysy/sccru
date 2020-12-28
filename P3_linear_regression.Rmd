@@ -1,8 +1,8 @@
 #Introduction to Linear Regression
 
-*Author: Ferris Zhu, Joslin Goh, Trang Bui*
+*Author: Ferris Zhu, Joslin Goh, Trang Bui, Glen McGee*
 
-*Last Updated: Nov 26, 2020*
+*Last Updated: Dec 27, 2020*
 
 --- 
 
@@ -103,23 +103,33 @@ Consider the case where we are interested to know how an indepedent variable $x$
 $$
 y_i = \beta_0 + \beta_1 x_i + \epsilon_i, \quad \epsilon_i \overset{iid}{\sim} \N(0, \sigma^2)
 $$
+
+In this model, the values of the indepedent variable $x$ in the data set $x = (x_1, \ldots, x_n)$ are fixed and known while the model parameters $\beta_0, \beta_1, \sigma$ are fixed but unknown.
+
 Here, $\beta_0$ represents the average response for $y$ if the value of $x$ is 0, $\beta_1$ represents the average affect of 1 unit of $x$ to the response $y$, and $\epsilon$, which is usually called the "errors", is the part of $y$ that is not explained by $\beta_0$, $\beta_1$ and $x$. 
 
 ### Assumptions {#p3-slm-assumption}
-A simple linear regression model has the following assumptions.
+A simple linear regression model has the LINE assumptions.
 
-- The values of the indepedent variable $x$ in the data set $x = (x_1, \ldots, x_n)$ are fixed and known.
-
-- The model parameters $\beta_0, \beta_1, \sigma$ are fixed but unknown.
-
-- Given the value $x_i$, the [expectation](https://en.wikipedia.org/wiki/Expected_value) of the response $y_i$ is a linear function: 
+- L-inearity: given the value $x_i$, the [expectation](https://en.wikipedia.org/wiki/Expected_value) of the response $y_i$ is a linear function: 
     $$
 \E(y_i|x_i) = \beta_0 + \beta_1 x_i
     $$
 
-- The errors $\epsilon_i = y_i - \beta_0 - \beta_1 x_i$ are [independently and identically distrbuted](https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables) with [normal distribution](https://en.wikipedia.org/wiki/Normal_distribution), i.e. $\epsilon_i \overset{iid}{\sim} \N(0, \sigma^2)$. This means, besdies the part that can be explained by $x$, the remaining part of the response $y$, which is represented by the error $\epsilon$, is randomly normal with mean zero and constant variance.
+- I-ndependence: the errors $\epsilon_i = y_i - \beta_0 - \beta_1 x_i$ are [independently and identically distrbuted](https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables) 
+
+- N-ormality: the errors $\epsilon_i$ follow [normal distribution](https://en.wikipedia.org/wiki/Normal_distribution).
+
+- E-qual variance: the errors $\epsilon_i$ has mean zero and constant variance.
+
+The INE assumptions can be summarized with
+    $$
+\epsilon_i \overset{iid}{\sim} \N(0, \sigma^2)
+    $$
 
 ###Estimation {#p3-slm-est}
+
+In the simple linear model above, the coefficients $\beta_0$ and $\beta_1$ are unknown, so we need to estimate them. 
 
 Suppose we are interested to know how a change in college GPA (`colgpa`) can change a student's final score (`score`), we can fit a simple linear regression model in R as follows:
 ```{r p3-slm, cache=TRUE}
@@ -130,13 +140,27 @@ Then we can get the estimates of the model coefficients $\beta_0$ and $\beta_1$ 
 coef(slm)
 ```
 
-We can interpret this result as "1 point increase in College GPA will lead to an average of 14.32 points increase in the course grade".
+We can interpret this result as "if a student's college GPA increase by 1 point, their final score will increase on average by 14.32 points".
 
-###Hypothesis Testing
+###Inference
 
-Even though we have obtained a value for $\beta_1$, it is just an estimate that depends on the data set that we have. If we want to make a more general conclusion that "college GPA affects the economics final score", we need to do [hypothesis testing](https://en.wikipedia.org/wiki/Statistical_hypothesis_testing).
+However, the above values of $\beta_0$ and $\beta_1$ are only estimates, they depend on the data we collect and are not necessarily the true parameters, i.e., they are inherently uncertain. We will refer to these as $\hat{\beta}_0$, $\hat{\beta}_1$. How can we quantify this uncertainty and evaluate these estimates?
 
-We first pose the [null hypothesis](https://en.wikipedia.org/wiki/Exclusion_of_the_null_hypothesis) that there is no effect of `colgpa`, i.e., $H_0 : \beta_1 = 0$.
+####Variances
+
+[Variance](https://en.wikipedia.org/wiki/Variance) give information about the uncertainty of a variable. And [covariance](https://en.wikipedia.org/wiki/Covariance) measures the joint variability of two variables. As explained above, $\hat{\beta}_0$ and $\hat{\beta}_1$ are subject to variabilities, hence, we can use variance and covariance to quantify these variabilities.  
+
+In fact, R gives the estimates of the variances and covariance of $\hat{\beta}_0$ and $\hat{\beta}_1$ by the function `vcov()`. This function will give a matrix where the diagonals are the estimated variances and the off-diagonals are the estimated covariance.
+```{r}
+vcov(slm)
+```
+Here, the estimated variance of $\hat{\beta}_0$ and $\hat{\beta}_1$ are $4.072$ and $0.497$ respectively, and their estimated covariance is $-1.397$. 
+
+#### Hypothesis Testing {#p3-slm-hyp}
+
+Even though we have obtained a value for $\beta_1$, it is just an estimate that depends on the data set that we have. If we want to answer the question "do we have evidence that college GPA is associated with the final score?", we need to do [hypothesis testing](https://en.wikipedia.org/wiki/Statistical_hypothesis_testing].
+
+If we want to find evidence that college GPA is associated with the final score, equivalently we want to challenge the hypothesis that there is no association between college GPA and final score. This is called the [null hypothesis](https://en.wikipedia.org/wiki/Exclusion_of_the_null_hypothesis) $H_0 : \beta_1 = 0$, i.e., there is no association between `colgpa` and `score`.
 
 Then, to test this null hypothesis, we use the test statistics 
 $$
@@ -156,17 +180,21 @@ In R, we can easily do this hypothesis testing procedure by looking at the summa
 ```{r}
 summary(slm)
 ```
-We can see that, the $p$-value for $\hat{\beta}_1$ is $< 2e-16$, which is less than $\alpha = 0.05$, so we declare that the effect of `colgpa` is significant, or, we reject the null hypothesis that there is no effect of `colgpa` at $5\%$ significance level.
+We can see that, the $p$-value for $\hat{\beta}_1$ is $< 2e-16$, which is less than $\alpha = 0.05$. Hence, we can declare that the effect of `colgpa` is significant, or, we reject the null hypothesis that there is no effect of `colgpa` at $5\%$ significance level.
 
-###Confidence Interval {#p3-confint1}
+If on the contrary, the $p$-value for $\hat{\beta}_1$ is $> \alpha = 0.05$, we do not reject the null hypothesis that there is no effect of `colgpa` at $5\%$ significance level, or the effect of `colgpa` is not significant at $5\%$ level.
 
-The confidence interval of $\beta_1$ is the interval that the true value of $\beta_1$ lie in with a specified percentage of chance. 
+####Confidence Interval {#p3-slm-conf}
 
-The ($1-\alpha$)100\% confidence interval for $\beta_1$, i.e., the interval that the true value of $\beta_1$ lie in with ($1-\alpha$)100\% chance, is given by
+The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) of $\beta_1$ is the interval that the true value of $\beta_1$ lie in with a specified percentage of chance. 
+
+The ($1-\alpha$)100\% confidence interval for $\beta_1$, is given by
 $$
 \left( \hat\beta_1 + t(n-2)_{\frac{\alpha}{2}} \sqrt{\var(\hat{\beta}_1)},\quad \hat\beta_1 + t(n-2)_{1 - \frac{\alpha}{2}} \sqrt{\var(\hat{\beta}_1)} \right)
 $$
 where $t(n-2)_q$ is the $q$ [quantile](https://en.wikipedia.org/wiki/Quantile) of the $t$ distribution with $n-2$ degrees of freedom. Confidence interval for $\beta_0$ is calculated similarly.
+
+To be precise, *repeating* the experiment, or data collection will give us different data, and different confidence intervals. But if we construct the confidence intervals in the above way, 95\% of these intervals will contain the true values of $\beta_1$ (or $\beta_0$).
 
 In R, we can get the confidence intervals for the parameters by using the function `confint()`. For example, 95\% confidence intervals of $\beta_0$ and $\beta_1$ from the above `slm` model are
 
@@ -176,7 +204,7 @@ confint(slm, level = 0.95)
 
 ###Model Checking 
 
-After having fit the model, it is important that we check that the [assumptions](#p3-slm-assumption) of our model are satisfied. 
+After having fitted the model, it is important that we check that the [assumptions](#p3-slm-assumption) of our model are satisfied in order to verify that our model is valid. 
 
 ####Linear Trend
 
@@ -202,35 +230,25 @@ abline(slm, col = "red")
 
 The linear trend plot of the perfect linear model looks like the below
 
-```{r plot_plm1, echo=FALSE}
+```{r plot_plm1}
 plot(x0, y0, pch = 16, cex = .7, xlab = "x", ylab = "y", main = "Perfect Linear Model")
 abline(plm, col = "red")
 ```
 
-####Conditional Homoskedasticity
+####Independence of Residuals
 
-To check conditional homoskedasticity, i.e. $\var(\epsilon | x) = \sigma^2$, we can plot a scatterplot of residuals and fitted values. In the perfect case, you should see a horizontal band of residuals evenly distributed along with the fitted values.
+The plot of residuals against its order in the data set is usually used to check the independence of residuals. If the independence assumption is satisfied, we should see a horizontal band around 0 with no specific pattern. 
 
-The residuals vs. fitted plot of our simple linear model looks like the below
+The residual plot of our simple linear model looks like the below
 
 ```{r}
-plot(
-  x = predict(slm), y = residuals(slm), # R way of calculating these
-  pch = 16, cex = .7,
-  xlab = "Fitted Values", ylab = "Residuals", main = "Simple Linear Model"
-)
-abline(h = 0, col = "red", lty = 2) # add horizontal line
+plot(resid(slm))
 ```
 
-The residuals vs. fitted plot of the perfect linear model looks like the below
+The linear trend plot of the perfect linear model looks like the below
 
 ```{r}
-plot(
-  x = predict(plm), y = residuals(plm), # R way of calculating these
-  pch = 16, cex = .7,
-  xlab = "Fitted Values", ylab = "Residuals", main = "Perfecr Linear Model"
-)
-abline(h = 0, col = "red", lty = 2) # add horizontal line
+plot(resid(plm))
 ```
 
 ####Normality
@@ -277,7 +295,33 @@ qqnorm(eps, main = "Perfect Linear Model", pch = 16, cex = .7)
 qqline(eps, col = "red", lty = 2)
 ```
 
-####Power transformation {#p3-powertransform}
+####Conditional Homoskedasticity
+
+To check conditional homoskedasticity (constant variance), i.e. $\var(\epsilon | x) = \sigma^2$, we can plot a scatterplot of residuals and fitted values. In the perfect case, you should see a horizontal band of residuals evenly distributed along with the fitted values.
+
+The residuals vs. fitted plot of our simple linear model looks like the below
+
+```{r}
+plot(
+  x = predict(slm), y = residuals(slm), # R way of calculating these
+  pch = 16, cex = .7,
+  xlab = "Fitted Values", ylab = "Residuals", main = "Simple Linear Model"
+)
+abline(h = 0, col = "red", lty = 2) # add horizontal line
+```
+
+The residuals vs. fitted plot of the perfect linear model looks like the below
+
+```{r}
+plot(
+  x = predict(plm), y = residuals(plm), # R way of calculating these
+  pch = 16, cex = .7,
+  xlab = "Fitted Values", ylab = "Residuals", main = "Perfecr Linear Model"
+)
+abline(h = 0, col = "red", lty = 2) # add horizontal line
+```
+
+#####Power Transformation {#p3-powertransform}
 
 In R, we can plot the residuals vs. fitted values and the QQ plots by the simple command below
 ```{r}
@@ -306,17 +350,9 @@ plot(slm2, which = c(1, 2), ask = FALSE)
 ```
 Now we can see that we have a better horizontal band of residuals. However, be aware that with power transformation, the interpretation of the model is different. Each unit increase in `colgpa` will lead to 1992.70 increase in the square of economics score, `score^2`, not `score`. 
 
-### Simple Linear Regression, ANOVA, and Two-Sample $t$ Test
+### Simple Linear Regression on a Binary Covariate
 
-Analysis of variance ([ANOVA](https://en.wikipedia.org/wiki/Analysis_of_variance)) is a collection of statistical models and their associated procedures (such as "variation" among and between groups) used to analyze the differences among group means.
-
-In ANOVA we have a categorical variable with different groups, and we attempt to determine whether the measurement of a continuous variable differs between groups. On the other hand, linear regression tends to assess the relationship between a continuous response variable and one or multiple explanatory variables.
-
-Problems of ANOVA are in fact problems of linear regression in which the variables are categorical. In other words, the study of ANOVA can be placed within the framework of linear models. ANOVA and linear regression are essentially equivalent when the two models test against the same hypotheses and use the same categorical variable.
-
-When the independent variable is a binary variable, the simple linear regression is equivalent to a [two-sample $t$ test](https://en.wikipedia.org/wiki/Student%27s_t-test#Independent_two-sample_t-test) with equal variance assumption, or a [one-way ANOVA](https://en.wikipedia.org/wiki/One-way_analysis_of_variance) with two levels.
-
-Consider the example where $y =$ `score` and $x =$ `econhs`. 
+Consider the example where $y =$ `score` and $x =$ `econhs`. The covariate `econhs` is a binary variable with: 
 - Group I: `econhs` $= 1$, students who have taken economics in high school; 
 - Group II: `econhs` $= 0$, students who have not taken economics in high school.
 
@@ -325,8 +361,11 @@ We can fit a simple linear regression model
 slm3 <- lm(score ~ econhs, data = econ)
 summary(slm3)
 ```
+The result of simple linear regression gives us an estimate of $-0.9519$ for the linear coefficient of $\hat{\beta}_1$, i.e., if the student has taken economics in high school, their score will be on average 0.952 less. The p-value associated with this estimate is 0.326, which is greater than $\alpha = 0.05$, we conclude that `econhs` is not significant at $5\%$, or we do not reject the null hypothesis that `econhs` does not have any association with `score` at 5\% of significance level.
 
-or run a $t$-test of the scores between students who took economics class in high school and students who did not
+When the independent variable is a binary variable, the simple linear regression is equivalent to a [two-sample $t$ test](https://en.wikipedia.org/wiki/Student%27s_t-test#Independent_two-sample_t-test) with equal variance assumption, or a [one-way ANOVA](https://en.wikipedia.org/wiki/One-way_analysis_of_variance) with two levels.
+
+We can run a $t$-test of the scores between students who took economics class in high school and students who did not
 ```{r}
 t.test(econ$score[econ$econhs == 1], econ$score[econ$econhs == 0],
   var.equal = TRUE
@@ -338,7 +377,13 @@ or run a anova
 summary(aov(score ~ econhs, data = econ))
 ```
 
-We can see that the $p$-values for of these procedures are all equal at 0.326. 
+We can see that the $p$-values for of these procedures are all equal at 0.326, i.e., these procedures are equivalent.
+
+On another note, Analysis of Variance ([ANOVA](https://en.wikipedia.org/wiki/Analysis_of_variance)) is a collection of statistical models and their associated procedures (such as "variation" among and between groups) used to analyze the differences among group means. 
+
+In ANOVA we have a categorical variable with different groups, and we attempt to determine whether the measurement of a continuous variable differs between groups. On the other hand, linear regression tends to assess the relationship between a continuous response variable and one or multiple explanatory variables. 
+
+Problems of ANOVA are in fact problems of linear regression in which the variables are categorical. In other words, the study of ANOVA can be placed within the framework of linear models. ANOVA and linear regression are essentially equivalent when the two models test against the same hypotheses and use the same categorical variable.
 
 ## Multiple Linear Regression {#p3-mlm}
 
@@ -387,7 +432,7 @@ coef(mln1)
 
 The power of multiple regression analysis is that it provides a [*ceteris paribus*](https://en.wikipedia.org/wiki/Ceteris_paribus) ("all things being equal") interpretation even though the data have not been collected in a ceteris paribus fashion. In the model [`mln1`](#p3-mlm-est) above, $\hat\beta_1$ quantifies the effect of `colgpa` on `score` with `hsgpa` being fixed.
 
-Hence in the model `mln1`, keeping `hsgpa` fixed, one unit increase in `colgpa` leads to an average increase of 12.6668 in `score`. Since the $p$-value for `colgpa` is less than $\alpha = 0.05$, we declare that `colgpa` is significant at 5\% level. The confidence intervals can be obtained in the same fashion as in Section [3.2.4](#p3-confint1).
+Hence in the model `mln1`, keeping `hsgpa` fixed, one unit increase in `colgpa` leads to an average increase of 12.6668 in `score`. Since the $p$-value for `colgpa` is less than $\alpha = 0.05$, we declare that `colgpa` is significant at 5\% level. The confidence intervals can be obtained in the same fashion as in Section [3.2.4](#p3-slm-conf).
 
 ```{r}
 summary(mln1)
@@ -461,12 +506,6 @@ There are several ways to select a model:
 - stepwise selection,
 
 The algorithms above do not necessarily produce the same results. In general, backward elimination tends to perform better than forward selection. Stepwise selection is a compromise between the two approaches which can add or drop a variable at any stage. After the automatic selection, we may still need to do manual selection based on model selection criteria, such as  [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion), [$R^2$](https://en.wikipedia.org/wiki/Coefficient_of_determination) etc. These algorithms can be conducted using the R package `r cran_link("leaps")`.
-
-Another way to select the model is to use [*LASSO*](https://en.wikipedia.org/wiki/Lasso_(statistics)). This minimizes the sum of the squared errors with a penalty term on the parameters. 
-$$
-SSE_{L_1} = \sum_{i=1}^n (y_i - \hat y_i)^2 + \lambda \sum_{i=1}^p |\beta_j|.
-$$
-The effect of this model is that, only "significant" indepedent variables will have nonzero coefficients. In R, we can fit lasso regression using the **glmnet** package. 
 
 In this tutorial, we will only use the `step()` function in R to do stepwise selection
 ```{r p3-stepwise, cache = TRUE}
