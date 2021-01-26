@@ -2,7 +2,7 @@
 
 *Author: Ferris Zhu, Joslin Goh, Trang Bui, Glen McGee*
 
-*Last Updated: Dec 27, 2020*
+*Last Updated: Jan 25, 2021*
 
 --- 
 
@@ -97,7 +97,7 @@ We can now check the structure of the new dat set `econ`. Notice how it is diffe
 str(econ)
 ```
 
-## Simple Linear Regression
+## Simple Linear Regression {#p3-slm}
 
 Consider the case where we are interested to know how an indepedent variable $x$ affects $y$. Suppose we have a *random* sample of size $n$ \{$(x_i, y_i)$: $i=1,\ldots, n$\} following the model
 $$
@@ -137,10 +137,10 @@ slm <- lm(score ~ colgpa, data = econ)
 ```
 Then we can get the estimates of the model coefficients $\beta_0$ and $\beta_1$ by
 ```{r}
-coef(slm)
+slm
 ```
 
-We can interpret this result as "if a student's college GPA increase by 1 point, their final score will increase on average by 14.32 points".
+We can interpret this result as "the average difference in final score comparing student's gpa of 1 point difference is estimated as 14.32 points".
 
 ###Inference
 
@@ -155,6 +155,13 @@ In fact, R gives the estimates of the variances and covariance of $\hat{\beta}_0
 vcov(slm)
 ```
 Here, the estimated variance of $\hat{\beta}_0$ and $\hat{\beta}_1$ are $4.072$ and $0.497$ respectively, and their estimated covariance is $-1.397$. 
+
+[Standard deviation](https://en.wikipedia.org/wiki/Standard_deviation) is the square root of the variance which also gives us information about the variabilities of the estimated parameters. Hence, it is usually reported with the estimated parameters. In R, the standard deviation is included in the the summary of the simple linear model with the function `summary()`. For example, in model `slm`, the standard deviation of $\hat{\beta}_1$ is 0.7051. 
+
+```{r}
+summary(slm)
+```
+
 
 #### Hypothesis Testing {#p3-slm-hyp}
 
@@ -202,7 +209,7 @@ In R, we can get the confidence intervals for the parameters by using the functi
 confint(slm, level = 0.95)
 ```
 
-###Model Checking 
+###Model Checking {#p3-slm-modelcheck}
 
 After having fitted the model, it is important that we check that the [assumptions](#p3-slm-assumption) of our model are satisfied in order to verify that our model is valid. 
 
@@ -235,6 +242,8 @@ plot(x0, y0, pch = 16, cex = .7, xlab = "x", ylab = "y", main = "Perfect Linear 
 abline(plm, col = "red")
 ```
 
+As long as the linearity assumption is satisfied, the If the linearity assumption is not satisfied, the estimators are no longer [unbiased](https://en.wikipedia.org/wiki/Bias_of_an_estimator).
+
 ####Independence of Residuals
 
 The plot of residuals against its order in the data set is usually used to check the independence of residuals. If the independence assumption is satisfied, we should see a horizontal band around 0 with no specific pattern. 
@@ -250,6 +259,10 @@ The linear trend plot of the perfect linear model looks like the below
 ```{r}
 plot(resid(plm))
 ```
+
+There are situations where the independence of residuals assumption is not valid. For example, if the economic class has several different sections, then the final scores of the students in each section may be correlated with each other. In this case, ploting the residuals against its order of appearance in the data set may not be sufficient to help us detect the violation of residual independence. Instead, we need to plot the residuals by sections. In practice, we should be careful to check potential sources of error correlations, for example time, or sections, as in the example, etc. 
+
+If the independence of residuals assumption is invalid, the estimators are still unbiased if the linearity assumption is satisfied, however, the confidence intervals or p-values are no longer invalid. If there is error correlation, consider adding variables that can explain the correlation. In the above example, we can add `section` to the linear regression model. Consult [Multiple linear regression](#p3-mlm) section for linear regression with more than one variable.
 
 ####Normality
 
@@ -294,6 +307,8 @@ The QQ plot of the perfect linear model looks like the below
 qqnorm(eps, main = "Perfect Linear Model", pch = 16, cex = .7)
 qqline(eps, col = "red", lty = 2)
 ```
+
+If the normality assumption does not hold and the sample is small, the confidence intervals and p-values results are no longer valid. However, in large samples, they will be approximately valid. 
 
 ####Conditional Homoskedasticity
 
@@ -350,6 +365,10 @@ plot(slm2, which = c(1, 2), ask = FALSE)
 ```
 Now we can see that we have a better horizontal band of residuals. However, be aware that with power transformation, the interpretation of the model is different. Each unit increase in `colgpa` will lead to 1992.70 increase in the square of economics score, `score^2`, not `score`. 
 
+In practice, we don't always want to do power transformation because this may not answer the scientific question you want to answer. For example, you want to know the relationship of `colgpa` to the `score`, not `score^2`. 
+
+If the INE-assumptions are not satisfied and the confidence intervals and p-values are no longer valid, besides power transformation, we can use techniques such as [boostraping](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) or [weighted least squares](https://en.wikipedia.org/wiki/Weighted_least_squares) to estimate the variabilities of our estimates.  
+
 ### Simple Linear Regression on a Binary Covariate
 
 Consider the example where $y =$ `score` and $x =$ `econhs`. The covariate `econhs` is a binary variable with: 
@@ -361,7 +380,7 @@ We can fit a simple linear regression model
 slm3 <- lm(score ~ econhs, data = econ)
 summary(slm3)
 ```
-The result of simple linear regression gives us an estimate of $-0.9519$ for the linear coefficient of $\hat{\beta}_1$, i.e., if the student has taken economics in high school, their score will be on average 0.952 less. The p-value associated with this estimate is 0.326, which is greater than $\alpha = 0.05$, we conclude that `econhs` is not significant at $5\%$, or we do not reject the null hypothesis that `econhs` does not have any association with `score` at 5\% of significance level.
+The result of simple linear regression gives us an estimate of $-0.9519$ for the linear coefficient of $\hat{\beta}_1$, i.e., the mean final score will be $0.951$ less if the student has taken high economics in high school. The p-value associated with this estimate is 0.326, which is greater than $\alpha = 0.05$, we conclude that `econhs` is not significant at $5\%$, or we do not reject the null hypothesis that `econhs` does not have any association with `score` at 5\% of significance level.
 
 When the independent variable is a binary variable, the simple linear regression is equivalent to a [two-sample $t$ test](https://en.wikipedia.org/wiki/Student%27s_t-test#Independent_two-sample_t-test) with equal variance assumption, or a [one-way ANOVA](https://en.wikipedia.org/wiki/One-way_analysis_of_variance) with two levels.
 
@@ -379,11 +398,9 @@ summary(aov(score ~ econhs, data = econ))
 
 We can see that the $p$-values for of these procedures are all equal at 0.326, i.e., these procedures are equivalent.
 
-On another note, Analysis of Variance ([ANOVA](https://en.wikipedia.org/wiki/Analysis_of_variance)) is a collection of statistical models and their associated procedures (such as "variation" among and between groups) used to analyze the differences among group means. 
+While $t$-test is only equivalent to simple linear regression on one binary covariate, ANOVA is also equivalent to [multiple linear regression](#p3-mlm) in which the variables are categorical.
 
-In ANOVA we have a categorical variable with different groups, and we attempt to determine whether the measurement of a continuous variable differs between groups. On the other hand, linear regression tends to assess the relationship between a continuous response variable and one or multiple explanatory variables. 
-
-Problems of ANOVA are in fact problems of linear regression in which the variables are categorical. In other words, the study of ANOVA can be placed within the framework of linear models. ANOVA and linear regression are essentially equivalent when the two models test against the same hypotheses and use the same categorical variable.
+In particular, Analysis of Variance ([ANOVA](https://en.wikipedia.org/wiki/Analysis_of_variance)) is a collection of statistical models and their associated procedures (such as "variation" among and between groups) used to analyze the differences among group means. In ANOVA we have a categorical variable with different groups, and we attempt to determine whether the measurement of a continuous variable differs between groups. On the other hand, linear regression tends to assess the relationship between a continuous response variable and one or multiple explanatory variables. Problems of ANOVA are in fact problems of linear regression in which the variables are categorical. In other words, the study of ANOVA can be placed within the framework of linear models. ANOVA and linear regression are essentially equivalent when the two models test against the same hypotheses and use the same categorical variables.
 
 ## Multiple Linear Regression {#p3-mlm}
 
@@ -432,7 +449,7 @@ coef(mln1)
 
 The power of multiple regression analysis is that it provides a [*ceteris paribus*](https://en.wikipedia.org/wiki/Ceteris_paribus) ("all things being equal") interpretation even though the data have not been collected in a ceteris paribus fashion. In the model [`mln1`](#p3-mlm-est) above, $\hat\beta_1$ quantifies the effect of `colgpa` on `score` with `hsgpa` being fixed.
 
-Hence in the model `mln1`, keeping `hsgpa` fixed, one unit increase in `colgpa` leads to an average increase of 12.6668 in `score`. Since the $p$-value for `colgpa` is less than $\alpha = 0.05$, we declare that `colgpa` is significant at 5\% level. The confidence intervals can be obtained in the same fashion as in Section [3.2.4](#p3-slm-conf).
+Hence in the model `mln1`, keeping `hsgpa` fixed, one unit increase in `colgpa` is associated to an average increase of 12.6668 in `score`. Since the $p$-value for `colgpa` is less than $\alpha = 0.05$, we declare that `colgpa` is significant at 5\% level. The confidence intervals can be obtained in the same fashion as in Section [3.2.4](#p3-slm-conf).
 
 ```{r}
 summary(mln1)
@@ -521,6 +538,8 @@ summary(Mstep) # model chosen by stepwise selection
 
 ### Model Diagnostics
 
+Similar to [simple linear regression](#p3-slm), in multiple linear regression, we also need to check the LINE [assumptions](#p3-slm-assumption). 
+
 ####Scatterplot 
 
 Scatterplot is always the first step which helps us check the linear relationships among our variables.
@@ -535,17 +554,19 @@ tmp <- data.matrix(econ[, c(1:3, 5:9, 16)])
 corrplot(cor(tmp), method = "circle")
 ```
 
-Here, if a pair of variables has a more blue circle, it will have a strong positive linear relationship, and if a pair of variables has a more red circle, it will have a strong negative linear relationship.
+In this plot, if a pair of variables has a more blue circle, it will have a strong positive linear relationship, and if a pair of variables has a more red circle, it will have a strong negative linear relationship.
 
 ####Homoscedasticity and Normality
 
-We can check homoscedasticity and normality with the same command as in Section [3.2.5.4](#p3-powertransform). 
+We can check homoscedasticity (equal variance) and normality with the same command as in Section [3.2.5.4](#p3-powertransform). 
 
 ```{r}
 plot(Mstep, which = c(1, 2), ask = FALSE)
 ```
 
-We can see the same problem from Section [3.2.5.4](#p3-powertransform) that the varibility of the residuals are not constant with respect the the fitted values (heteroskedasticity). We can proceed in the same fashion using power transformation as in Section [3.2.5.4](#p3-powertransform) to try solve this problem. 
+We can see the same problem from Section [3.2.5.4](#p3-powertransform) that the varibility of the residuals are not constant with respect the the fitted values (heteroskedasticity). One solution is to use power transformation as in Section [3.2.5.4](#p3-powertransform) to try solve this problem. 
+
+Further discussion about the situation where each of the LINE [assumptions](#p3-slm-assumption) are invalid can be found in Section [3.2.5](#p3-slm-modelcheck)
 
 ####Multicolinearity
 
@@ -575,6 +596,8 @@ It is relatively rare that outlier observations should be deleted to improve the
 ##Further Extensions
 
 More advanced issues we didn't cover in this tutorial:
+
+<!--- What covariates should we include? (depending on the goal of the analysis: prediction or inference, there are many different methods to choose covariates in our model).--> 
 
 - How to do general hypothesis testing in multiple linear regression?
 
