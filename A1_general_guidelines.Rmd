@@ -1,6 +1,6 @@
 # (APPENDIX) Appendix {-} 
 
-#General Guidelines
+# General Guidelines
 
 *Author: Martin Lysy*
 

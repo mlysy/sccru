@@ -1,5 +1,4 @@
-
-#Introduction to Nonparametric Statistics
+# Introduction to Nonparametric Statistics
 
 *Author: Kelly Ramsay*
 

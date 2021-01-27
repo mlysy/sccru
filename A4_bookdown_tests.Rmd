@@ -1,64 +1,36 @@
-# Bookdown Tests
-
-A few tests to make sure **bookdown** is rendering things correctly.
-
 ```{r setup, include = FALSE}
 cran_link <- function(pkg) {
   paste0("[**", pkg, "**](https://CRAN.R-project.org/package=", pkg, ")")
 }
 ```
 
-Test math macros: $\var(\xx)$, $\alpha_\xx$, $\xx \ind \N(0, \sigma_{\tx{pool}})$.
+# Bookdown Tests
 
-Test figure:
+A few tests to make sure **bookdown** is rendering things correctly.
+
+## Test Math Macros 
+
+$\var(\xx)$, $\alpha_\xx$, $\xx \ind \N(0, \sigma_{\tx{pool}})$.
+
+## Test Figure
+
 ```{r introtestfig, fig.cap = "Test figure."}
 plot(1:25, pch = 1:25)
 ```
-The reference to Figure \@ref(fig:introtestfig) is implemented correctly.  Also, the package link to `r cran_link("mniw")` works correctly.
+The reference to Figure \@ref(fig:introtestfig) is implemented correctly.  
 
-## Recap of Frequentist Inference
+## Test CRAN Link
 
-- [ ] Likelihood function.
+The package link to `r cran_link("mniw")` works correctly.
 
-- [ ] Maximum likelihood estimator.
+## Test Checklist
 
-- [ ] Confidence intervals.
+Can users modify our checklists?  Apparently not.
 
-- [ ] Hypothesis testing.
+- [ ] Item 1.
 
-- [ ] Model checking.
+- [x] Item 2.
 
-## Basics of Bayesian Inference
+## Test References
 
-- Prior and posterior distributions.
-
-- Posterior mean.
-
-- Credible intervals.
-
-- Hypothesis testing.
-
-- Model checking.
-
-## Example 1: Normal with Unknown Mean
-
-- Conjugate prior.
-
-- Improper prior.
-
-- Generalization to EFs.
-
-- MSE comparison to MLE.
-
-## Example 2: Normal with Unknown Variance
-
-- Lack of posterior invariance.
-
-- Asymptotic equivalence.
-
-## Decision Theory
-
-## When Not to Use Bayes: Quantile Estimation
-
-## When to Use Bayes: Hierarchical Modeling
-
+The reference to @agresti works as expected.

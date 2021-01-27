@@ -15,7 +15,7 @@ output:
       in_header: preamble.html
 ---
 
-#Preface {-}
+# Preface {-}
 
 This book aims to give the introductions to some topics in statistical consulting. We hope that this will help audiences who have light background in statistics.
 
@@ -23,10 +23,10 @@ For contributors to this book, please refer to the Appendix for [General Guideli
 
 For questions regarding the materials of this book, please [contact us](https://uwaterloo.ca/statistical-consulting-and-collaborative-research-unit/).
 
-```{r setup, include=FALSE}
-# function to print the link to R packages
-cran_link <- function(pkg) {
-  paste0("[**", pkg, "**](https://CRAN.R-project.org/package=", pkg, ")")
-}
-```
+<!-- ```{r setup, include=FALSE} -->
+<!-- # function to print the link to R packages -->
+<!-- cran_link <- function(pkg) { -->
+<!--   paste0("[**", pkg, "**](https://CRAN.R-project.org/package=", pkg, ")") -->
+<!-- } -->
+<!-- ``` -->
 

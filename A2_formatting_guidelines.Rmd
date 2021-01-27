@@ -1,4 +1,4 @@
-#Formatting Guidelines
+# Formatting Guidelines
 
 *Author: Martin Lysy, Trang Bui*
 

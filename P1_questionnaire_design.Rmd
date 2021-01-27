@@ -1,4 +1,4 @@
-#Introduction to Questionnaire Design
+# Introduction to Questionnaire Design
 
 *Author: Trang Bui*
 
@@ -108,7 +108,7 @@ Consider the pretesting the questionnaire by:
 
 Designing questionnaire is an iterative process. The four steps mentioned above can be revisited and revised as needed. If you have any further questions about questionnaires design, please consult a consultant at the [Statistical Consulting and Collaborative Research](https://uwaterloo.ca/statistical-consulting-and-collaborative-research-unit/), or the [Survey Research Centre](https://uwaterloo.ca/survey-research-centre/).
 
-##A Checklist for Questionnaire Designs
+## A Checklist for Questionnaire Designs
 
 - Planning:
     - What is the topic of interest?

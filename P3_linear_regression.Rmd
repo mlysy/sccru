@@ -1,4 +1,4 @@
-#Introduction to Linear Regression
+# Introduction to Linear Regression
 
 *Author: Ferris Zhu, Joslin Goh, Trang Bui, Glen McGee*
 
@@ -6,7 +6,7 @@
 
 --- 
 
-##Introduction
+## Introduction
 
 The goal of this tutorial is to introduce linear regression, an important model which is widely used in data analysis. The reasons for its popularity are
 
@@ -15,7 +15,7 @@ The goal of this tutorial is to introduce linear regression, an important model 
 
 When the assumptions of the linear regression model are satisfied, the model is powerful in terms of inference and interpretation.  
 
-###List of R packages Used
+### List of R packages Used
 
 In this tutorial, we will be using the packages `r cran_link("wooldridge")`, `r cran_link("corrplot")`, `r cran_link("lmtest")`, and `r cran_link("MASS")`. Use the line `install.packages(c("wooldridge","corrplot","caret","glmnet"))` to install required packages for this document. To install individual packages, use the line `install.packages("package name")`, e.g. `install.packages("corrplot")`.
 
