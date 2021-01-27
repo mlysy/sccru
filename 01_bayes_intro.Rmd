@@ -1,24 +1,30 @@
 # Introduction to Bayesian Inference
 
+```{r setup, include = FALSE}
+cran_link <- function(pkg) {
+  paste0("[**", pkg, "**](https://CRAN.R-project.org/package=", pkg, ")")
+}
+```
+
 Test math macros: $\var(\xx)$, $\alpha_\xx$, $\xx \ind \N(0, \sigma_{\tx{pool}})$.
 
 Test figure:
 ```{r introtestfig, fig.cap = "Test figure."}
 plot(1:25, pch = 1:25)
 ```
-The reference to Figure \@ref(fig:introtestfig) is implemented correctly.
+The reference to Figure \@ref(fig:introtestfig) is implemented correctly.  Also, the package link to `r cran_link("mniw")` works correctly.
 
 ## Recap of Frequentist Inference
 
-- Likelihood function.
+- [ ] Likelihood function.
 
-- Maximum likelihood estimator.
+- [ ] Maximum likelihood estimator.
 
-- Confidence intervals.
+- [ ] Confidence intervals.
 
-- Hypothesis testing.
+- [ ] Hypothesis testing.
 
-- Model checking.
+- [ ] Model checking.
 
 ## Basics of Bayesian Inference
 
