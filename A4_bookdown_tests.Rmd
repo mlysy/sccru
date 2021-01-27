@@ -1,4 +1,6 @@
-# Introduction to Bayesian Inference
+# Bookdown Tests
+
+A few tests to make sure **bookdown** is rendering things correctly.
 
 ```{r setup, include = FALSE}
 cran_link <- function(pkg) {

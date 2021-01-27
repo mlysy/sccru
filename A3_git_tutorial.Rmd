@@ -1,5 +1,11 @@
 # Git and GitHub: A Quick Tutorial
 
+*Author: Martin Lysy*
+
+*Last Updated: Nov 09, 2020*
+
+--- 
+
 [Git](https://git-scm.com/) is an extremely powerful version control system that is used to "back up" software projects.  In a nutshell, rather than overwriting files every time you save them, Git saves the difference between the old and updated versions.  This gives you have a complete history of all saves with a minuscule memory overhead, making it very easy to roll back changes, see what you did when, etc.  It also has a branching system which is extremely useful to make patches or feature extensions for your software without affecting the "stable" version.
 
 Git projects (or "repositories") can easily be stored on the cloud, which is ideal both for backups and for collaborative work.  The most common platform for this is [GitHub](https://github.com/).  You will need a GitHub account in order to access and submit files for this project.  It's completely free, secure, and does not collect or distribute your personal information.  You can delete your account at any time, but publicly visible projects can be made to look like a very nice webpage with minimal effort.  Therefore, in my opinion this is a great way to showcase the software you develop for this class or others by providing a link to your GitHub page on your CV.

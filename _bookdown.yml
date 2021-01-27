@@ -1,1 +1,2 @@
 new_session: no
+rmd_files: ["index.Rmd", "P1_questionnaire_design.Rmd", "P2_nonparametric.Rmd", "P3_linear_regression.Rmd", "A1_general_guidelines.Rmd", "A2_formatting_guidelines.Rmd", "A3_git_tutorial.Rmd"]
