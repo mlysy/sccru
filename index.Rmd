@@ -15,6 +15,18 @@ output:
       in_header: preamble.html
 ---
 
+```{r setup, include=FALSE}
+# common functions
+# contributors should be aware of these and use them whenever possible.
+
+# function to print the link to R packages
+cran_link <- function(pkg) {
+  paste0("[**", pkg, "**](https://CRAN.R-project.org/package=", pkg, ")")
+}
+```
+
+
+
 # Preface {-}
 
 This book aims to give the introductions to some topics in statistical consulting. We hope that this will help audiences who have light background in statistics.
@@ -22,11 +34,4 @@ This book aims to give the introductions to some topics in statistical consultin
 For contributors to this book, please refer to the Appendix for [General Guidelines], [Formatting Guidelines] and [Github tutorials][Git and GitHub: A Quick Tutorial].
 
 For questions regarding the materials of this book, please [contact us](https://uwaterloo.ca/statistical-consulting-and-collaborative-research-unit/).
-
-<!-- ```{r setup, include=FALSE} -->
-<!-- # function to print the link to R packages -->
-<!-- cran_link <- function(pkg) { -->
-<!--   paste0("[**", pkg, "**](https://CRAN.R-project.org/package=", pkg, ")") -->
-<!-- } -->
-<!-- ``` -->
 

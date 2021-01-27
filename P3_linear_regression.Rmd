@@ -127,7 +127,7 @@ The INE assumptions can be summarized with
 \epsilon_i \overset{iid}{\sim} \N(0, \sigma^2)
     $$
 
-###Estimation {#p3-slm-est}
+### Estimation {#p3-slm-est}
 
 In the simple linear model above, the coefficients $\beta_0$ and $\beta_1$ are unknown, so we need to estimate them. 
 
@@ -142,11 +142,11 @@ slm
 
 We can interpret this result as "the average difference in final score comparing student's gpa of 1 point difference is estimated as 14.32 points".
 
-###Inference
+### Inference
 
 However, the above values of $\beta_0$ and $\beta_1$ are only estimates, they depend on the data we collect and are not necessarily the true parameters, i.e., they are inherently uncertain. We will refer to these as $\hat{\beta}_0$, $\hat{\beta}_1$. How can we quantify this uncertainty and evaluate these estimates?
 
-####Variances
+#### Variances
 
 [Variance](https://en.wikipedia.org/wiki/Variance) give information about the uncertainty of a variable. And [covariance](https://en.wikipedia.org/wiki/Covariance) measures the joint variability of two variables. As explained above, $\hat{\beta}_0$ and $\hat{\beta}_1$ are subject to variabilities, hence, we can use variance and covariance to quantify these variabilities.  
 
@@ -191,7 +191,7 @@ We can see that, the $p$-value for $\hat{\beta}_1$ is $< 2e-16$, which is less t
 
 If on the contrary, the $p$-value for $\hat{\beta}_1$ is $> \alpha = 0.05$, we do not reject the null hypothesis that there is no effect of `colgpa` at $5\%$ significance level, or the effect of `colgpa` is not significant at $5\%$ level.
 
-####Confidence Interval {#p3-slm-conf}
+#### Confidence Interval {#p3-slm-conf}
 
 The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) of $\beta_1$ is the interval that the true value of $\beta_1$ lie in with a specified percentage of chance. 
 
@@ -209,11 +209,11 @@ In R, we can get the confidence intervals for the parameters by using the functi
 confint(slm, level = 0.95)
 ```
 
-###Model Checking {#p3-slm-modelcheck}
+### Model Checking {#p3-slm-modelcheck}
 
 After having fitted the model, it is important that we check that the [assumptions](#p3-slm-assumption) of our model are satisfied in order to verify that our model is valid. 
 
-####Linear Trend
+#### Linear Trend
 
 To check the linear trend in the data, i.e. $\E(y|x) = \beta_0 + \beta_1 x$, we can use scatterplot with the fitted line or residuals vs fitted values. In the perfect case you should see a clear linear trend.
 
@@ -244,7 +244,7 @@ abline(plm, col = "red")
 
 As long as the linearity assumption is satisfied, the If the linearity assumption is not satisfied, the estimators are no longer [unbiased](https://en.wikipedia.org/wiki/Bias_of_an_estimator).
 
-####Independence of Residuals
+#### Independence of Residuals
 
 The plot of residuals against its order in the data set is usually used to check the independence of residuals. If the independence assumption is satisfied, we should see a horizontal band around 0 with no specific pattern. 
 
@@ -264,7 +264,7 @@ There are situations where the independence of residuals assumption is not valid
 
 If the independence of residuals assumption is invalid, the estimators are still unbiased if the linearity assumption is satisfied, however, the confidence intervals or p-values are no longer invalid. If there is error correlation, consider adding variables that can explain the correlation. In the above example, we can add `section` to the linear regression model. Consult [Multiple linear regression](#p3-mlm) section for linear regression with more than one variable.
 
-####Normality
+#### Normality
 
 To check normality of residuals, i.e. $\epsilon_i \sim \N(0, \sigma^2)$, we can plot a histogram of standardized residuals or a QQ-plot. In the perfect case, you should see a normal histogram and a straight QQ line.
 
@@ -310,7 +310,7 @@ qqline(eps, col = "red", lty = 2)
 
 If the normality assumption does not hold and the sample is small, the confidence intervals and p-values results are no longer valid. However, in large samples, they will be approximately valid. 
 
-####Conditional Homoskedasticity
+#### Conditional Homoskedasticity
 
 To check conditional homoskedasticity (constant variance), i.e. $\var(\epsilon | x) = \sigma^2$, we can plot a scatterplot of residuals and fitted values. In the perfect case, you should see a horizontal band of residuals evenly distributed along with the fitted values.
 
@@ -336,7 +336,7 @@ plot(
 abline(h = 0, col = "red", lty = 2) # add horizontal line
 ```
 
-#####Power Transformation {#p3-powertransform}
+##### Power Transformation {#p3-powertransform}
 
 In R, we can plot the residuals vs. fitted values and the QQ plots by the simple command below
 ```{r}
@@ -416,7 +416,7 @@ $$
 $$
 where $\yy$ is an $n \times 1$ vector, $\bbe$ is a $p \times 1$ vector of parameters and $\XX$ is an $n \times p$ matrix, called "model matrix" or "design matrix".
 
-###Estimation {#p3-mlm-est}
+### Estimation {#p3-mlm-est}
 
 It can be shown that
 $$
@@ -455,7 +455,7 @@ Hence in the model `mln1`, keeping `hsgpa` fixed, one unit increase in `colgpa` 
 summary(mln1)
 ```
 
-###Interaction Effects
+### Interaction Effects
 
 In a multiple linear regression model, the independent variables can have "combined" effect, which can be modeled as "interaction" among variables.
 
@@ -506,7 +506,7 @@ lrtest(slm, mln3)
     ```
     The $p$-value $1.153e-10$ is less than $\alpha = 0.05$, so we *reject* at 5\% significant level the hypothesis that the average `score` is identical for the two groups of students (having taken calculus vs, not) who have the same levels of `colgpa`.
        
-###Model Selection
+### Model Selection
 
 The dataset `econ` has 15 independent variables, hence our linear regression models can contain any combination of these variables or their interaactions. That requires us to choose the best combination, i.e., the best model, that can help explain the econ final score, i.e., the dependent variable `score`. A good model should
 
@@ -540,7 +540,7 @@ summary(Mstep) # model chosen by stepwise selection
 
 Similar to [simple linear regression](#p3-slm), in multiple linear regression, we also need to check the LINE [assumptions](#p3-slm-assumption). 
 
-####Scatterplot 
+#### Scatterplot 
 
 Scatterplot is always the first step which helps us check the linear relationships among our variables.
 
@@ -556,7 +556,7 @@ corrplot(cor(tmp), method = "circle")
 
 In this plot, if a pair of variables has a more blue circle, it will have a strong positive linear relationship, and if a pair of variables has a more red circle, it will have a strong negative linear relationship.
 
-####Homoscedasticity and Normality
+#### Homoscedasticity and Normality
 
 We can check homoscedasticity (equal variance) and normality with the same command as in Section [3.2.5.4](#p3-powertransform). 
 
@@ -568,7 +568,7 @@ We can see the same problem from Section [3.2.5.4](#p3-powertransform) that the 
 
 Further discussion about the situation where each of the LINE [assumptions](#p3-slm-assumption) are invalid can be found in Section [3.2.5](#p3-slm-modelcheck)
 
-####Multicolinearity
+#### Multicolinearity
 
 If two covariates are highly correlated, the regression has trouble figuring out whether the change in $y$ is due to one covariate or the other. Thus estimates of $\beta$ can change a lot from one random sample to another. This phenomenon is known as *variance inflation*. We can detect colinearity by checking the [*variance inflation factor* (VIF)](https://en.wikipedia.org/wiki/Variance_inflation_factor).
 
@@ -580,7 +580,7 @@ sqrt(VIF)
 
 One example of the interpretation is that, the standard error for the coefficient for `age` is 2.3 times larger than if that predictor variable had 0 correlation with the other predictor variables.
 
-####Outliers detection
+#### Outliers detection
 
 Outliers are observations which have unusually large residuals compared to the others. These can be detected using the [leverage](https://en.wikipedia.org/wiki/Leverage_(statistics)) and [Cook's distance](https://en.wikipedia.org/wiki/Cook%27s_distance). In R, we can plot them by the following command
 
@@ -593,7 +593,7 @@ Obsrvations with high Cook's distance will have a high influence on the output o
 
 It is relatively rare that outlier observations should be deleted to improve the model's fit, as it is almost always the model which is wrong.
 
-##Further Extensions
+## Further Extensions
 
 More advanced issues we didn't cover in this tutorial:
 

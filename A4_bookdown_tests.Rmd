@@ -1,8 +1,8 @@
-```{r setup, include = FALSE}
-cran_link <- function(pkg) {
-  paste0("[**", pkg, "**](https://CRAN.R-project.org/package=", pkg, ")")
-}
-```
+<!-- ```{r setup, include = FALSE} -->
+<!-- cran_link <- function(pkg) { -->
+<!--   paste0("[**", pkg, "**](https://CRAN.R-project.org/package=", pkg, ")") -->
+<!-- } -->
+<!-- ``` -->
 
 # Bookdown Tests
 

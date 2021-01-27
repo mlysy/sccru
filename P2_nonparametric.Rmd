@@ -73,6 +73,7 @@ For example, one thing we might estimate is a population mean $\mu$, which can b
 
 
 ## Two-sample Hypothesis Testing
+
 ### Quick Reference Table
 
 | Observation type | Test goal | Test  |
@@ -251,6 +252,7 @@ The test statistic and p-value are reported.
 
 
 ## ANOVA-type Methods {#p2-anova}
+
 ### One-way ANOVA
 
 We can start with introducing nonparametric one-way ANOVA. 
