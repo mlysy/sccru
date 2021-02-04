@@ -18,14 +18,8 @@ output:
 ```{r setup, include=FALSE}
 # common functions
 # contributors should be aware of these and use them whenever possible.
-
-# function to print the link to R packages
-cran_link <- function(pkg) {
-  paste0("[**", pkg, "**](https://CRAN.R-project.org/package=", pkg, ")")
-}
+source("common_functions.R")
 ```
-
-
 
 # Preface {-}
 
