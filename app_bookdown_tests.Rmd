@@ -14,10 +14,10 @@ $\var(\xx)$, $\alpha_\xx$, $\xx \ind \N(0, \sigma_{\tx{pool}})$.
 
 ## Test Figure
 
-```{r introtestfig, fig.cap = "Test figure."}
+```{r booktest-fig, fig.cap = "Test figure."}
 plot(1:25, pch = 1:25)
 ```
-The reference to Figure \@ref(fig:introtestfig) is implemented correctly.  
+The reference to Figure \@ref(fig:booktest-fig) is implemented correctly.  
 
 ## Test CRAN Link
 

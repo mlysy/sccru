@@ -12,12 +12,12 @@ The most important thing to keep in mind when designing a questionnaire is that,
 
 There are four main steps to achieve our goal:
 
-- [plan the study](#p1-plan),
-- [prepare the questions](#p1-prepare),
-- [put together the questionnaire](#p1-put), and
-- [pretest the questionnaire](#p1-pretest). 
+- [plan the study](#questdes-plan),
+- [prepare the questions](#questdes-prepare),
+- [put together the questionnaire](#questdes-put), and
+- [pretest the questionnaire](#questdes-pretest). 
 
-## Plan the Study {#p1-plan}
+## Plan the Study {#questdes-plan}
 
 Planning the study ahead allows us to create a questionnaire that meets our research goal while keeping it short and concise. In the questionnaire, we want to include questions that provide *enough*, but *not more* than what we need. Consider the following when planning a study:
 
@@ -43,7 +43,7 @@ Planning the study ahead allows us to create a questionnaire that meets our rese
 
 Examining as many aspects of the study as possible will paint a picture of what the questionnaire should include, **what questions** need to be asked, and **to whom** the questionnaire should be designed for and sent to, etc. It is helpful to **write down the plan** for future reference and futher discussion.
 
-## Prepare the Questions {#p1-prepare}
+## Prepare the Questions {#questdes-prepare}
 
 In this step, we design the questions based on the research plan we have laid out. There are many considerations that can be made in this step: the *type* of questions, the *categories or options* for the questions, the *wordings* of the questions, the *order* of the questions, etc. All of these will affect the **difficulty** of the questionnaire, the respondents’ **willingness** to answer or to answer **correctly** and **truthfully**, and also the analysis that will be carried out.
 
@@ -84,7 +84,7 @@ asked before the specific questions; and questions are asked in groups or module
 
     > If you want to ask about alcohol consumption, you can add a few sentences about the benefits of wine to health, which will make it is more relaxing for respondents to answer truthfully about their alcohol consumption.
 
-## Put Together the Questionnaire {#p1-put}
+## Put Together the Questionnaire {#questdes-put}
 
 - In the beginning, give some introduction about the research topic and its importance to give the respondents some **motivation** to answer the questionnaire. Mention the **research organizations, investigators or sponsors** and an **estimate of the length** of the questionaire. Do not forget to include statements about **privacy and confidentiality** from the [Office of Research Ethics](https://uwaterloo.ca/research/office-research-ethics). Including relevant **graphics** may appeal to the respondents that this is an easy-to-answer survey.
 
@@ -94,7 +94,7 @@ asked before the specific questions; and questions are asked in groups or module
 
 - Finally, give the respondents a big **thank you**. If there is any incentives for completing the survey, ask for the respondents’ contacts, again strongly stress the privacy of these contact information. It is also possible to leave some contacts if the respondents have any issue or want to give their feedback.
 
-## Pretest the Questionnaire {#p1-pretest}
+## Pretest the Questionnaire {#questdes-pretest}
 
 It is recommended to **pretest** the questionnaire before conducting data collection. This will help identify problems in the questionnaire, and allow for revision and improvement.
 

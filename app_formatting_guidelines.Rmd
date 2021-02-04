@@ -6,17 +6,21 @@
 
 --- 
 
-## General {#a2-general}
+## General {#formatguide-general}
+
+- For a module, name your file starting with `mod_` and for a appendix, name your file starting with `app_`. 
 
 - Let's agree to use regular font for programming languages (e.g., R, Python, C++) and bold font for packages and libraries (e.g., **TMB**, **rstan**, **NumPy**, **Tensorflow**). Use `data` format for datasets, codes and arguments. For functions, use parentheses at the end, for example, `data()`. Use curly brackets `\bm{}` for LaTeX functions.
 
 - Paste a link to packages which are mentioned for the first time. For R packages, you can use the `cran_link()` function to do this. For example, `r cran_link("rstan")`.
 
-- Please see Appendix [B.2.3](#a1-citations) for how to handle citations.
+- Please see Appendix [B.2.3](#genguide-citations) for how to handle citations.
 
-- To refer to figures/tables/sections, the standard academic style is e.g., "Figure 2", "Section 2.5", etc.  In other words, capital letter, no bold/italics, and hyperlink for the number.  See relevant **bookdown** [chapter](https://bookdown.org/yihui/bookdown/figures.html) for how to do this! 
+- To refer to figures/tables/sections, the standard academic style is e.g., "Figure 2", "Section 2.5", etc.  In other words, capital letter, no bold/italics, and hyperlink for the number.  See relevant **bookdown** [chapter](https://bookdown.org/yihui/bookdown/figures.html) for how to do this.
 
-- To make cross referencing consistent in bookdown, for all labels, including r chunks, figures, tables, sections, equations, etc., use the prefix of the corresponding file as the prefix of any label. For example, use lablel `#a2-general` for this section.  
+- Please give names to all code chunks.
+
+- To make cross referencing consistent in bookdown, for all labels, including r chunks, figures, tables, sections, equations, etc., use the prefix of the corresponding file as the prefix of any label. So please choose and use a module specific prefix for each cross reference. For example, use lablel `#formatguide-general` for this section. Refer to `prefixes.txt` for the list of the used prefixes and add yours there. Try to use the prefix that is distinctive to other words in the text. In that way, you can find and replace all without mistakes.
 
 - Paragraph breaks are simply indicated by one ore more empty lines.  No need for `\newline` or anything else.  This applies to elements other than text such as figures, math blocks etc.  If the figure/math block/etc is part of the paragraph, don't leave blank spaces before or after^[An exception to this is possibly within an indented region.  There you may need to leave a blank space before/after math block...I'm not 100% sure...].
 
@@ -49,14 +53,14 @@
 	X_i \mid \mu_i & \ind \N(\mu_i, \sigma_i^2) \\
 	\mu_i & \iid \N(0, \tau^2).
 	\end{aligned}
-	(\#eq:a2-mathex)
+	(\#eq:formatguide-mathex)
     $$
 
 ### Commonly-Used Math and Stats Expressions
 
 - Sequences of random variables: $X_1, \ldots, X_N$.  In fact since these are so common, I've created a macro for it: $\rv Y 5$ and $\rv [m,0] Z {m,N_m}$.
 
-- For multi-line equations with alignment, use `aligned` environment as in \@ref(eq:a2-mathex).
+- For multi-line equations with alignment, use `aligned` environment as in \@ref(eq:formatguide-mathex).
 
 - The "d" in integrals:
     $$
@@ -75,6 +79,6 @@
 	$$
 	The last of these is used for Hessian matrices.
 
-- Independent/IID/Normal: Please see \@ref(eq:a2-mathex).
+- Independent/IID/Normal: Please see \@ref(eq:formatguide-mathex).
 
 - Variance/Covariance/Correlation: $\var(X), \cov(X), \cor(X)$.
