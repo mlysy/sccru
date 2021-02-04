@@ -62,4 +62,8 @@ For this project, LaTeX is rendered to HTML via [Mathjax](https://www.mathjax.or
 
 ### Citations {#a1-citations}
 
-For external websites it's sufficient to provide a link as I've done in this document.  For journal articles, textbooks, conference proceedings etc. it's good practice to provide the complete citation information (in addition to a link to the resource if it can be obtained legally for free).  For such references please use [BibTeX](https://en.wikibooks.org/wiki/LaTeX/Bibliography_Management) with a module specific bibliography file `my_module_references.bib`.  Here's an example [@gelman2013bayesian].  Please see how to add multple `.bib` files to `index.Rmd` [here](https://bookdown.org/yihui/bookdown/citations.html).
+For external websites it's sufficient to provide a link as I've done in this document.  For journal articles, textbooks, conference proceedings etc. it's good practice to provide the complete citation information (in addition to a link to the resource if it can be obtained legally for free).  For such references please use [BibTeX](https://en.wikibooks.org/wiki/LaTeX/Bibliography_Management).
+
+Add your citations to the bibiology file `references.bib`. To separate the citations for each module, add the name of your module using the comment sign $\%$ when you start to add citations. 
+
+For citation labels, please use the standardized format with the author label followed by the last two digits of the year. The rules for the author labels are, if there is only one author, use `@firstauthorlastname`, if there are two authors, use `@firstauthorlastname.secondauthorlastname`, if there are more than 2 authors, use `@firstauthorlastname.etal`. Here's some examples [@gelman13], [@friednam.etal09]. 

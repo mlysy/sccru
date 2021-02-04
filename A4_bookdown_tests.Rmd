@@ -33,4 +33,4 @@ Can users modify our checklists?  Apparently not.
 
 ## Test References
 
-The reference to @agresti works as expected.
+The reference to @agresti15 works as expected.

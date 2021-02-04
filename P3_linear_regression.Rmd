@@ -612,4 +612,4 @@ More advanced issues we didn't cover in this tutorial:
 - Sometimes our data may vary across time and we may collect samples from a series of time points. We may further need to study time series analysis, panel data/longitudinal data. 
 
 ### Recommendations
-The introductory level book by [@wooldridge] is a great starting point. It is classic, comprehensive and full of examples. But it is mainly from the perspective of econometricans. If you are more interested in the machine learning perspective of linear regression, another great book is [@ESL]. For an elegant theorectical description from a statistician, please see [@agresti].
+The introductory level book by [@wooldridge16] is a great starting point. It is classic, comprehensive and full of examples. But it is mainly from the perspective of econometricans. If you are more interested in the machine learning perspective of linear regression, another great book is [@friednam.etal09]. For an elegant theorectical description from a statistician, please see [@agresti15].
