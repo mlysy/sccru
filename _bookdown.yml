@@ -3,6 +3,7 @@ delete_merged_file: true
 book_filename: "topics_in_consulting.Rmd"
 rmd_files:
   - "index.Rmd"
+  - "mod_intro_r.Rmd"
   - "mod_linear_regression.Rmd"
   - "mod_nonparametric.Rmd"
   - "mod_questionnaire_design.Rmd"

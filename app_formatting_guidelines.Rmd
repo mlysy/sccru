@@ -10,7 +10,7 @@
 
 - For a module, name your file starting with `mod_` and for a appendix, name your file starting with `app_`. 
 
-- Let's agree to use regular font for programming languages (e.g., R, Python, C++) and bold font for packages and libraries (e.g., **TMB**, **rstan**, **NumPy**, **Tensorflow**). Use `data` format for datasets, codes and arguments. For functions, use parentheses at the end, for example, `data()`. Use curly brackets `\bm{}` for LaTeX functions.
+- Let's agree to use regular font for programming languages (e.g., R, Python, C++) and bold font for packages and libraries (e.g., **TMB**, **rstan**, **NumPy**, **Tensorflow**). Use `data` format for files, datasets, codes and arguments. For functions, use parentheses at the end, for example, `data()`. Use curly brackets `\bm{}` for LaTeX functions. Use `<kbd>Key</kbd>` for key strokes or buttons.
 
 - Paste a link to packages which are mentioned for the first time. For R packages, you can use the `cran_link()` function to do this. For example, `r cran_link("rstan")`.
 
@@ -39,6 +39,8 @@
 - Use the package `r cran_link("styler")` to make the formatting of your code consistent. To do this, run the function `styler::style_file()` for your module's Rmarkdown file. Do not set the option `tidy = "styler"` to your chunk code to prevent caching issues. The details of the package can be found [here](https://styler.r-lib.org/).  
 
 - Use "" instead of '' for quotes.
+
+- To embed a file in your module, use function `embed_file()` in the package `r cran_link("xfun")`. For example `r xfun::embed_file("data/caliRain.csv", text = "caliRain.csv")`. For more details, refer [here](https://bookdown.org/yihui/rmarkdown-cookbook/embed-file.html).
 
 ## Math
 
@@ -75,8 +77,8 @@
 
 - Derivatives and partials: These are quite time-consumming to typeset so I've created some macros for them:
     $$
-	\der{x} f(x), \qquad \fdel[3]{x} {g(x, y)}, \qquad \hess{\tth}\ell(\tth \mid \XX).
-	$$
+	  \der{x} f(x), \qquad \fdel[3]{x} {g(x, y)}, \qquad \hess{\tth}\ell(\tth \mid \XX).
+	  $$
 	The last of these is used for Hessian matrices.
 
 - Independent/IID/Normal: Please see \@ref(eq:formatguide-mathex).
