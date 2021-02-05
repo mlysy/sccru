@@ -1,0 +1,600 @@
+# Data Visualization with ggplot2
+
+*Author: Joslin Goh*
+
+*Last Updated: Feb 04, 2021*
+
+--- 
+
+# Instructors' assumptions
+
+Attendees have
+
+* basic understanding of RStudio, or have taken the workshop "Introduction to R" in Fall 2018,
+* installed RStudio on their laptops, and
+* installed the \texttt{ggplot2} library.
+\vspace{3cm}
+
+# 1.0 About ggplot2
+
+* It is a data visualization package for R and RStudio.
+* It is implemented based on Leland Wilkinson's book, "Grammar of Graphics".
+
+\vspace{3cm}
+
+# 1.1 Grammar of graphics
+
+![The layers of a graph](grammarOfGraphics.png){ width=70% }
+
+# 
+
+* Throughout this workshop, we will show you how to build a plot layer by layer. 
+* The examples shown in the slides are from the data set \texttt{diamond} from the \texttt{ggplot2} library. 
+ 
+\vspace{4cm}
+
+# 1.2 The data sets
+
+The \texttt{diamond} data set consists of the price, quality information and physical measurements of different diamonds:
+
+* carat
+* cut
+* colour
+* clarity
+* depth
+* table
+* x
+* y
+* z
+
+# 
+
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+library(ggplot2)
+str(diamonds)
+```
+
+# 
+The \texttt{diamond} data set consists of many data points. To simplify illustration of the different components in \texttt{ggplot2}, we will only use a subset of the data. To select a subset:
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+set.seed(2019)
+my.diamonds <- diamonds[sample(nrow(diamonds), 100),]
+```
+
+# 2.0 Data
+
+\begin{center}
+"What do I want to graph?"
+\end{center}
+
+The first step to graphing is to specify the data set and decide what goes on the axes. 
+
+Example: Suppose we want to investigate how carat affects the price of a diamond. The two variables (or columns) involved are \texttt{price} and \texttt{carat}. The x-axis is usually the explanatory variable and the y-axis is the dependent (or response variable). In this scenario, \texttt{price} should be on the y-axis and \texttt{carat} on the x-axis. 
+
+To initiate this graph in \texttt{ggplot2}, we have
+```{r, echo = TRUE, eval = FALSE, comment = NA}
+ggplot(my.diamonds, aes(x=carat, y=price))
+```
+
+# 
+
+```{r, echo = FALSE, eval = TRUE, comment = NA}
+ggplot(my.diamonds, aes(x=carat, y=price))
+```
+
+# 
+
+* A blank plot was produced with no points or lines in it.
+* The function does not assume the type of graphs it needs to produce unless it was told.
+* Since this is the first (base) layer which will be used over and over again, it is wiser to save it as an object
+
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+p <- ggplot(my.diamonds, aes(x=carat, y=price))
+```
+\vspace{3cm}
+
+# 3.0 Aesthetics
+The first layer to be added on to the blank plot is a layer of the data points. 
+
+In our case, we are interested to make a scatterplot. To add the layer of data points, we add \texttt{geom\_point} to the initial layer:
+```{r, echo = TRUE, eval = FALSE, comment = NA}
+p + geom_point()
+```
+
+# 
+
+```{r, echo = FALSE, eval = TRUE, comment = NA}
+p + geom_point()
+```
+
+# 3.1 Component of a layer
+Each layer has its own component. For this layer, the common components include:
+
+* \texttt{col}: colour of the points specified using names, rgb specification or NA for transparent colour
+* \texttt{size}: size of the points specified in milimetres
+* \texttt{shape}: shape of the points
+
+# 3.1.1 The colour component
+
+A common way to specify the colour of the points is through the name of the colours. For example, red, darkblue, magenta, chocolate etc.
+
+A complete list of colours can be found at
+
+\url{http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf}
+
+\vspace{3cm}
+
+# 
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+p + geom_point(col='darkblue')
+```
+
+#
+When \texttt{col=NA}, the points become transparent
+```{r, echo = FALSE, eval = TRUE, comment = NA, warning=FALSE}
+p + geom_point(col=NA)
+```
+
+# Practice 3.1
+
+Setting \texttt{carat} as the x-axis and \texttt{table} as the y-axis, produce the following:
+```{r, echo = FALSE, eval = TRUE, comment = NA}
+q <- ggplot(my.diamonds, aes(x=carat, y=table))
+q + geom_point(col='red')
+```
+
+# 3.1.2 Setting vs mapping
+So far, we \textbf{set} the colour of the points to a specific colour of our choice. 
+\medskip
+In some cases, we prefer the colour to change based on the information from another column (usually categorical) in the data set. For example, suppose we want the colour of the points on the graph to change based on \texttt{cut}, which has 5 categories: Fair, Good, Very Good, Premium and Ideal. 
+
+\vspace{2cm}
+
+# 
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+p + geom_point(aes(col=cut))
+```
+This is called \texttt{mapping}.
+
+# 3.1.3 Changing colour palette
+The choice of colour palette is set through the choice of colour palette. When the choice is not mentioned, the default option is used. There are many online packages with pre-set palettes that you can use. We will show you the most common one: \texttt{Colorbrewer}.
+
+![Set 1 from ColorBrewer](colours-set1.png){ width=70% }
+
+# 
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+p1 <- p + geom_point(aes(col=cut)) 
+p1 + scale_colour_brewer(palette = "Set1")
+```
+
+# Other ColorBrewer palettes
+
+The \texttt{ColorBrewer} palettes come in three sub-groups:
+
+* Qualitative
+* Sequential
+* Diverging
+
+All of them can be found at \url{https://jiffyclub.github.io/palettable/colorbrewer/}
+
+# Colour blind friendly palette
+Our preference for a good general purpose solution for palette is to use a colour blind friendly palette such as:
+
+![Colour blind friendly palette (grey)](cbPalette-grey.png){ width=70% }
+
+![Colour blind friendly palette (black)](cbPalette.png){ width=70% }
+
+
+
+#
+Both palettes are not part of \texttt{ColorBrewer} and are extracted from \url{http://jfly.iam.u-tokyo.ac.jp/color/}.
+
+They are coded as follow: 
+
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+# Colour blind friendly palette with grey
+cbgPalette<-c("#999999", "#E69F00", "#56B4E9", "#009E73", 
+            "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+# Colour blind friendly palette with black
+cbbPalette<-c("#000000", "#E69F00", "#56B4E9", "#009E73", 
+            "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```
+
+If you chose to create your own palette, we recommend to have them included at the very top of your \texttt{R} script to so you can use them throughout your project. 
+
+#  With the colour blind friendly palette with grey
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+p1 + scale_colour_manual(values=cbgPalette)
+```
+
+# With the colour blind friendly palette with black
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+p1 + scale_colour_manual(values=cbbPalette)
+```
+
+# Practice 3.2
+Extending from Pratice 3.1, i.e \texttt{carat} on the x-axis and \texttt{table} on the y-axis, map the points according to \texttt{clarity} with a colour palette of your choice.
+
+\vspace{4cm}
+
+# An example of Practice 3.2
+
+```{r, echo = FALSE, eval = TRUE, comment = NA}
+q + geom_point(aes(col=clarity)) + scale_colour_brewer(palette = "Accent")
+```
+
+We used the \texttt{Accent} from \texttt{ColorBrewer} in this example.
+
+# 3.1.3 The size component
+
+Another component of \texttt{geom\_point} is the size of the points. They can be changed by either setting or mapping. 
+\medskip
+
+The size of the points is specified in millimetres. 
+\vspace{3cm}
+
+# Setting the size 
+
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+p1 + geom_point(size=5)
+```
+What did you notice in this graph? 
+
+# 
+
+1. All the points are larger in size.
+2. The colour of the points are the same. Recall a few slides earlier, we map the colour of the points to \texttt{cut} and saved it.
+```{r, echo = TRUE, eval = FALSE, comment = NA}
+p1 <- p + geom_point(aes(col=cut)) 
+```
+When \texttt{geom\_point} was called the second time, it overwrites the command to map the colour of the points.
+
+How do we have change the colour and size at the same time? 
+
+#
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+p + geom_point(aes(col=cut), size=5)
+```
+
+# Mapping the size
+Similar to mapping the colour component, the size of the points can be mapped to a variable. 
+
+```{r, echo = FALSE, eval = TRUE, comment = NA}
+p1 + geom_point(aes(size=cut))
+```
+
+# 
+
+Notice in the previous graph that the points are in black colour but the legend still includes \texttt{cut}. This is because we wrote:
+```{r, echo = TRUE, eval = FALSE, comment = NA}
+p1 + geom_point(aes(size=cut))
+```
+
+However, due to our previously stored graph done:
+```{r, echo = TRUE, eval = FALSE, comment = NA}
+p1 <- p + geom_point(aes(col=cut)) 
+```
+
+the plot appears "incorrect" and there will be a lot of warnings.
+
+#
+To map both colour and size, we do this:
+
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+p + geom_point(aes(col=cut, size = cut))
+```
+
+# Practice 3.3
+Previously, both the size and colour of the points are mapped to the \texttt{cut} of the diamonds. Suppose we are interested to reflect the change in \texttt{price} due to \texttt{carat} by both \texttt{cut} and \texttt{color} of the diamonds, what should the code look like? 
+
+\vspace{3cm}
+
+# Practice 3.3: Option 1
+
+```{r, echo = FALSE, eval = TRUE, comment = NA}
+p + geom_point(aes(col=cut, size = color))
+```
+
+# Practice 3.3:  Option 2
+
+```{r, echo = FALSE, eval = TRUE, comment = NA}
+p + geom_point(aes(col=color, size = cut))
+```
+
+# 3.1.4 The shape component
+Another component to consider is the shape of the points, which are identified using numbers.
+![Shapes](ggplot2-shape-identity.png)
+
+#
+
+```{r, echo = FALSE, eval = TRUE, comment = NA}
+p + geom_point(shape=6)
+```
+
+# 
+The previous graph has its points "set" to an inverse triangles. 
+\medskip
+
+What do you think the code should be? \textit{Hint: \texttt{shape} is a component of the \texttt{geom\_point}}.
+\medskip
+
+Suppose we want to map the points to the \texttt{cut} of the diamonds, what do you think the code looks like?
+
+# 
+```{r, echo = TRUE, eval = TRUE, comment = NA, warning=FALSE}
+p + geom_point(aes(shape=cut), size=5)
+```
+
+# 
+
+You may have received a warning that the shape component is not recommended for ordinal variable such as \texttt{cut}. This is a recommendation. Usually, shape is for nominal variable, i.e. categorical variables that do not have a natural ordering.
+\vspace{4cm}
+
+# A brief summary
+
+* There are three basic components in \texttt{geom\_point}: colour, size and shape.
+* For each component, we can choose to set the points to our preference or map them to a variable. 
+* It is recommended to include how you want the points to look in one call of  \texttt{geom\_point}. For example, 
+```{r, echo = TRUE, eval = FALSE, comment = NA, warning=FALSE}
+p + geom_point(aes(col= cut, size = cut, shape=cut))
+```
+
+# 4.0 Geometrics
+
+Geometric objects perform the actual rendering of the layer and control the type of plot that you created.For example, 
+
+* \texttt{geom\_point} produces scatterplots
+* \texttt{geom\_line} produces line graphs
+* \texttt{geom\_bar} produces bar plots
+
+
+# 4.1 Line graphs
+Recall that 
+```{r, echo = TRUE, eval = FALSE, comment = NA}
+p <- ggplot(my.diamonds, aes(x=carat, y=price))
+```
+
+Previously we have been drawing scatterplots to draw relationship between \texttt{carat} and \texttt{price}. We used \texttt{geom\_point}. What happens if we used \texttt{geom\_line}
+
+# 
+
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+p + geom_line()
+```
+
+# 4.1.1 Setting colour
+
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+p + geom_line(col = "red")
+```
+
+# 4.1.2 Setting thickness of the line
+
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+p + geom_line(size=1.5)
+```
+
+
+# 4.1.3 Setting the type of line
+
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+p + geom_line(linetype = "dashed")
+```
+
+# 4.1.4 Lines with points
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+p + geom_line() + geom_point()
+```
+
+# Practice 4.1
+Using \texttt{p} as a basis, try to reproduce the following graph
+```{r, echo = FALSE, eval = TRUE, comment = NA}
+p + geom_line(col = "red", linetype="dashed") + geom_point(col = "red", size = 4, shape =2)
+```
+
+# 4.1.5 Multiple lines
+
+To draw multiple lines, the points must be grouped by a variable. Otherwise, all the points will be connected by a single line.
+
+Suppose we are interested to draw the lines according to \texttt{cut}. Hint: The base layer needs to incorporate the \texttt{group} of the points. 
+\vspace{3cm}
+
+# 
+
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+p2<- ggplot(my.diamonds, aes(x=carat, y=price, group = cut))
+p2 + geom_line()
+```
+
+# 
+
+```{r, echo = FALSE, eval = TRUE, comment = NA}
+ggplot(my.diamonds, aes(x=carat, y=price, group = cut)) + geom_line(aes(col=cut))
+```
+
+#
+To map the colours of the lines to \texttt{cut}, there are two options:
+
+Option 1:
+```{r, echo = TRUE, eval = FALSE, comment = NA}
+ggplot(my.diamonds, aes(x=carat, y=price, group = cut)) 
++ geom_line(aes(col=cut))
+```
+
+Option 2:
+```{r, echo = TRUE, eval = FALSE, comment = NA}
+ggplot(my.diamonds, aes(x=carat, y=price, group = cut, 
+                        col = cut)) + geom_line()
+```
+
+# 
+To demonstrate the benefit of using the second option, we will use a simulated data set that contains nominal variables.
+```{r, echo = TRUE, eval = TRUE , comment = NA}
+dat1 <- data.frame(
+    sex = factor(c("Female","Female","Male","Male")),
+    time = factor(c("Lunch","Dinner","Lunch","Dinner"), 
+                  levels=c("Lunch","Dinner")),
+    total_bill = c(12.53, 17.8, 15.24, 17.2)
+)
+
+dat1
+```
+
+
+# 
+
+Suppose we are interested to visualize the relationship between \texttt{time} (nominal) and \texttt{total\_bill} (continuous) while considering the effect of \texttt{sex} (nominal) using both lines and points.
+\vspace{2cm}
+
+How do you graph them? 
+
+# Option 1
+
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+ggplot(dat1, aes(x=time, y=total_bill, group=sex))+
+  geom_line(aes(col=sex)) + geom_point(aes(col=sex))
+```
+
+# Option 2
+
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+ggplot(dat1, aes(x=time, y=total_bill, group=sex, 
+                      col=sex)) + 
+  geom_line() + geom_point()
+```
+
+# 
+
+* Option 2 is more efficient than Option 1. 
+* You can manipulate the components of the line and points as shown earlier. 
+
+\vspace{3cm}
+
+# 4.2 Bar graphs
+Bar graphs are commonly used to graph categorical variables. For example, the total price of diamonds by \texttt{cut} or \texttt{color}.
+
+```{r, echo = FALSE, eval = TRUE, comment = NA}
+ggplot(my.diamonds, aes(x=color, y= price))+ geom_bar(stat="identity")
+```
+
+# 
+The code for producing the earlier bar chart is:
+```{r, echo = TRUE, eval = FALSE, comment = NA}
+ggplot(my.diamonds, aes(x=color, y= price))+
+  geom_bar(stat="identity")
+```
+
+Notice that the x- and y-axes are similar to that of the scatterplots. The only difference is the use of \texttt{geom\_bar}. 
+
+# 
+Suppose we want to add fill colours
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+ggplot(my.diamonds, aes(x=color, y= price, fill=color))+
+    geom_bar(stat="identity")
+```
+
+# Practice 4.2
+Suppose we want to colour the bars by \texttt{cut} after totalling the price for the diamonds by \texttt{color},i.e.
+
+```{r, echo = FALSE, eval = TRUE, comment = NA}
+ggplot(my.diamonds, aes(x=color, y= price, fill=cut))+
+    geom_bar(stat="identity")
+```
+
+# 
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+ggplot(my.diamonds, aes(x=color, y= price, fill=color))+
+    geom_bar(stat="identity") + 
+  scale_fill_manual(values=cbbPalette)
+```
+
+
+# 5.0 Others
+
+Some items of interest to all:
+
+* x- and y-axes labels
+* title of the graph
+* legends
+
+# 5.1 Axes labels
+
+Similar to the base package, we can change the labels of the axes by adding the components as follow:
+
+* x-axis: \texttt{xlab("name")}
+* y-axis: \texttt{ylab("name")}
+
+# 
+```{r, echo = TRUE, eval = TRUE, comment = NA}
+p + geom_line(col = "red") +
+  xlab("Price") + ylab("Carat")
+```
+
+# 5.2 Titles of the graph
+
+To add a title to the graph, we can use \texttt{ggtitle}
+
+
+```{r, echo = TRUE, eval = FALSE, comment = NA}
+p + geom_line(col = "red") +
+  xlab("Price") + ylab("Carat")+
+  ggtitle("Relationship between price and carat")
+```
+
+#
+
+```{r, echo = FALSE, eval = TRUE, comment = NA}
+p + geom_line(col = "red") +
+  xlab("Price") + ylab("Carat")+
+  ggtitle("Relationship between price and carat")
+```
+
+
+# 
+The title are left-centred and can be adjusted through the "theme" layer which we will not covered here. 
+
+Personally, the title is not useful since we usually will add caption to the graphs when writing up the results. 
+\vspace{2cm}
+
+# 5.3 Legends
+There are two ways for changing the legends title and labels:
+
+1. Modify the data frame directly.
+2. \texttt{scale\_xxx\_yyy}. Refer to \url{http://www.cookbook-r.com/Graphs/Legends_(ggplot2)/} for the different combinations of \texttt{xxx} and \texttt{yyy}.
+
+\vspace{2cm}
+
+
+#
+
+```{r, echo = FALSE, eval = TRUE, comment = NA}
+p + geom_line(aes(col=cut)) +
+  scale_colour_discrete(name="Cut of diamonds",
+                        breaks=c("Fair", "Good", "Very Good", "Premium", "Ideal"),
+                        labels= c("A", "B", "C", "D", "E"))
+```
+
+#
+Since the legend is related to the colour of the lines, \texttt{xxx} is \texttt{colour} and the variable is categorical, we set \texttt{yyy} to \texttt{discrete}:
+
+```{r, echo = TRUE, eval = FALSE, comment = NA}
+p + geom_line(aes(col=cut)) +
+  scale_colour_discrete(name="Cut of diamonds",
+  breaks=c("Fair", "Good", 
+           "Very Good", "Premium", "Ideal"),
+  labels= c("A", "B", "C", "D", "E"))
+```
+
+#
+
+\begin{center}
+{\LARGE Thank you!}
+
+\vspace{0.5cm}
+
+uwaterloo.ca/sccr
+\end{center}
+
+\textit{{\small The Statistical Consulting and Collaborative Research Unit (SCCR) is the unit through which the Department of Statistics and Actuarial Science provides statistical advice to those working on research problems.}}
+
+

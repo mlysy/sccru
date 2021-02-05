@@ -268,7 +268,7 @@ In the real world, data are recorded in different formats such as Excel spreadsh
 
 You can import the data into R Environment using functions such as `read.csv()` and `read.table()`. Imported data are stored as a data frame object. 
 
-In this tutorial, we will focus on two data sets: `r xfun::embed_file("data/caliRain.csv", text = "caliRain.csv")` and `r xfun::embed_file("data/drinks.csv", text = "drinks.csv")`. 
+In this tutorial, we will focus on two data sets: `r embed_data_file("data/caliRain.csv", text = "caliRain.csv")` and `r embed_data_file("data/drinks.csv", text = "drinks.csv")`. 
 
 We can import both data sets `caliRain.csv` and `drinks.csv` into the R environment and save them as data frames called `drinks.df` and `rain.df` respectively. Suppose we save the data sets in a subfolder called `data` in the working directory, then
 ```{r rintro-data-import, echo=TRUE, eval=TRUE, comment = NA}

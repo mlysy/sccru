@@ -40,7 +40,7 @@
 
 - Use "" instead of '' for quotes.
 
-- To embed a file in your module, use function `embed_file()` in the package `r cran_link("xfun")`. For example `r xfun::embed_file("data/caliRain.csv", text = "caliRain.csv")`. For more details, refer [here](https://bookdown.org/yihui/rmarkdown-cookbook/embed-file.html).
+- To embed a file in your module, use function `embed_file()`. For example, `r embed_data_file("data/caliRain.csv", text = "caliRain.csv")`.
 
 ## Math
 
