@@ -3,6 +3,12 @@
 ###########################################################
 
 #----------------------------------------------
+# require useful libraries
+require("htmltools")
+require("xfun")
+#----------------------------------------------
+
+#----------------------------------------------
 # function to print the link to R packages
 cran_link <- function(pkg) {
   paste0("[**", pkg, "**](https://CRAN.R-project.org/package=", pkg, ")")
@@ -23,7 +29,6 @@ embed_data_file <- function(path, name = basename(path),
   file.copy(path, new.path, overwrite = TRUE)
   
   #create a download link in html file
-  require("htmltools")
   h = paste0("data:", mime::guess_type(new.path), ";base64,", 
               base64_encode(new.path))
   htmltools::a(text, href = new.path, download = name, ...)

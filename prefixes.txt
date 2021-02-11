@@ -6,3 +6,4 @@ mod_questionnaire_design ------- questdes
 mod_linear_regression ---------- linreg
 mod_nonparametric -------------- nonpram
 mod_intro_r -------------------- rintro
+mod_ggplot2 -------------------- visgg

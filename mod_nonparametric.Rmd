@@ -127,7 +127,7 @@ boxplot(Sepal.Length ~ Species, xlab = "Species", data = iris2)
 Notice that the medians appear to be quite different for the two species, so we expect to reject the rank-sum test. We also notice that each group seems to have approximately the same shape and spread. This would allow us to interpret a rejected rank-sum test as the groups have different medians. 
 
 We can use the `wilcox_test()` function in the **coin** package to perform the Wilcoxon rank-sum test. The function `wilcox_test()` first takes a formula of the form `response_variable ~ group_variable`. It also has a `data` argument where you specify your data frame that contains you group variable and your response variable. 
-```{r nonpram-wilcox-test}
+```{r nonpram-wilcox-test, cache=TRUE}
 # iris[1:100,] is the first two species in the data
 coin::wilcox_test(Sepal.Length ~ Species, data = iris[1:100, ])
 ```
@@ -485,7 +485,7 @@ PMCMRplus::frdAllPairsExactTest(test_data$resp, test_data$tmnt, test_data$subj, 
 The p-values are given within cells, each cell corresponds to a comparsion of the treatments corresponding to the cell's row and the cell's column. For example, the upper left cell says that the p-value for testing a difference of rank means between the first and second treatment is 0.00033. 
 
 Instead of doing all comparisons, we can also do many to one comparisons. The `frdManyOneExactTest()` function compares all treatments to the first treatment listed in the treatment variables and takes the same arguments as `frdAllPairsExactTest()`. 
-```{r nonpram-fried-test-all}
+```{r nonpram-fried-test-all, cache=TRUE}
 PMCMRplus::frdManyOneExactTest(test_data$resp, test_data$tmnt, test_data$subj, p.adjust.method = "none")
 ```
 Each row has a p-value that corresponds to the comparison of a group with group 1. 

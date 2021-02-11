@@ -1,4 +1,4 @@
-# Introduction to R
+# Introduction to R 
 
 *Author: Joslin Goh, Trang Bui*
 
@@ -615,4 +615,4 @@ We can see that there are some precipitation records that are exceptionally high
 
 #### A Fancy Visualization Library
 
-The `r cran_link("ggplot2")` library is a package created by Hadley Wickham. It offers a powerful language to create elegant graph. We have a [tutorial](#visgg-main) on this package.
+The `r cran_link("ggplot2")` library is a package created by Hadley Wickham. It offers a powerful language to create elegant graph. We have a [tutorial][Introduction to ggplot2] on this package.
