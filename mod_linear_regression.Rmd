@@ -8,7 +8,7 @@
 
 ## Introduction
 
-The goal of this tutorial is to introduce linear regression, an important model which is widely used in data analysis. The reasons for its popularity are
+The goal of this chapter is to introduce linear regression, an important model which is widely used in data analysis. The reasons for its popularity are
 
 - the model assumptions are often found satisfactory among many data sets; and 
 - the interpretation of each parameter in the model is easy and clear.
@@ -17,7 +17,8 @@ When the assumptions of the linear regression model are satisfied, the model is 
 
 ### List of R packages Used
 
-In this tutorial, we will be using the packages `r cran_link("wooldridge")`, `r cran_link("corrplot")`, `r cran_link("lmtest")`, and `r cran_link("MASS")`. Use the line `install.packages(c("wooldridge","corrplot","lmtest","MASS"))` to install required packages for this document. To install individual packages, use the line `install.packages("package name")`, e.g. `install.packages("corrplot")`.
+In this chapter, we will be using the packages `r cran_link("wooldridge")`, `r cran_link("corrplot")`, `r cran_link("lmtest")`, and `r cran_link("MASS")`. 
+<!-- Use the line `install.packages(c("wooldridge","corrplot","lmtest","MASS"))` to install required packages for this document. To install individual packages, use the line `install.packages("package name")`, e.g. `install.packages("corrplot")`. -->
 
 ```{r linreg-library, warning=FALSE, message=FALSE}
 # load the required packages
@@ -29,7 +30,7 @@ library(MASS)
 
 ### Motivating Example
 
-Throughout this tutorial, we will be considering the data set `econmath` from the R package **wooldridge**. 
+Throughout this chapter, we will be considering the data set `econmath` from the R package **wooldridge**. 
 
 We can first load the data set `econmath` to the working environment.
 ```{r linreg-data-load, warning=FALSE}
@@ -50,7 +51,7 @@ summary(econmath)
 
 Based on the information from this data set, we want to answer the question: "What factors are significantly associated with a student’s score in a college economics course?". To do this, we will try to find how the variable `score`, i.e., the final score in an economics course measured as a percentage, can be "explained" by other variables. Linear regression is a helpful statistical model to answer this question. 
 
-The data set contains some missing data. In this tutorial, we will only analyse the observations that are complete. Therefore, we will discard the data points with missing field and gather them in a new data set `econ`.
+The data set contains some missing data. In this chapter, we will only analyze the observations that are complete. Therefore, we will discard the data points with missing field and gather them in a new data set `econ`.
 
 ```{r linreg-data-omitmissing}
 econ <- econmath[complete.cases(econmath), ]
@@ -64,7 +65,7 @@ econ <- econmath[complete.cases(econmath), ]
 
 - Continuous data type takes any value over a continuous range. We can have measurement units for it. In R, continuous data is usually defined as `num` or `int`. In the data set `econ`, there are variables that should be treated as continuous. These are `age` (years), `work` (hours worked per week), `study` (hours studying per week), `colgpa` (college GPA at the beginning of the semester), `hsgpa` (high school GPA), `acteng` (ACT English score), `actmth` (ACT math score), and `act` (ACT composite score). 
 
-- Categorical data type only takes values over a finite set of values (levels), while continuous data type has infinite possible values over a continuous range. In the data set `econ`, there are variables that should be treated as categorical, such as `male` (gender of the student, only takes in 2 values, 0 for female and 1 for male), `mathscr` (math quize score, only takes in 11 values from 0 to 1). However, R is treating all these variables as continuous. In fact, we can see how R define each variable in the data set using the function `str()`.
+- Categorical data type only takes values over a finite set of values (levels), while continuous data type has infinite possible values over a continuous range. In the data set `econ`, there are variables that should be treated as categorical, such as `male` (gender of the student, only takes in 2 values, 0 for female and 1 for male), `mathscr` (math quiz score, only takes in 11 values from 0 to 1). However, R is treating all these variables as continuous. In fact, we can see how R define each variable in the data set using the function `str()`.
     ```{r linreg-data-struc}
 str(econ) # structure of the data set
     ```
@@ -80,8 +81,8 @@ econ$mothcoll <- factor(econ$mothcoll)
         ```
     - Categorical variables with more than 2 levels: In the data set `econ`, there are two variables that indicate attendence: `attexc` (=1 if past attendence is excellent) and `attgood` (=1 if past attendence is good). It will make sense if we combine these two variables into one variable for attendence `att`(=2 if past attendence 'excellent'; =1 if past attendence 'good'; =0 if otherwise).
         ```{linreg-data-cate}
-econ$att <- econ$attgood # 1 if past attendence is good
-econ$att[econ$attexc == 1] <- 2 # 2 if past attendence is excellent
+econ$att <- econ$attgood # 1 if past attendance is good
+econ$att[econ$attexc == 1] <- 2 # 2 if past attendance is excellent
 econ$att <- factor(econ$att) # turn att in to categorical variable
 econ <- econ[, -c(13, 14)] # remove the attgood and attexc column
         ```
@@ -311,9 +312,9 @@ qqline(eps, col = "red", lty = 2)
 
 If the normality assumption does not hold and the sample is small, the confidence intervals and $p$-values results are no longer valid. However, in large samples, they will be approximately valid. 
 
-#### Conditional Homoskedasticity
+#### Conditional Homoscedasticity
 
-To check conditional homoskedasticity (constant variance), i.e. $\var(\epsilon | x) = \sigma^2$, we can plot a scatterplot of residuals and fitted values. In the perfect case, you should see a horizontal band of residuals evenly distributed along with the fitted values.
+To check conditional homoscedasticity (constant variance), i.e. $\var(\epsilon | x) = \sigma^2$, we can plot a scatterplot of residuals and fitted values. In the perfect case, you should see a horizontal band of residuals evenly distributed along with the fitted values.
 
 The residuals vs. fitted plot of our simple linear model looks like the below
 
@@ -332,7 +333,7 @@ The residuals vs. fitted plot of the perfect linear model looks like the below
 plot(
   x = predict(plm), y = residuals(plm), # R way of calculating these
   pch = 16, cex = .7,
-  xlab = "Fitted Values", ylab = "Residuals", main = "Perfecr Linear Model"
+  xlab = "Fitted Values", ylab = "Residuals", main = "Perfect Linear Model"
 )
 abline(h = 0, col = "red", lty = 2) # add horizontal line
 ```
@@ -356,7 +357,7 @@ The best power transformation has the power
 ```{r linreg-slm-best-power}
 tmp$x[which.max(tmp$y)]
 ```
-So we can transform `score` to `score^2` so that we have a model that satisfy the homoskedasticity assumption. 
+So we can transform `score` to `score^2` so that we have a model that satisfy the homoscedasticity assumption. 
 ```{r linreg-slm-transform-fit, cache=TRUE}
 slm2 <- lm(score^2 ~ colgpa, data = econ)
 summary(slm2)
@@ -368,7 +369,7 @@ Now we can see that we have a better horizontal band of residuals. However, be a
 
 In practice, we don't always want to do power transformation because this may not answer the scientific question you want to answer. For example, you want to know the relationship of `colgpa` to the `score`, not `score^2`. 
 
-If the homoskedasticity assumption is not satisfied, then standard errors, confidence intervals and p-values are no longer valid. Besides transforming variables, we can use techniques such as [boostrapping](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) or [weighted least squares](https://en.wikipedia.org/wiki/Weighted_least_squares) to estimate the variabilities of our estimates.  
+If the homoscedasticity assumption is not satisfied, then standard errors, confidence intervals and p-values are no longer valid. Besides transforming variables, we can use techniques such as [boostrapping](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) or [weighted least squares](https://en.wikipedia.org/wiki/Weighted_least_squares) to estimate the variabilities of our estimates.  
 
 ### Simple Linear Regression on a Binary Covariate
 
@@ -539,7 +540,7 @@ There are two main ways to select a model:
 - *Manual selection*: One can compare two or more models of interest via model selection criteria, such as  [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion),  [adjusted $R^2$](https://en.wikipedia.org/wiki/Coefficient_of_determination#Adjusted_R2), etc. In R, we can use the function `AIC()` for AIC and look at the `summary()` for adjusted $R^2$. For other functions, refer to online resources.
 - *Automatic selection*: As number of covariates increases, the number of possible models we can have also increases rapidly, which makes manual selection difficult. To solve this problem, there are some automatic selection algorithms such as forward selection, backward selection, stepwise selection, etc. These algorithms do not necessarily produce the same results. We can use manual selection, if needed, at the end to compare the models produced by these algorithms. These algorithms can be conducted using the R package `r cran_link("leaps")`.
 
-In this tutorial, we will only use the `step()` function in R to do stepwise selection
+In this chapter, we will only use the `step()` function in R to do stepwise selection
 ```{r linreg-mlm-stepwise, cache = TRUE}
 # bounds for model selection
 M0 <- lm(score ~ 1, data = econ) # minimal model: intercept only
@@ -575,7 +576,7 @@ In this plot, if a pair of variables has a more blue circle, it will have a stro
 
 We can check homoscedasticity (equal variance) and normality with the same command as in Section [3.2.5.4](#linreg-powertransform). 
 
-```{r linreg-mlm-plot-homoskedasticity}
+```{r linreg-mlm-plot-homoscedasticity}
 plot(Mstep, which = c(1, 2), ask = FALSE)
 ```
 
@@ -612,7 +613,7 @@ It is relatively rare that outlier observations should be deleted to improve the
 
 ## Further Extensions
 
-More advanced issues we didn't cover in this tutorial:
+More advanced issues we didn't cover in this chapter:
 
 <!--- What covariates should we include? (depending on the goal of the analysis: prediction or inference, there are many different methods to choose covariates in our model).--> 
 

@@ -8,7 +8,7 @@
 
 ## R and RStudio
 
-[R](https://www.r-project.org/) is a software environment for statistical computing and graphics. Unlike other statistical software, R is free. Besides buit-in functions, additional pacakges for solving many different statistical or application problems are made and maintained by contributors around the world. This makes R an attractive and popular statistical tool nowadays.
+[R](https://www.r-project.org/) is a software environment for statistical computing and graphics. Unlike other statistical software, R is free. Besides built-in functions, additional packages for solving many different statistical or application problems are made and maintained by contributors around the world. This makes R an attractive and popular statistical tool nowadays.
 
 [RStudio](https://rstudio.com/products/rstudio/) is an integrated development environment ([IDE](https://en.wikipedia.org/wiki/Integrated_development_environment)) for R. It is easier to work with R using RSudio. 
 
@@ -31,7 +31,7 @@ In its simplest form, R can be used as a calculator. In the R Console area, type
 ```{r rintro-basic-sum, echo = TRUE, eval = FALSE}
 1 + 2
 ```
-you will see the following being printed in the R Console area
+You will see the following being printed in the R Console area
 ```{r rintro-basic-sum-result, echo = FALSE, eval = TRUE, comment = NA}
 1 + 2
 ```
@@ -65,28 +65,6 @@ log(10, base = 10)
 log(10)
     ```
 
-#### Practice 1
-
-Evaluate the following ratio
-$$
-\frac{e^{1}}{1-e^{1}}
-$$
-*Solution:* 
-```{r rintro-basic-practice-cal1, echo = FALSE, eval = TRUE, comment = NA}
-exp(1) / (1 - exp(1))
-```
-
-#### Practice 2
-
-Calculate
-$$
-\frac{e^{1-\pi}}{1-e^{1-\pi}}
-$$
-*Solution:* 
-```{r rintro-basic-practice-cal2, echo = FALSE, eval = TRUE, comment = NA}
-exp(1 - pi) / (1 - exp(1 - pi))
-```
-
 ### Variables
 
 Variables are useful when they need to be used repeatedly or to be recalled in the future. 
@@ -103,7 +81,7 @@ x <- 9.2315468
 ```
 - In the Console panel, nothing is returned.
 - In the Workspace and History panel, $x$ appears together with the value it represents. This shows that your current workspace recognize $x$ as $9.2315468$.
-- Now if we try typing $x$ in the Console
+- Now if we try typing $x$ in the Console, we will see the value it represents.
     ```{r rintro-basic-variable-result, echo = TRUE, eval = TRUE, comment = NA}
 x
     ```
@@ -112,30 +90,12 @@ Back to our example, we wanted to evaluate
 $$
 \frac{e^{1-9.2315468}}{1-e^{1-9.2315468}},
 $$
-Since $x = 9.2315468$ in our work environment, we can now type and run
+Since $x = 9.2315468$ is in our work environment, we can now type and run
 ```{r rintro-basic-variable-calculate, echo = TRUE, eval = TRUE, comment = NA}
 exp(1 - x) / (1 - exp(1 - x))
 ```
 
 In R, there are built-in variables, which are called default variables in R. The number $\pi$ is recognized as `pi`. Another default variable is the imaginary number, i.e $\sqrt{-1}$, which is recorded as `i` in R. 
-
-#### Practice 3
-
-Can you simplify the code further?
-```{r rintro-basic-practice-var1, echo = TRUE, eval = FALSE, comment = NA}
-exp(1 - x) / (1 - exp(1 - x))
-```
-
-*Solution:*  
-```{r rintro-basic-practice-var1-sol1}
-y <- 1 - x
-exp(y) / (1 - exp(y))
-```
-or
-```{r rintro-basic-practice-var1-sol2}
-z <- exp(1 - x)
-z / (1 - z)
-```
 
 ### Getting Help
 
@@ -143,7 +103,7 @@ Before getting others for help, it is generally a good idea for you to try to he
 
 #### R Documentation
 
-R has an extensive documentation and resources for help. To read the documentation of a function, add a quotation mark before the name of a function. 
+R has an extensive documentation and resources for help. To read the documentation of a function, add a question mark before the name of a function. 
 
 For example, to find out how to use the function `round()`, you can run
 ```{r rintro-basic-help, echo = TRUE, eval = FALSE, comment = NA}
@@ -221,7 +181,7 @@ When you quit R or RStudio, you can choose to save the Environment and History t
 
 However, it is recommended not to save the Environment in the default way. Instead, start in a clean environment so that older objects do not remain in your environment any longer than they need to. If that happens, it can lead to unexpected results.
 
-But if you want to save the Environment for conveniences or future use, we recommend that you save the Environment with names of your choice using the function `save.image()` rather than using the default files `.RData`. If you only want to save certain values, you can use the function `save()` and when you want to load the saved Environment, use `load()` function. 
+For those who want to save the Environment for conveniences or future use, we recommend that you save the Environment with names of your choice using the function `save.image()` rather than using the default files `.RData`. If you only want to save certain values, you can use the function `save()` and when you want to load the saved Environment, use `load()` function. 
 
 #### Installing Libraries
 
@@ -270,21 +230,21 @@ You can import the data into R Environment using functions such as `read.csv()` 
 
 In this tutorial, we will focus on two data sets: `r embed_data_file("data/caliRain.csv", text = "caliRain.csv")` and `r embed_data_file("data/drinks.csv", text = "drinks.csv")`. 
 
-We can import both data sets `caliRain.csv` and `drinks.csv` into the R environment and save them as data frames called `drinks.df` and `rain.df` respectively. Suppose we save the data sets in a subfolder called `data` in the working directory, then
+We can import both data sets `caliRain.csv` and `drinks.csv` into the R environment and save them as data frames called `drinks_df` and `rain_df` respectively. Suppose we save the data sets in a subfolder called `data` in the working directory, then
 ```{r rintro-data-import, echo=TRUE, eval=TRUE, comment = NA}
-drinks.df <- read.csv("data/drinks.csv")
-rain.df <- read.csv("data/caliRain.csv")
+drinks_df <- read.csv("data/drinks.csv")
+rain_df <- read.csv("data/caliRain.csv")
 ```
 
 #### A Look at the Data 
 
 It is important to take a look at the data set imported into the environment before performing the analysis. You can use 
 ```{r rintro-data-view, echo=TRUE, eval=FALSE, comment = NA}
-View(rain.df)
+View(rain_df)
 ```
 to view the data set as a table in R or you can use the function `head()` to take a look at the first few rows of the data set.  
 ```{r rintro-data-head, echo=TRUE, eval=TRUE, comment = NA}
-head(rain.df)
+head(rain_df)
 ```
 
 The `caliRain.csv` file contains daily rainfall recorded at numerous meteorological stations monitored  by the state of California. The variables recorded are:
@@ -300,26 +260,26 @@ The variables `STATION` and `SHADOW` are categorical variables, whereas the rema
 
 #### Accessing the Data Frame 
 
-Oftentimes, we are interested to access an individual column (or variable) within the data frame. For example, you are the precipitation variable in the data set `caliRain.csv` (or the data frame now stored as `rain.df` in R). There are two ways to access the columm:
+Oftentimes, we are interested to access an individual column (or variable) within the data frame. For example, if we are interested in the `PRECIP` variable in the data set `caliRain.csv` (or the data frame now stored as `rain_df` in R). There are two ways to access the column:
 
 - You can use the dollar sign followed by the name of the variable.
     ```{r rintro-data-dollar, echo=TRUE, eval=TRUE, comment = NA}
-rain.df$PRECIP
+rain_df$PRECIP
     ```
 - You can use the number of the column in the data set. 
     ```{r rintro-data-col, echo=TRUE, eval=TRUE, comment = NA}
-rain.df[, 2]
+rain_df[, 2]
     ```
 
 Similarly, there are times we want to investigate a particular row (or observation). Suppose we are interested in the 10th observation, then you can use
 ```{r rintro-data-row, echo=TRUE, eval=TRUE, comment = NA}
-rain.df[10, ]
+rain_df[10, ]
 ```
 
 We can also access a specific cell in the data. Suppose we are interested in the precipitation of the 5th observation, then you can use either of
 ```{r rintro-data-cell, echo=TRUE, eval=TRUE, comment = NA}
-rain.df$PRECIP[5]
-rain.df[5, 2]
+rain_df$PRECIP[5]
+rain_df[5, 2]
 ```
 
 Accessing a random variable, an observation or a specific value coming from an observation are all useful for data management and manipulation purpose. 
@@ -345,9 +305,9 @@ To modify a variable, we need to
 - decide on the modification or conversion, and 
 - decide on how you would like to store the new variable. We recommend storing the conversion as a new variable in the data frame to avoid confusion.
 
-Suppose we are interested to analyze `DISTANCE` in metres ($1 \tx{ ft} = 0.3048 \tx{ m}$). We can make the conversion and save it as a new column called `DISTANCE.M` in the data set. 
+Suppose we are interested to analyze `DISTANCE` in metres ($1 \tx{ ft} = 0.3048 \tx{ m}$). We can make the conversion and save it as a new column called `DISTANCE_M` in the data set. 
 ```{r rintro-data-modcol, echo=TRUE, eval=TRUE,comment=NA}
-rain.df$DISTANCE.M <- rain.df$DISTANCE * 0.3048
+rain_df$DISTANCE_M <- rain_df$DISTANCE * 0.3048
 ```
 
 ##### Modifying a Specific Observation
@@ -360,34 +320,34 @@ To modify a specific observation, we need to
 
 Suppose the distance for \texttt{Eureka} station is entered incorrectly and is supposed to be 1.5 feet instead.
 ```{r rintro-data-modcell, echo=TRUE, eval=TRUE,comment=NA}
-rain.df$DISTANCE[1] <- 1.5
+rain_df$DISTANCE[1] <- 1.5
 ```
 
 ##### Removing Records
 
 To remove an entire column from a data frame we use
 ```{r rintro-data-rmcol, echo=TRUE, eval=FALSE,comment=NA}
-rain.df <- rain.df[, -COLUMN_NUMBER]
+rain_df <- rain_df[, -COLUMN_NUMBER]
 ```
 
 To remove an entire row from a data frame we use
 ```{r rintro-data-rmrow, echo=TRUE, eval=FALSE,comment=NA}
-rain.df <- rain.df[-ROW_NUMBER, ]
+rain_df <- rain_df[-ROW_NUMBER, ]
 ```
 
-This way we re-store `rain.df` with the new data frame `rain.df` where its row/column removed. 
+This way we re-store `rain_df` with the new data frame `rain_df` where its row/column removed. 
 
 #### Data Structure
 
 You can see the structure that R store the data using the function `str()`.   
 ```{r rintro-data-str, echo=TRUE, eval=TRUE, comment = NA}
-str(rain.df)
+str(rain_df)
 ```
 Here, the variable `SHADOW` is recorded as a numeric value. This is not an accurate depiction of the data set. 
 
 To ensure the analysis can be done properly, we need to convert the values in `SHADOW` into categorical values in the data set. In R, we can do so using the function `factor()`.
 ```{r rintro-data-factor, echo=TRUE, eval=TRUE, comment = NA}
-rain.df$SHADOW <- factor(rain.df$SHADOW,
+rain_df$SHADOW <- factor(rain_df$SHADOW,
   levels = c("1", "2"),
   labels = c("Westward", "Leeward")
 )
@@ -395,53 +355,8 @@ rain.df$SHADOW <- factor(rain.df$SHADOW,
 Here we are making references to the numerical values 1 and 2, by
 setting them as “Westward” and “Leeward”, respectively. Now we can check the structure of the data set after the transformation. The variable `SHADOW` is now stored as a factor (or categorical) variable.
 ```{r rintro-data-factor-str, echo=TRUE, eval=TRUE, comment = NA}
-str(rain.df)
+str(rain_df)
 ```
-
-##### Practice 4
-
-Based on the data set `drinks.csv`, try to answer the following questions:
-  
-- How many observations are there? How many variables are recorded?
-- What are the names of the variables in the data set?
-- What is the recorded `fat` for the third observation?
-
-*Solution:*
-```{r rintro-data-practice-mod1, echo=TRUE, eval=TRUE, comment = NA}
-# How many observations are there? How many variables are recorded?
-str(drinks.df)
-
-# What are the names of the variables in the data set?
-names(drinks.df)
-
-# What is the recorded \texttt{fat} for the third observation?
-
-## Option 1:
-drinks.df$fat[3]
-
-## Option 2:
-drinks.df[3, 4]
-```
-
-##### Practice 5
-
-We are interested to group the drinks into categories of `HIGH` and `LOW` calories. Drinks with less than or equal to 150 calories are considered `LOW` calories, whereas drinks with more than 150 calories are considered `HIGH` calories. 
-
-- Create a new variable in `drinks.df` called `is.high.calorie` to record whether a drink contains high or low calorie.
-
-    *Solution:*
-    ```{r rintro-data-practice-mod21, echo=TRUE, eval=TRUE, comment = NA}
-drinks.df$is.high.calorie <- as.factor(drinks.df$calories > 150)
-levels(drinks.df$is.high.calorie)[levels(drinks.df$is.high.calorie) == "TRUE"] <- "HIGH"
-levels(drinks.df$is.high.calorie)[levels(drinks.df$is.high.calorie) == "FALSE"] <- "LOW"
-    ```
-- Subset the `drinks.df` data frame into two data frames: `hc.drinks.df` for drinks with `HIGH` calories and `lc.drinks.df` for drinks with `HIGH` calories.
-
-    *Solution:*
-    ```{r rintro-data-practice-mod22, echo=TRUE, eval=TRUE, comment = NA}
-hc.drinks.df <- drinks.df[drinks.df$is.high.calorie == "HIGH", ]
-lc.drinks.df <- drinks.df[drinks.df$is.high.calorie == "LOW", ]
-    ```
 
 *Notes:* Take a look at the [comparators and logical operators](https://www.statmethods.net/management/operators.html) in R.
 
@@ -451,46 +366,28 @@ Some commonly computed statistics can be computed easily in R.
 
 - [Mean](https://en.wikipedia.org/wiki/Mean) or average of a sequence of numbers can be obtained using the function `mean()`.
     ```{r rintro-data-mean, echo=TRUE, eval=TRUE, comment=NA}
-mean(rain.df$PRECIP)
+mean(rain_df$PRECIP)
     ```
 - [Median](https://en.wikipedia.org/wiki/Median) of a sequence of  numbers can be obtained using the function `median()`.
     ```{r rintro-data-median, echo=TRUE, eval=TRUE, comment=NA}
-median(rain.df$PRECIP)
+median(rain_df$PRECIP)
     ```
 - [Variance and standard deviation](https://en.wikipedia.org/wiki/Variance) of a sequence of numbers can be obtained using the functions `var()` and `sd()` respectively.
     ```{r rintro-data-var, echo=TRUE, eval=TRUE, comment=NA}
-var(rain.df$PRECIP)
-sd(rain.df$PRECIP)
-sqrt(var(rain.df$PRECIP))
+var(rain_df$PRECIP)
+sd(rain_df$PRECIP)
+sqrt(var(rain_df$PRECIP))
     ```
 - The minimum and maximum of a set of numbers can be obtained through functions `min()` and `max()`. 
     ```{r rintro-data-minmax, echo=TRUE, eval=TRUE, comment=NA}
-min(rain.df$PRECIP)
-max(rain.df$PRECIP)
+min(rain_df$PRECIP)
+max(rain_df$PRECIP)
     ```
     We can also use function `range()` to get the minimum and maximum values.
     ```{r rintro-data-range, echo=TRUE, eval=TRUE, comment=NA}
-range(rain.df$PRECIP)
+range(rain_df$PRECIP)
     ```
     
-#### Practice 6
-
-The five numbers: minimum, first quartile ($Q_1$), median, second quartile ($Q_2$), and maximum are called the [5-number summary](https://en.wikipedia.org/wiki/Five-number_summary). Please find the 5-number summary of the calories for the precipitation.
-
-*Solution:*
-```{r rintro-data-practice-des1, echo=TRUE, eval=TRUE, comment=NA}
-summary(rain.df$PRECIP)
-```
-
-#### Practice 7
-
-Find the average precipitation of the station with Leeward Shadow.
-
-*Solution:*
-```{r rintro-data-practice-des2, echo=TRUE, eval=TRUE, comment=NA}
-mean(rain.df$PRECIP[which(rain.df$SHADOW == "Leeward")])
-```
-
 ### Basic Data Visualization
 
 There are a wide variety of plots that we can draw in R, but we will focus on some of our favourites:
@@ -503,14 +400,14 @@ There are a wide variety of plots that we can draw in R, but we will focus on so
 
 The numerical summary of a categorical variable are usually summarized in a table
 ```{r rintro-data-table-shadow, echo=TRUE, eval=TRUE, comment=NA}
-count_of_shadow <- table(rain.df$SHADOW)
+count_of_shadow <- table(rain_df$SHADOW)
 count_of_shadow
 ```
 or
 ```{r rintro-data-table-milk, echo=TRUE, eval=TRUE, comment=NA}
 table.of.milk.by.temp <- table(
-  drinks.df$hasMilk,
-  drinks.df$temp
+  drinks_df$hasMilk,
+  drinks_df$temp
 )
 table.of.milk.by.temp
 ```
@@ -535,14 +432,6 @@ What if we are asked, "What are the percentages of the hot drinks that contain m
 prop.table(table.of.milk.by.temp, 2)
 ```
 These values are the proportions of drinks which contains milk (or not) conditioning on whether the drink is cold or hot, i.e., the values are normalized by the columns. Now we can answer, "100\% of the hot drinks contain milk."
-
-##### Practice 8
-
-We can normalize the values by the rows:
-```{r rintro-data-table-milk-prop-row, echo=TRUE, eval=TRUE, comment=NA}
-prop.table(table.of.milk.by.temp, 1)
-```
-Now, what percentage of drinks that contain milk are cold? 
 
 #### Bar Plots
 
@@ -569,7 +458,7 @@ Potential outliers are shown as dots outside the boxplots.
 
 Here is the boxplot of `PRECIP`. Notice the potential outliers.
 ```{r rintro-data-boxplot, echo=TRUE, eval=TRUE, fig.height=5}
-boxplot(rain.df$PRECIP,
+boxplot(rain_df$PRECIP,
   main = "Precipitation",
   ylab = "Inches"
 )
@@ -577,7 +466,7 @@ boxplot(rain.df$PRECIP,
 
 Side-by-side boxplots are commonly used to visualize relationship between a continuous variable and a categorical variable. The following is the boxplot of the precipitation by shadow. 
 ```{r rintro-data-boxplot-side, echo=TRUE, eval=TRUE, fig.height=5}
-boxplot(rain.df$PRECIP ~ rain.df$SHADOW,
+boxplot(rain_df$PRECIP ~ rain_df$SHADOW,
   main = "Precipitation",
   ylab = "Inches"
 )
@@ -594,7 +483,7 @@ In the side-by-side boxplots, notice that there are no potential outliers. Compa
 
 We can plot a histogram of the precipitation.
 ```{r rintro-data-histogram, echo=TRUE, eval=TRUE, fig.height=5}
-hist(rain.df$PRECIP,
+hist(rain_df$PRECIP,
   main = "Distribution of precipitation",
   xlab = "Precipitation", ylab = "Inches"
 )
@@ -606,7 +495,7 @@ Notice that there is no space in between the bars like in the barplot. This is b
 Scatterplots are used to visualize relationship between two continuous variables.
 
 ```{r rintro-data-scatter, echo=TRUE, eval=TRUE, fig.height=6}
-plot(rain.df$DISTANCE, rain.df$PRECIP,
+plot(rain_df$DISTANCE, rain_df$PRECIP,
   main = "Relationship: precipitation vs distance",
   xlab = "Distance (ft)", ylab = "Precipitation (inches)"
 )

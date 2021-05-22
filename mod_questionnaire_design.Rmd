@@ -8,7 +8,7 @@
 
 Surveys or questionnaires play an important role in many research and studies. A well-designed questionnaire will help researchers collect data required to answer research questions with strong *validity* and *reliability*. This section aims to provide some guidelines to create such questionnaires.
 
-The most important thing to keep in mind when designing a questionnaire is that, we are asking the respondents a favour. Therefore, the questionnaire needs to be as easy and less time-consuming as possible, while gathering enough information for our research questions. Our goal is to create a **short**, **easy**, **inviting** but still **sound** and **logical** questionnaire.
+The most important thing to keep in mind when designing a questionnaire is that, we are asking the respondents a favor. Therefore, the questionnaire needs to be as easy and less time-consuming as possible, while gathering enough information for our research questions. Our goal is to create a **short**, **easy**, **inviting** but still **sound** and **logical** questionnaire.
 
 There are four main steps to achieve our goal:
 
@@ -41,7 +41,7 @@ Planning the study ahead allows us to create a questionnaire that meets our rese
 
     > R, SAS, STATA, etc.
 
-Examining as many aspects of the study as possible will paint a picture of what the questionnaire should include, **what questions** need to be asked, and **to whom** the questionnaire should be designed for and sent to, etc. It is helpful to **write down the plan** for future reference and futher discussion.
+Examining as many aspects of the study as possible will paint a picture of what the questionnaire should include, **what questions** need to be asked, and **to whom** the questionnaire should be designed for and sent to, etc. It is helpful to **write down the plan** for future reference and further discussion.
 
 ## Prepare the Questions {#questdes-prepare}
 
@@ -57,11 +57,11 @@ For every question, think about the process that the survey respondents have to 
 
     > *"When is the last time that you meet a psychiatrist?"*. Maybe for some people the answer will be a long time ago such that they cannot remember. An appointment record can help with retrieving this information. 
 
-- Do the respondents need to **estimate** or **judge** for the answer? What can be some references for these estimates or judgements?
+- Do the respondents need to **estimate** or **judge** for the answer? What can be some references for these estimates or judgments?
 
     > *"How many hours do you spend on social media per week?"*. 3 hours a day will give an estimate of 21 hours a week. Some references can be, for example, everyday they spend one hour on social media thirty minutes after waking up and one hour before bed. Waking up and before bed are routines that can be remembered easily. 
 
-- Can the respondents easily map their answers to the options provided? Are **all possible answers** included in the question’s answer categories? How to help the respondents’ answers to be expressed precisely?
+- Can the respondents easily map their answers to the options provided? Are **all possible answers** included in the question's answer categories? How to help the respondents’ answers to be expressed precisely?
 
     > *"What do you think are the reasons for your sadness?"*. If this question is formed with a "choose one of the following" format, the respondents might not able to express all of their answers. 
     
@@ -82,11 +82,11 @@ asked before the specific questions; and questions are asked in groups or module
 
 - Pay attention to **sensitive** questions, i.e., the questions that respondents might hesitate to answer due to reasons such as privacy or shame. If the concern is **privacy**, you can create options based on wide groups (e.g., range of income, range of age, etc.), instead of requiring the exact information. If the concern is shame, or, **social desirability**, consider ways that will ease the respondents to the answer.
 
-    > If you want to ask about alcohol consumption, you can add a few sentences about the benefits of wine to health, which will make it is more relaxing for respondents to answer truthfully about their alcohol consumption.
+    > If you want to ask about alcohol consumption, you can add a few sentences about the benefits of wine to health, which will make it more relaxing for respondents to answer truthfully about their alcohol consumption.
 
 ## Put Together the Questionnaire {#questdes-put}
 
-- In the beginning, give some introduction about the research topic and its importance to give the respondents some **motivation** to answer the questionnaire. Mention the **research organizations, investigators or sponsors** and an **estimate of the length** of the questionaire. Do not forget to include statements about **privacy and confidentiality** from the [Office of Research Ethics](https://uwaterloo.ca/research/office-research-ethics). Including relevant **graphics** may appeal to the respondents that this is an easy-to-answer survey.
+- In the beginning, give some introduction about the research topic and its importance to give the respondents some **motivation** to answer the questionnaire. Mention the **research organizations, investigators or sponsors** and an **estimate of the length** of the questionnaire. Do not forget to include statements about **privacy and confidentiality** from the [Office of Research Ethics](https://uwaterloo.ca/research/office-research-ethics). Including relevant **graphics** may appeal to the respondents that this is an easy-to-answer survey.
 
     > For example, this sentence can be included at the beginning of the questionnaire. *The information gained from survey will help the school better understand and take reasonable measures catering to students regarding mental health.* 
 
@@ -129,7 +129,7 @@ Designing questionnaire is an iterative process. The four steps mentioned above 
         - some introduction about the research and its importance;
         - names of research organizations, investigators or sponsors;
         - an estimate of the length of the questionnaire;
-        - privacy and confidentitality statements; and
+        - privacy and confidentiality statements; and
         - relevant graphics.
     - Main body:
         - Start with a easy Yes-No question.

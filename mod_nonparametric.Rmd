@@ -8,25 +8,25 @@
 
 ## Introduction 
 
-The aim of this tutorial is to introduce nonparametric analogues of common statistical methods including ANOVA, two sample tests, confidence intervals and regression. Nonparametric statistical methods impose less assumptions on the data than their paramteric counterparts. Some reasons for using nonparametric methods include:
+The aim of this tutorial is to introduce nonparametric analogues of common statistical methods including ANOVA, two sample tests, confidence intervals and regression. Nonparametric statistical methods impose less assumptions on the data than their parametric counterparts. Some reasons for using nonparametric methods include:
 
 - the data appear to be non-normal/do not appear to fit the appropriate parametric assumptions for the problem;
 - the sample size is too small for certain large sample approximations;
 - the analyst is not comfortable imposing the typical model assumptions on the data; and
 - the data contains outliers. (This reason only applies to rank based methods, which are more resistant to outliers.)
 
-The benefits of nonparametric statistics do not come for free. When the assumptions of a paramteric model are satisfied, the paramteric model-based procedures are typically more accurate/powerful. However, we cannot know for sure if those assumptions are satisfied. 
+The benefits of nonparametric statistics do not come for free. When the assumptions of a parametric model are satisfied, the parametric model-based procedures are typically more accurate/powerful. However, we cannot know for sure if those assumptions are satisfied. 
 
 ### Preliminary Concepts {#nonpram-gloss}
 
 Some terms used in this document may be unclear, here is a glossary of the terms: 
 
 - Argument: Input for an R function.
-- Response variable: This is a synonym for dependent variable. This is the variable that is measuredas the outcome in an experiment. 
-- Continuous variable: A variable that takes on a "continum of values". For example height and weight.
+- Response variable: This is a synonym for dependent variable. This is the variable that is measured as the outcome in an experiment. 
+- Continuous variable: A variable that takes on a "continuum of values". For example height and weight.
 - Categorical variable: A variable that can only be a finite number of values. For example marital status or country of origin.
 - Ordinal variable: Categorical variable that has a clear ordering. Such as grades or highest level of education achieved, etc. 
-- Nominal variable: Categorical variable that has no clear ordering. Examples are sex, race, hair color ect. 
+- Nominal variable: Categorical variable that has no clear ordering. Examples are sex, race, hair color etc. 
 - Univariate: One variable.
 - Multivariate: Multiple variables.
 
@@ -46,7 +46,7 @@ Use the line `install.packages(c("coin","PMCMRplus","boot","caret","randomForest
 
 Throughout this document we will use the `iris` data as an example. 
 ```{r nonpram-data}
-data(iris) # loads the dataset
+data(iris) # loads the data set
 summary(iris) # displays summary statistics
 # Sepal.Length, Sepal.Width, Petal.Length and Petal.Width are all continuous variables
 # Species is a Categorical variable
@@ -54,7 +54,7 @@ summary(iris) # displays summary statistics
 
 ### Sample Ranks {#nonpram-rank}
 
-Many nonparametric procedures rely on ranking the data. Ranking a data variable means to put the values in order, from smallest to largest. Each point is then assigned a number for where in the order they fall. For example, smallest observation has rank 1 , the second smallest has rank 2, ect. the largest has rank $n$. 
+Many nonparametric procedures rely on ranking the data. Ranking a data variable means to put the values in order, from smallest to largest. Each point is then assigned a number for where in the order they fall. For example, smallest observation has rank 1 , the second smallest has rank 2, etc. the largest has rank $n$. 
 ```{r nonpram-data-rank}
 # Ranking a test sample of 5 observations
 test_sample <- rnorm(5)
@@ -206,7 +206,7 @@ The test checks to see if one group has a large amount of extreme observations.
 - Variable of interest is continuous/ordinal.
 - Data has only two groups.
 - All responses are independent.
-- Groups have the same mean/median. One can substract each group's respective median to meet this assumption.
+- Groups have the same mean/median. One can subtract each group's respective median to meet this assumption.
  
 #### How to Perform in R 
 
@@ -226,7 +226,7 @@ boxplot(s1, s2)
 # We expect to reject here
 PMCMRplus::siegelTukeyTest(x = s1, y = s2)
 
-# s1 and s2 are random samples with different variances but with diffferent means
+# s1 and s2 are random samples with different variances but with different means
 s1 <- rnorm(100, m = 4, sd = 3)
 s2 <- rnorm(100, m = 0, sd = 2)
 boxplot(s1 - median(s1), s2 - median(s2))
@@ -263,7 +263,7 @@ Notes:
 
 - The alternative is that in essence, one group differs from the others. One can read about stochastic domination [here](https://en.wikipedia.org/wiki/Stochastic_dominance).
 - If the analyst is willing to assume that the distributions of each group have the same shape and scale/variance, then the alternative becomes "At least one group's median differs."
-- Under standard paramteric ANOVA assumptions the standard paramteric ANOVA hypotheses are covered by these hypotheses. In other words, if the data are normal with the same variance, then this is also a test for a difference in means.
+- Under standard parametric ANOVA assumptions the standard parametric ANOVA hypotheses are covered by these hypotheses. In other words, if the data are normal with the same variance, then this is also a test for a difference in means.
 - Let $g$ be the number of groups. Mathematically, if $p_j$ is the proportion of observations in group $j$, and $X_j$ is a random observation from group $j$, then the test works if $\sum_{j=1}^g p_jP(X_i-X_j<0)\neq 1/2$ for at least one group $i$. This can generally be interpreted as the median differences $X_i-X_j$ between groups are non-zero for some pairs of groups. 
 
 #### Assumptions 
@@ -323,7 +323,7 @@ coin::kruskal_test(Petal.Length ~ Species, data = iris, distribution = "approxim
 
 ### Post Hoc Comparisons for KW ANOVA
 
-When a the KW Anova is rejected, we may then want to find which pairs of groups are different from each other. This is called post-hoc comparisons. 
+When the KW Anova is rejected, we may then want to find which pairs of groups are different from each other. This is called post-hoc comparisons. 
 
 After a significant KW result, we can use Dunn's test to compute post-hoc pairwise comparisons. Dunn's test checks for significant differences in pairwise rank means, given that a significant result was seen in the KW test.
 
@@ -337,7 +337,7 @@ $$
 
 Now that we have seen a significant KW Anova result with the iris data, we would like to see between which species there exists differences. Given the boxplots, we expect all 3 pairwise comparisons to be significant. 
 
-The Dunn test is done via the package and function which are both named **dunn.test**. The `dunn.test()` function takes two arguments, the first is the resposne variable and the second is the group variable. 
+The Dunn test is done via the package and function which are both named **dunn.test**. The `dunn.test()` function takes two arguments, the first is the response variable and the second is the group variable. 
 
 To adjust for running multiple hypothesis tests, we can use the `method` argument to account for the increased probability of type 1 error. Popular options include `"none"`,  `"bonferroni"` `"sidak` `"bh"`. 
 
@@ -356,7 +356,7 @@ Each cell in the outputted table contains the Dunn test statistic followed by th
 
 We can also do many to one comparisons, using the `kwManyOneDunnTest()` function in the **PMCMRplus** package. 
 
-Suppose we are only interested if the versicolor species and virginica species differ from the setosa species. Many to one comparisons are for when we are only interested in differences with one group, say the control. 
+Suppose we are only interested if the `versicolor` species and `virginica` species differ from the `setosa` species. Many to one comparisons are for when we are only interested in differences with one group, say the control. 
 
 The `kwManyOneDunnTest()` function has a `formula` argument where a formula in the form `response_variable ~ group_variable` is specified. The groups are compared with the first group listed in the group variable so your data may need to be reordered. In other words, the group representing "one" in the term "many to one" should be listed first. 
 
@@ -372,7 +372,7 @@ For a full list run the line `?PMCMRplus::frdAllPairsExactTest` to get the help 
 PMCMRplus::kwManyOneDunnTest(Petal.Length ~ Species, data = iris)
 ```
 
-Each row contains the p-value for the comparison between the setosa group and the group name for that row. 
+Each row contains the p-value for the comparison between the `setosa` group and the group name for that row. 
 
 ### Repeated Measures ANOVA (Friedman Test)
 
@@ -393,7 +393,7 @@ Notes:
 We can use the Friedman test to perform a repeated measures ANOVA.
 The Friedman test relies on the same intuition discussed in the KW ANOVA section; no differences between the groups should imply that there are roughly equal high and low ranks within each group. 
 
-The difference between the Friedman test and the KW test is that ranks are now computed within subjects intead of across subjects, to account for intrasubject dependencies.
+The difference between the Friedman test and the KW test is that ranks are now computed within subjects instead of across subjects, to account for intrasubject dependencies.
 
 #### Assumptions
 
@@ -411,7 +411,7 @@ It appears that the medians at each treatment are different from each other. Acc
 ```{r nonpram-fried-data}
 set.seed(440)
 # Create a fake repeated measures data set
-# Note it is not necessary to understand how to simulate a dataset in order to apply Friedman ANOVA, so this code block is optional.
+# Note it is not necessary to understand how to simulate a data set in order to apply Friedman ANOVA, so this code block is optional.
 time_0 <- rnorm(100, 2)
 time_1 <- time_0 * .2 + rnorm(100, 1) # time 1 observation has a dependency on the time 0 observation.
 time_2 <- time_1 * .2 + rnorm(100, 3) # time 2 has dependency on time 1, which implies dependency on time 0
@@ -419,7 +419,7 @@ time_2 <- time_1 * .2 + rnorm(100, 3) # time 2 has dependency on time 1, which i
 # Putting the data in the above format
 resp <- c(time_0, time_1, time_2) # create response variable
 subj <- as.factor(rep(1:100, 3)) # create subject variable
-tmnt <- as.factor(rep(1:3, each = 100)) # creat treatment or time variable
+tmnt <- as.factor(rep(1:3, each = 100)) # create treatment or time variable
 test_data <- data.frame(resp, subj, tmnt) # put variables in data frame
 
 # This fake data set has dependencies when the subject number is the same. We expect to reject this Friedman test since the mean at time 3 is 3.28, the mean at time 2 is 1.4 and the mean at time 1 is 2.
@@ -482,7 +482,7 @@ For a full list run the line `?PMCMRplus::frdAllPairsExactTest` to get the help 
 ```{r nonpram-fried-test-pair, cache=TRUE}
 PMCMRplus::frdAllPairsExactTest(test_data$resp, test_data$tmnt, test_data$subj, p.adjust.method = "none")
 ```
-The p-values are given within cells, each cell corresponds to a comparsion of the treatments corresponding to the cell's row and the cell's column. For example, the upper left cell says that the p-value for testing a difference of rank means between the first and second treatment is 0.00033. 
+The p-values are given within cells, each cell corresponds to a comparison of the treatments corresponding to the cell's row and the cell's column. For example, the upper left cell says that the p-value for testing a difference of rank means between the first and second treatment is 0.00033. 
 
 Instead of doing all comparisons, we can also do many to one comparisons. The `frdManyOneExactTest()` function compares all treatments to the first treatment listed in the treatment variables and takes the same arguments as `frdAllPairsExactTest()`. 
 ```{r nonpram-fried-test-all, cache=TRUE}
@@ -511,7 +511,7 @@ Before proceeding, if the reader is not familiar with the term sampling distribu
 
 ### Bootstrap Confidence Intervals
 
-When computing confidence intervals for an estimated value, such as mean or regresssion parameter, typically we rely on the fact that the estimated value's sampling distribution is normal; the estimated value is normally distributed for large $n$. 
+When computing confidence intervals for an estimated value, such as mean or regression parameter, typically we rely on the fact that the estimated value's sampling distribution is normal; the estimated value is normally distributed for large $n$. 
 
 The confidence interval is then of the form 
 $$\hat{\theta}\pm Z_{1-\alpha/2}s_n,$$
@@ -531,7 +531,7 @@ Of course, the problem is that we only have one sample instead of many samples. 
 
 Bootstrapping is a technique that involves resampling your data with replacement many times to produce many samples and therefore replicates of the estimated value. We can then use the variation in the estimated values to get an idea of the error that could be made in estimation.
 
-The boostrap procedure is as follows:
+The bootstrap procedure is as follows:
 
 - sample $B$ samples of size $n$ with replacement from your sample;
 - compute your estimator for each of the $B$ samples, these are the bootstrap replicates; and
@@ -540,14 +540,14 @@ The boostrap procedure is as follows:
 
 ### Assumptions 
 
-- The boostrap procedure assumes your sample is a good representative of the population. If your sample contains outliers, it is important to use a robust boostrap.
+- The bootstrap procedure assumes your sample is a good representative of the population. If your sample contains outliers, it is important to use a robust bootstrap.
 - The value being estimated is not at the edge of the parameter space. This means that the value is not, for example, a minimum or maximum.
 
 ### Examples in R 
 
 Let's do a simple example, where the goal is to compute a confidence interval for the sample mean. 
 
-Suppose we would like to create a 95% confidence interval for the mean petal length of the setosa species in the iris data. The `boot()` function in the **boot** package in R is used to create bootstrap replicates. 
+Suppose we would like to create a 95% confidence interval for the mean petal length of the `setosa` species in the `iris` data. The `boot()` function in the **boot** package in R is used to create bootstrap replicates. 
 
 The function takes many arguments, but we will cover 3. 
 
@@ -558,7 +558,7 @@ The second argument `statistic` is an R function which returns your estimator gi
 The third argument `R` is the number of bootstrap samples. 
 This should be large. 
 
-We use the `boot.ci` to compute boostrap confidence intervals. 
+We use the `boot.ci` to compute bootstrap confidence intervals. 
  
 
 ```{r nonpram-bootstrap-mean}
@@ -572,7 +572,7 @@ estimator <- function(orig_data, ind) {
   mean(orig_data[ind])
 }
 
-# Create 1000 boostrap replicates for iris data
+# Create 1000 bootstrap replicates for iris data
 boot_repl <- boot::boot(iris$Petal.Length[1:50], estimator, 1000)
 
 # Compute a 95% confidence interval, bases on the bootstrap replicates
@@ -612,7 +612,7 @@ estimator <- function(orig_data, ind) {
   coef(model_b)
 }
 
-# Create 1000 boostrap replicates of the coefficients for the cat data
+# Create 1000 bootstrap replicates of the coefficients for the cat data
 boot_repl <- boot::boot(catsM, estimator, 1000)
 boot_repl
 # Compute a 95% confidence interval, based on the bootstrap replicates
@@ -701,13 +701,13 @@ preds <- predict(model, newdata = nd)
 plot(example_data)
 lines(c(nd), preds, col = 2)
 ```
-Notice how non-linear the prediction function is? We also have a root mean square error of 1.16, Rsquared of 0.5 and mean absolute error of 0.9. 
+Notice how non-linear the prediction function is? We also have a root mean square error of 1.16, R-squared of 0.5 and mean absolute error of 0.9. 
 
 We can also use random forests to predict categorical variables. 
-We will try to build a model that predicts the species of the iris plants based on the four predictors in the dataset. For categorical data, there are two metrics output by the `train()` function. 
+We will try to build a model that predicts the species of the iris plants based on the four predictors in the data set. For categorical data, there are two metrics output by the `train()` function. 
 
 - accuracy: the proportion of time the right category is selected; and
-- $\kappa$ value: the proportion of time the right category is selected normalised by the probability of selecting the right category by chance. This metric takes into account that correct category selection may happen by chance. 
+- $\kappa$ value: the proportion of time the right category is selected normalized by the probability of selecting the right category by chance. This metric takes into account that correct category selection may happen by chance. 
 ```{r nonpram-rf-iris-example, cache=TRUE}
 # iris data
 grid_par <- expand.grid(mtry = 1:4)

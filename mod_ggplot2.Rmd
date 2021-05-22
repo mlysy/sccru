@@ -8,7 +8,7 @@
 
 ## Introduction
 
-In this tutorial, we assume that you have a basic understanding of R and RStudio. If not, check out our [tutorial][Introduction to R] on R and RStudio.
+In this tutorial, we assume that you have a basic understanding of R and RStudio. If not, check out the Chapter [Introduction to R][Introduction to R] for introductory basics on R and RStudio.
 
 `r cran_link("ggplot2")` is a data visualization package for R and RStudio. It is implemented based on @wilkinson12. You can install and load the package using the command
 ```{r visgg-load, echo = TRUE, eval = TRUE}
@@ -77,15 +77,15 @@ p + geom_point()
 
 Each layer has its own components. For this layer, the common components include:
 
-- `col`: colour of the points specified using names, rgb specification or NA for transparent colour, 
-- `size`: size of the points specified in milimetres, and
+- `col`: color of the points specified using names, rgb specification or NA for transparent color, 
+- `size`: size of the points specified in millimeters, and
 - `shape`: shape of the points.
 
 ### The Colour Component
 
-A common way to specify the colour of the points is through the name of the colours. For example, `red`, `darkblue`, `magenta`, `chocolate` etc.
+A common way to specify the color of the points is through the name of the colors. For example, `red`, `darkblue`, `magenta`, `chocolate` etc.
 
-A complete list of colours can be found [here](http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf).
+A complete list of colors can be found [here](http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf).
 
 For example, if we want the points to be blue, use
 ```{r visgg-aes-point-blue, echo = TRUE, eval = TRUE, comment = NA}
@@ -97,21 +97,11 @@ When `col=NA`, the points become transparent
 p + geom_point(col = NA)
 ```
 
-#### Practice 1
-
-Setting `carat` as the x-axis and `table` as the y-axis, produce the a scatter plot with red points.
-
-*Solution:*
-```{r visgg-aes-practice1, echo = TRUE, eval = TRUE, comment = NA}
-q <- ggplot(my.diamonds, aes(x = carat, y = table))
-q + geom_point(col = "red")
-```
-
 #### Setting vs Mapping
 
-So far, we **set** the colour of the points to a specific colour of our choice. In some cases, we prefer the colour to change based on the information from another column (usually categorical) in the data set.
+So far, we **set** the color of the points to a specific color of our choice. In some cases, we prefer the color to change based on the information from another column (usually categorical) in the data set.
 
-For example, suppose we want the colour of the points on the graph to change based on `cut`, which has 5 categories: `Fair`, `Good`, `Very Good`, `Premium` and `Ideal`. 
+For example, suppose we want the color of the points on the graph to change based on `cut`, which has 5 categories: `Fair`, `Good`, `Very Good`, `Premium` and `Ideal`. 
 
 ```{r visgg-aes-col-cut, echo = TRUE, eval = TRUE, comment = NA}
 p + geom_point(aes(col = cut))
@@ -121,7 +111,7 @@ This is called **mapping**.
 
 #### Changing the Colour Palette
 
-The choice of colours used in `aes()` is set through the choice of the colour palette. When the choice is not mentioned, the default option is used. There are many online packages with pre-set palettes that you can use. We will show you the most common one: `ColorBrewer`.
+The choice of colors used in `aes()` is set through the choice of the color palette. When the choice is not mentioned, the default option is used. There are many online packages with pre-set palettes that you can use. We will show you the most common one: `ColorBrewer`.
 
 For example, this is the "Set 1" colors from `ColorBrewer`.
 ```{r visgg-colbrew-set1, fig.cap="Set 1 from ColorBrewer", echo=FALSE, fig.align='center'}
@@ -141,7 +131,7 @@ The `ColorBrewer` palettes come in three sub-groups:
 
 All of them can be found [here](https://jiffyclub.github.io/palettable/colorbrewer/). 
 
-Our preference for general purposes is to use a colour-blind friendly palette such as:
+Our preference for general purposes is to use a color-blind friendly palette such as:
 
 ```{r visgg-colblind-grey, fig.cap="Colour blind friendly palette (grey)", echo=FALSE, fig.align='center'}
 knitr::include_graphics("images/visgg-cbPalette-grey.png")
@@ -153,12 +143,12 @@ knitr::include_graphics("images/visgg-cbPalette.png")
 
 Both palettes are not part of `ColorBrewer` and are extracted from [here](http://jfly.iam.u-tokyo.ac.jp/color/). They are coded as follow: 
 ```{r visgg-colblind-extract, echo = TRUE, eval = TRUE, comment = NA}
-# Colour blind friendly palette with grey
+# Color blind friendly palette with grey
 cbgPalette <- c(
   "#999999", "#E69F00", "#56B4E9", "#009E73",
   "#F0E442", "#0072B2", "#D55E00", "#CC79A7"
 )
-# Colour blind friendly palette with black
+# Color blind friendly palette with black
 cbbPalette <- c(
   "#000000", "#E69F00", "#56B4E9", "#009E73",
   "#F0E442", "#0072B2", "#D55E00", "#CC79A7"
@@ -176,19 +166,9 @@ If we use the color bind friendly palette with black, then the plot looks like t
 p1 + scale_colour_manual(values = cbbPalette)
 ```
 
-#### Practice 2
-
-Extending from Pratice 1, i.e using `carat` on the x-axis and `table` on the y-axis, map the points according to `clarity` with a colour palette of your choice.
-
-*Solution:* This is one possible way to go
-```{r visgg-aes-practice2, echo = TRUE, eval = TRUE, comment = NA}
-q + geom_point(aes(col = clarity)) + scale_colour_brewer(palette = "Accent")
-```
-Here, we used the `Accent` palette from `ColorBrewer` in this example.
-
 ### The Size Component
 
-Another component of `geom_point()` is the size of the points. They can be changed by either setting or mapping. The size of the points is specified in millimetres. 
+Another component of `geom_point()` is the size of the points. They can be changed by either setting or mapping. The size of the points is specified in millimeters. 
 
 #### Setting the Size 
 
@@ -199,25 +179,25 @@ p1 + geom_point(size = 5)
 
 Here, we notice that
 - All the points are larger in size.
-- The colour of the points are the same. Recall a few slides earlier, we however mapped the colour of the points to `cut` and saved it.
+- The color of the points are the same. Recall a few slides earlier, we however mapped the color of the points to `cut` and saved it.
     ```{r visgg-aes-col-save, echo = TRUE, eval = TRUE, comment = NA}
 p1 <- p + geom_point(aes(col = cut))
     ```
-When `geom_point()` was called the second time, it overwrites the command to map the colour of the points.
+When `geom_point()` was called the second time, it overwrites the command to map the color of the points.
 
-So to change the colour and size at the same time, we can use
+So to change the color and size at the same time, we can use
 ```{r visgg-aes-col-size, echo = TRUE, eval = TRUE, comment = NA}
 p + geom_point(aes(col = cut), size = 5)
 ```
 
 #### Mapping the Size
 
-Similar to mapping the colour component, the size of the points can be mapped to a variable. 
+Similar to mapping the color component, the size of the points can be mapped to a variable. 
 ```{r visgg-aes-size-map, echo = TRUE, eval = TRUE, comment = NA}
 p1 + geom_point(aes(size = cut))
 ```
 
-Notice in the previous graph that the points are in black colour but the legend still includes `cut`. This is because we wrote:
+Notice in the previous graph that the points are in black color but the legend still includes `cut`. This is because we wrote:
 ```{r visgg-aes-size-exp1, echo = TRUE, eval = FALSE, comment = NA}
 p1 + geom_point(aes(size = cut))
 ```
@@ -227,26 +207,10 @@ p1 <- p + geom_point(aes(col = cut))
 ```
 the plot appears "incorrect" and there will be a lot of warnings.
 
-To map both colour and size, we do this:
+To map both color and size, we do this:
 ```{r visgg-aes-col-size-map, echo = TRUE, eval = TRUE, comment = NA}
 p + geom_point(aes(col = cut, size = cut))
 ```
-
-#### Practice 3
-
-Previously, both the size and colour of the points are mapped to the `cut` of the diamonds. Suppose we are interested to reflect the change in `price` due to `carat` by both `cut` and `color` of the diamonds, what should the code look like? 
-
-*Solution:* We can do this in different ways
-
-- Option 1:
-    ```{r visgg-aes-practice31, echo = TRUE, eval = TRUE, comment = NA}
-p + geom_point(aes(col = cut, size = color))
-    ```
-
-- Option 2:
-    ```{r visgg-aes-practice32, echo = TRUE, eval = TRUE, comment = NA}
-p + geom_point(aes(col = color, size = cut))
-    ```
 
 ### The Shape Component
 
@@ -270,7 +234,7 @@ You may have received a warning that the shape component is not recommended for 
 
 ### A Brief Summary
 
-- There are three basic components in `geom_point()`: colour, size and shape.
+- There are three basic components in `geom_point()`: color, size and shape.
 - For each component, we can choose to set the points to our preference or map them to a variable.
 - It is recommended to include how you want the points to look in one call of `geom_point()`. For example, 
     ```{r visgg-aes-summary, echo = TRUE, eval = FALSE, comment = NA, warning=FALSE}
@@ -321,18 +285,6 @@ p + geom_line(linetype = "dashed")
 p + geom_line() + geom_point()
 ```
 
-#### Practice 4
-
-Using `p` as a basis, try to reproduce the following graph
-```{r visgg-geo-practice4, echo = FALSE, eval = TRUE, comment = NA}
-p + geom_line(col = "red", linetype = "dashed") + geom_point(col = "red", size = 4, shape = 2)
-```
-
-*Solution:*
-```{r visgg-geo-practice4-sol, echo = TRUE, eval = FALSE, comment = NA}
-p + geom_line(col = "red", linetype = "dashed") + geom_point(col = "red", size = 4, shape = 2)
-```
-
 #### Multiple Lines
 
 To draw multiple lines, the points must be grouped by a variable. Otherwise, all the points will be connected by a single line. 
@@ -348,7 +300,7 @@ We can adjust the color by the `group`.
 ggplot(my.diamonds, aes(x = carat, y = price, group = cut)) +
   geom_line(aes(col = cut))
 ```
-To map the colours of the lines to `cut`, there are two options:
+To map the colors of the lines to `cut`, there are two options:
 
 - Option 1:
     ```{r visgg-geo-lines-col1, echo = TRUE, eval = FALSE, comment = NA}
@@ -402,33 +354,18 @@ Option 2 is more efficient than Option 1. You can manipulate the components of t
 
 Bar plots are commonly used to graph categorical variables. 
 
-For example, the total price of diamonds by `cut` or `color`.
+For example, the total price of diamonds by `cut` or `colour`.
 ```{r visgg-geo-bar-plain, echo = TRUE, eval = TRUE, comment = NA}
 ggplot(my.diamonds, aes(x = color, y = price)) +
   geom_bar(stat = "identity")
 ```
 Notice that the x- and y-axes are similar to that of the scatterplots. The only difference is the use of `geom_bar()`. 
 
-Suppose we want to add fill colours
+Suppose we want to add fill colors
 ```{r visgg-geo-bar-col, echo = TRUE, eval = TRUE, comment = NA}
 ggplot(my.diamonds, aes(x = color, y = price, fill = color)) +
   geom_bar(stat = "identity")
 ```
-
-#### Practice 5
-
-- Suppose we want to colour the bars by `cut` after totalling the price for the diamonds by `color`.
-    ```{r visgg-geo-bar-practice51, echo = FALSE, eval = TRUE, comment = NA}
-ggplot(my.diamonds, aes(x = color, y = price, fill = cut)) +
-  geom_bar(stat = "identity")
-    ```
-
-- Suppose we want to colour the bars by `color` but we want to choose the colours of the bars by ourselves using our favorite palette.
-    ```{r visgg-geo-bar-practice52, echo = TRUE, eval = TRUE, comment = NA}
-ggplot(my.diamonds, aes(x = color, y = price, fill = color)) +
-  geom_bar(stat = "identity") +
-  scale_fill_manual(values = cbbPalette)
-    ```
 
 ## Others
 
@@ -460,7 +397,7 @@ p + geom_line(col = "red") +
   ggtitle("Relationship between price and carat")
 ```
 
-The title are left-centred and can be adjusted through the "theme" layer which we will not covered here. The title is usually not useful since we will add caption to the graphs when writing up the results. 
+The title are left-centered and can be adjusted through the "theme" layer which we will not covered here. The title is usually not useful since we will add caption to the graphs when writing up the results. 
 
 ### Legends
 
@@ -469,7 +406,7 @@ There are two ways for changing the legends title and labels:
 - modify the data frame directly, or
 - use `scale_xxx_yyy()`. Refer [here](http://www.cookbook-r.com/Graphs/Legends_(ggplot2)/) for the different combinations of `xxx` and `yyy`.
 
-Suppose we want the legend to show the `cut` in different colors. Since the legend is related to the colour of the lines, `xxx` is `colour` and the variable is categorical, we set `yyy` to `discrete`:
+Suppose we want the legend to show the `cut` in different colors. Since the legend is related to the color of the lines, `xxx` is `colour` and the variable is categorical, we set `yyy` to `discrete`:
 ```{r visgg-legend, echo = TRUE, eval = TRUE, comment = NA}
 p + geom_line(aes(col = cut)) +
   scale_colour_discrete(
