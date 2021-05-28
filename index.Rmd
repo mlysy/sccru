@@ -7,7 +7,7 @@ date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 biblio-style: apalike
 link-citations: true
-bibliography: ["references/a1-ref.bib", "references/p3-ref.bib"]
+bibliography: references.bib
 output: 
   bookdown::gitbook:
     fig_caption: yes
@@ -18,14 +18,8 @@ output:
 ```{r setup, include=FALSE}
 # common functions
 # contributors should be aware of these and use them whenever possible.
-
-# function to print the link to R packages
-cran_link <- function(pkg) {
-  paste0("[**", pkg, "**](https://CRAN.R-project.org/package=", pkg, ")")
-}
+source("common_functions.R")
 ```
-
-
 
 # Preface {-}
 

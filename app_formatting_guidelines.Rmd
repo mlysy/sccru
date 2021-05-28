@@ -1,0 +1,88 @@
+# Formatting Guidelines
+
+*Author: Martin Lysy, Trang Bui*
+
+*Last Updated: Feb 04, 2021*
+
+--- 
+
+## General {#formatguide-general}
+
+- For a module, name your file starting with `mod_` and for a appendix, name your file starting with `app_`. 
+
+- For headers, place a space between the last sharp symbol $\#$ and the name of the header.  
+
+- Let's agree to use regular font for programming languages (e.g., R, Python, C++) and bold font for packages and libraries (e.g., **TMB**, **rstan**, **NumPy**, **Tensorflow**). Use `data` format for files, data sets, codes and arguments. For functions, use parentheses at the end, for example, `data()`. Use curly brackets `\bm{}` for LaTeX functions. Use `<kbd>Key</kbd>` for key strokes or buttons.
+
+- Paste a link to packages which are mentioned for the first time. For R packages, you can use the `cran_link()` function to do this. For example, `r cran_link("rstan")`.
+
+- Please see Appendix [B.2.3](#genguide-citations) for how to handle citations.
+
+- To refer to figures/tables/sections, use the standard academic style is e.g., "Figure 2", "Section 2.5", etc.  In other words, the word is non-bold and non-italic, with the first letter capitalized, and the number following the word should have hyperlink. See relevant **bookdown** [chapter](https://bookdown.org/yihui/bookdown/figures.html) for how to do this. To refer to modules, use the text name, details can be found [here](https://stackoverflow.com/questions/57469501/cross-referencing-bookdownhtml-document2-not-working).
+
+- Refer to `common_functions.R` for commonly used functions across modules before writing your own. Please give names to all code chunks. 
+
+- To make cross referencing consistent in bookdown, for all labels, including r chunks, figures, tables, sections, equations, etc., use the prefix of the corresponding file as the prefix of any label. So please choose and use a module specific prefix for each cross reference. For example, use label `#formatguide` for this section. Refer to `prefixes.txt` for the list of the used prefixes and add yours there. Try to use the prefix that is distinctive to other words in the text such that you can find and replace all without mistakes.
+
+- Paragraph breaks are simply indicated by one ore more empty lines.  No need for `\newline` or anything else.  This applies to elements other than text such as figures, math blocks etc.  If the figure/math block/etc is part of the paragraph, don't leave blank spaces before or after^[An exception to this is possibly within an indented region.  There you may need to leave a blank space before/after math block...I'm not 100% sure...].
+
+- Please use Capital Case for all section headings, for example, Plan the Study.
+
+- Our consensus for writing in a list are mentioned below. For details, visit [here](https://getitwriteonline.com/articles/vertical-lists/).
+ 
+    - If the items in the list are complete sentences, begin the first word in each item with a capital-case letter and end the item with period.
+    - If the items are single words and phrases, begin the first word in each item with a lower-case letter and end with a colon. Use "and" (or "or", depending on the context of the list) after the next-to-last item, and use a period after the last item in the list.
+    - If the items are phrases or clauses with punctuations in them, put a semicolon at the end of each item. Put "and" (or "or") after the next-to-last item in the list and period for the last item. The items are not capitalized. 
+    
+- For indentation, use four spaces before your paragraph or code chunk or equation. This will be very helpful when you have an item in an itemized list which contains more than one paragraphs or equations or code chunks.
+
+- For code chunk that takes long time to run, use `cache=TRUE` to prevent the chunk to be executed again unless the code in the chunk has been altered. More details can be found [here](https://bookdown.org/yihui/rmarkdown-cookbook/cache.html).
+
+- Use the package `r cran_link("styler")` to make the formatting of your code consistent. To do this, run the function `styler::style_file()` for your module's Rmarkdown file. Do not set the option `tidy = "styler"` to your chunk code to prevent caching issues. The details of the package can be found [here](https://styler.r-lib.org/).  
+
+- Use "" instead of '' for quotes.
+
+- To embed a file in your module, use function `embed_data_file()`. For example, `r embed_data_file("data/caliRain.csv", text = "caliRain.csv")`.
+
+## Math
+
+- Always use bold font like $\XX$^[LaTeX purists might prefer to use `\mathbf{}` for roman letters instead of `\boldsymbol{}` as I have defined via the `\bm{}` macro in `preamble.html`.  Observe the difference: $\mathbf{x}$ vs $\boldsymbol{x}$ and $\mathbf{X}$ vs $\boldsymbol{X}$.  For pure LaTeX, the `\bm{}` command in the [**bm**](https://ctan.org/pkg/bm?lang=en) package automatically picks the right one for you.  Eventually I'll figure out how to use this package for the e-book, in which case if you consistently use `\bm{}` for bold there will be very little for me to change!] or $\aal$ for anything that isn't a scalar.  In particular, please use `\bm{}` command in math mode to make things bold, and note that bold letters and symbols have standard macros as explained in `index.Rmd`.  Please use them!
+
+- If applicable distinguish between vectors and matrices (or collections of vectors) with lower and upper case, like $\yy$ and $\YY$ or $\tth$ and $\TTh$.  
+
+- Equations are part of sentences, so use punctuation in them, e.g., for observations $\XX = (\rv X N)$ such that
+
+    $$
+	\begin{aligned} 
+	X_i \mid \mu_i & \ind \N(\mu_i, \sigma_i^2) \\
+	\mu_i & \iid \N(0, \tau^2).
+	\end{aligned}
+	(\#eq:formatguide-mathex)
+    $$
+
+### Commonly-Used Math and Stats Expressions
+
+- Sequences of random variables: $X_1, \ldots, X_N$.  In fact since these are so common, I've created a macro for it: $\rv Y 5$ and $\rv [m,0] Z {m,N_m}$.
+
+- For multi-line equations with alignment, use `aligned` environment as in \@ref(eq:formatguide-mathex).
+
+- The "d" in integrals:
+    $$
+    \ud X_t = \mu(X_t) \ud t + \ud B_t \qquad \iff \qquad X_t = \mu t + \int_0^t \mu(X_t) \ud t + B_t.
+    $$
+
+- Conditioning: $p(y \mid x)$
+
+- Independence: $Y \amalg X$
+
+- Probability: $\Pr(Y \le y)$
+
+- Derivatives and partials: These are quite time-consumming to typeset so I've created some macros for them:
+    $$
+	  \der{x} f(x), \qquad \fdel[3]{x} {g(x, y)}, \qquad \hess{\tth}\ell(\tth \mid \XX).
+	  $$
+	The last of these is used for Hessian matrices.
+
+- Independent/IID/Normal: Please see \@ref(eq:formatguide-mathex).
+
+- Variance/Covariance/Correlation: $\var(X), \cov(X), \cor(X)$.

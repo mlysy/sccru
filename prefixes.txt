@@ -1,0 +1,9 @@
+app_general_guidelines --------- genguide
+app_formatting_guidelines ------ formatguide
+app_git_tutorial --------------- gitguide
+app_bookdown_tests ------------- booktest
+mod_questionnaire_design ------- questdes
+mod_linear_regression ---------- linreg
+mod_nonparametric -------------- nonpram
+mod_intro_r -------------------- rintro
+mod_ggplot2 -------------------- visgg
