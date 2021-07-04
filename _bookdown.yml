@@ -12,4 +12,5 @@ rmd_files:
   - "app_formatting_guidelines.Rmd"
   - "app_git_tutorial.Rmd"
   - "app_bookdown_tests.Rmd"
+  - "app_terminology.Rmd"
   - "Z_references.Rmd"

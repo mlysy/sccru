@@ -29,3 +29,16 @@ For contributors to this book, please refer to the Appendix for [General Guideli
 
 For questions regarding the materials of this book, please [contact us](https://uwaterloo.ca/statistical-consulting-and-collaborative-research-unit/).
 
+## Editors {-}
+
+- Martin Lysy
+- Glen McGee
+- Joslin Goh
+
+# Acknowledgements  {-}
+
+We are indebted to all the  contributors for their work in the preparation of this book: 
+
+- Trang Bui
+- Meixi Chen
+- Kelly Ramsay

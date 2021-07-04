@@ -8,29 +8,18 @@
 
 ## Introduction 
 
-The aim of this tutorial is to introduce nonparametric analogues of common statistical methods including ANOVA, two sample tests, confidence intervals and regression. Nonparametric statistical methods impose less assumptions on the data than their parametric counterparts. Some reasons for using nonparametric methods include:
+The aim of this chapter is to introduce nonparametric analogues of common statistical methods including ANOVA, two sample tests, confidence intervals and regression. Nonparametric statistical methods impose less assumptions on the data than their parametric counterparts. Some reasons for using nonparametric methods include:
 
-- the data appear to be non-normal/do not appear to fit the appropriate parametric assumptions for the problem;
+- the data appear to be non-normal, or do not appear to fit the appropriate parametric assumptions for the problem;
 - the sample size is too small for certain large sample approximations;
 - the analyst is not comfortable imposing the typical model assumptions on the data; and
 - the data contains outliers. (This reason only applies to rank based methods, which are more resistant to outliers.)
 
 The benefits of nonparametric statistics do not come for free. When the assumptions of a parametric model are satisfied, the parametric model-based procedures are typically more accurate/powerful. However, we cannot know for sure if those assumptions are satisfied. 
 
-### Preliminary Concepts {#nonpram-gloss}
+### R Packages and Data
 
-Some terms used in this document may be unclear, here is a glossary of the terms: 
-
-- Argument: Input for an R function.
-- Response variable: This is a synonym for dependent variable. This is the variable that is measured as the outcome in an experiment. 
-- Continuous variable: A variable that takes on a "continuum of values". For example height and weight.
-- Categorical variable: A variable that can only be a finite number of values. For example marital status or country of origin.
-- Ordinal variable: Categorical variable that has a clear ordering. Such as grades or highest level of education achieved, etc. 
-- Nominal variable: Categorical variable that has no clear ordering. Examples are sex, race, hair color etc. 
-- Univariate: One variable.
-- Multivariate: Multiple variables.
-
-### List of R packages Used
+In this chapter, the following libraries will be used:
 
 - `r cran_link("coin")`,
 - `r cran_link("PMCMRplus")`,
@@ -42,15 +31,18 @@ Some terms used in this document may be unclear, here is a glossary of the terms
 - `r cran_link("DescTools")`,
 - `r cran_link("dunn.test")`.
 
-Use the line `install.packages(c("coin","PMCMRplus","boot","caret","randomForest","e1071","inTrees","DescTools", "dunn.test"))` to install required packages for this document. To install individual packages, use the line `install.packages("package name")`, e.g. `install.packages("coin")`. 
+These packages can be installed using the `install.packages()` function as mentioned in [Introduction to R].
+<!--- Use the line `install.packages(c("coin","PMCMRplus","boot","caret","randomForest","e1071","inTrees","DescTools", "dunn.test"))` to install required packages for this document. To install individual packages, use the line `install.packages("package name")`, e.g. `install.packages("coin")`. ---> 
 
-Throughout this document we will use the `iris` data as an example. 
+Throughout this document, we will use the `iris` data as an example. 
 ```{r nonpram-data}
 data(iris) # loads the data set
 summary(iris) # displays summary statistics
-# Sepal.Length, Sepal.Width, Petal.Length and Petal.Width are all continuous variables
-# Species is a Categorical variable
 ```
+
+This data set contains 4 continuous variables, namely `Sepal.Length`, `Sepal.Width`, `Petal.Length` and `Petal.Width`. The variable `Species` is a Categorical variable.
+
+Other examples used in this chapter will involve simulated data sets.
 
 ### Sample Ranks {#nonpram-rank}
 
@@ -70,7 +62,7 @@ In statistical analysis, we should also be concerned with the distribution of an
 
 The distribution of an estimator, known as its *sampling distribution*, gives the researcher a measure of how the estimator would vary across different samples drawn from the population. The sampling distribution allows the researcher to quantify the error introduced by the fact that different samples give different estimates of the population values. 
 
-For example, one thing we might estimate is a population mean $\mu$, which can be estimated using the sample mean $\bar{x}$. The estimator here is then the sample mean. For large $n$ and independent data, $\bar{x}$ is normally distributed with mean $\mu$ and variance $\sigma^2/n$, where $\sigma^2$ is the variance of the population. This is the sampling distribution of $\bar{x}$. We then use the quantiles of this sampling distribution to construct confidence intervals for the population parameter. 
+For example, one thing we might estimate is a population mean $\mu$, which can be estimated using the sample mean $\bar{x}$. The estimator here is then the sample mean. For large $n$ (sample size) and independent data, $\bar{x}$ is normally distributed with mean $\mu$ and variance $\sigma^2/n$, where $\sigma^2$ is the variance of the population. This is the sampling distribution of $\bar{x}$. We then use the quantiles of this sampling distribution to construct confidence intervals for the population parameter. 
 
 ## Two-sample Hypothesis Testing
 
@@ -85,79 +77,78 @@ For example, one thing we might estimate is a population mean $\mu$, which can b
 
 ### Wilcoxon Rank-Sum Test {#nonpram-mwu}
 
-The Wilcoxon rank-sum test also known as the Mann-Whitney U test, is used to test for a difference between two groups of observations.
-
-#### Hypotheses 
+The Wilcoxon rank-sum test also known as the Mann-Whitney U test, is used to test for a difference between two groups of observations. The null and alternate hypotheses for this test are
 $$
 H_0\colon \tx{Both groups have the same distribution. vs. } H_1\colon\ \tx{One group stochastically dominates another.}
 $$
+Assumptions: 
 
+- The variable of interest is continuous or ordinal.
+- Data has only two groups.
+- All observations are independent.
+    
 Notes: 
 
 - The alternative is that in essence, the groups differ. One can read about stochastic domination [here](https://en.wikipedia.org/wiki/Stochastic_dominance).
 - If the analyst is willing to assume that the distributions of each group have the same shape and scale/variance, then the alternative becomes "The group's median differs."
 - If both groups are normal, then this is also a test for a difference in means.
-- Mathematically the test works if $P(X_1-X_2<0)\neq 1/2$ if $X_1$ and $X_2$ are random observations from groups 1 and 2 respectively.  
+- Mathematically, the test works if $P(X_1-X_2<0)\neq 1/2$ if $X_1$ and $X_2$ are random observations from groups 1 and 2 respectively.  
 
 #### Test Concept
-To perform the Wilcoxon rank-sum test we must rank the response from lowest to highest, over both samples; both samples are pooled together and then the data is [ranked](#nonpram-rank). 
+To perform the Wilcoxon rank-sum test, we must rank the response from lowest to highest, over both samples; both samples are pooled together and then the data is [ranked](#nonpram-rank). 
 
 The Wilcoxon rank-sum test relies on the intuition that if the two groups have the same distribution then they should have, on average, the same amount of high and low [ranked](#nonpram-rank) variables. 
 
 The test checks to see if one group has an abnormally large amount of high ranked variables. 
 
-#### Assumptions
+#### An example using R
 
-- Variable of interest is [continuous/ordinal](#nonpram-gloss).
-- Data has only two groups.
-- All responses are independent.
-
-#### How to Perform in R 
-
-We use the iris data as an example. Below shows a boxplot for each of the 2 species' sepal lengths.
+We use the `iris` data as an example. Below shows a boxplot for the sepal lengths of the two species.
 ```{r nonpram-data-boxplot}
 # first two iris species
 iris2 <- iris[1:100, ]
-# for clean graph, can be ignores
+# for clean graph, can be ignored
 iris2[, 5] <- as.factor(as.character(iris[1:100, 5]))
 
 
 boxplot(Sepal.Length ~ Species, xlab = "Species", data = iris2)
 ```
+
 Notice that the medians appear to be quite different for the two species, so we expect to reject the rank-sum test. We also notice that each group seems to have approximately the same shape and spread. This would allow us to interpret a rejected rank-sum test as the groups have different medians. 
 
-We can use the `wilcox_test()` function in the **coin** package to perform the Wilcoxon rank-sum test. The function `wilcox_test()` first takes a formula of the form `response_variable ~ group_variable`. It also has a `data` argument where you specify your data frame that contains you group variable and your response variable. 
+We can use the `wilcox_test()` function in the **coin** package to perform the Wilcoxon rank-sum test. The function `wilcox_test()` first takes a formula of the form `response_variable ~ group_variable`. It also has a `data` argument to specify the data frame that contains the group and response variable. 
 ```{r nonpram-wilcox-test, cache=TRUE}
 # iris[1:100,] is the first two species in the data
 coin::wilcox_test(Sepal.Length ~ Species, data = iris[1:100, ])
 ```
-The test statistic and the p-value are reported, notice that we do reject the hypothesis of the same distribution in the end. 
+The output contains the test statistic and p-value. At the end of the output, notice that we do reject the hypothesis of the same distribution. 
+
+### Other Softwares
+
+This test can also be done in [SAS](https://stat-methods.com/home/mann-whitney-u-sas/) and [SPSS](https://statistics.laerd.com/spss-tutorials/mann-whitney-u-test-using-spss-statistics.php).
 
 ### Wilcoxon Signed Rank Test {#nonpram-wst}
 
-The Wilcoxon signed rank test is used to test for a difference in rank means between observations when the data can be paired. 
-
-#### Hypotheses 
-
+The Wilcoxon signed rank test is used to test for a difference in rank means between observations when the data can be paired. The null and alternate hypotheses are 
 $$
 H_0\colon \tx{The median difference between the groups is 0. vs. } H_1\colon\ \tx{The groups have different medians.}
 $$
+Assumptions: 
+
+- The variable of interest is continuous or ordinal.
+- Data has only two groups.
+- The between-subject observations are independent.
+- The within-subject/within-pair observations can be dependent. 
+- The distribution of each group is symmetric. If this is not satisfied, the test will still work, but the null and alternative hypotheses would be $H_0\colon$ The groups have the same distribution. vs. $H_1\colon$ The groups have different distributions.
 
 #### Test Concept 
 
-In the Wilcoxon signed rank test the absolute differences between pairs are ranked, rather than the observations themselves. 
+In the Wilcoxon signed rank test, the absolute differences between pairs are ranked, rather than the observations themselves. 
 
-The idea is that if there is a difference between the two groups then the absolute differences should be large. The sign of the difference is also accounted for, since we expect the sign of the differences to be consistent one way another. For example, if the paired observations correspond to time 1 and time 2, and if the time 2 mean is higher, then we expect the differences |time2-time1| to be positive more often than not. 
+The idea is that if there is a difference between the two groups then the absolute differences should be large. The sign of the difference is also accounted for, since we expect the sign of the differences to be consistent one way another. For example, if the paired observations correspond to time 1 and time 2, and if the mean of time 2 is higher, then we expect the differences (time2-time1) to be positive more often than not. 
 
-#### Assumptions 
-
-- Variable of interest is continuous/ordinal.
-- Data has only two groups.
-- Between-subject observations are independent.
-- Within-subject/within-pair observations can be dependent. 
-- The distribution of each group is symmetric. If this is not satisfied, the test will still work, but the null and alternative hypotheses have a different interpretation. We would then say that the hypotheses are $H_0\colon$ The groups have the same distribution. vs. $H_1\colon$ The groups have different distributions.
- 
-#### How to Perform in R
+#### An example using R
+We will simulate a set of paired data set to demonstrate how to conduct the Wilcoxon Rank-Sum Test.
 
 ```{r nonpram-wilcox-fake}
 # Create a fake paired data set, this code simply creates an example of a data set where the observations are associated.
@@ -165,18 +156,21 @@ before <- rnorm(100, 2)
 after <- before * .2 + rnorm(100, 1)
 test_data <- data.frame(before, after)
 ```
+
 We can plot the data. 
 ```{r nonpram-wilcox-fake-boxplot}
 boxplot(test_data)
 ```
-We expect to reject this test, by view of the boxplots; the medians are quite different. Notice the boxplot whiskers are symmetric, so it is reasonable to agree that the assumptions required for the signed rank test are satisfied. 
+
+The boxplots show that the two medians are quite different. Hence, we expect to reject this test. Notice whiskers of both boxplots are symmetric, so it is reasonable to agree that the assumptions required for the signed rank test are satisfied. 
 
 We can use the `wilcoxsign_test()` function in the **coin** package to perform the Wilcoxon rank-sum test. The function `wilcoxsign_test()` first takes a formula of the form `response_variable ~ group_variable`. It also has a `data` argument where you specify your data frame that contains you group variable and your response variable. 
 ```{r nonpram-wilcox-fake-test}
 # format is before measurement ~after measurement
 coin::wilcoxsign_test(before ~ after, test_data)
 ```
-The test statistic and p-value are reported, notice that the null hypothesis is indeed rejected. 
+
+The test statistic and p-value of the tests are reported. They indicate that the null hypothesis is indeed rejected. 
 
 Notes:
 - This test also has an option `zero.method` which specifies the way zero differences are handled. 
@@ -192,6 +186,12 @@ The Siegel-Tukey test is akin to the Wilcoxon rank-sum test, but the goal is to 
 $$
 H_0\colon \tx{Both groups have the same variance. vs. } H_1\colon\ \tx{Both groups do not have the same variance.}
 $$
+Assumptions:
+
+- Variable of interest is continuous or ordinal.
+- Data has only two groups.
+- All responses are independent.
+- Groups have the same mean or median. One can subtract each group's respective median to meet this assumption.
 
 #### Test Concept 
 
@@ -200,17 +200,10 @@ To perform the Siegel-Tukey test we must rank the responses by how extreme the o
 Intuitively, if one group has a larger variance then it will have a larger amount of observations that are high and low relative to the median. 
 
 The test checks to see if one group has a large amount of extreme observations. 
-
-#### Assumptions
-
-- Variable of interest is continuous/ordinal.
-- Data has only two groups.
-- All responses are independent.
-- Groups have the same mean/median. One can subtract each group's respective median to meet this assumption.
  
-#### How to Perform in R 
+#### An Example Using R 
 
-We can use the `siegelTukeyTest()` function in the **PMCMRplus** package to perform the Siegel-Tukey test. The function `siegelTukeyTest()` takes the first sample and second sample as it's two arguments. 
+We can use the `siegelTukeyTest()` function in the **PMCMRplus** package to perform the Siegel-Tukey test. The function `siegelTukeyTest()` takes the first sample and second sample as it's two arguments. In this example, we will use simulate data to demonstrate the use of the function.
 ```{r nonpram-tst-test, cache=TRUE}
 # s1 and s2 have the same variance and mean
 s1 <- rnorm(100, sd = 2)
@@ -239,10 +232,7 @@ PMCMRplus::siegelTukeyTest(
 ```
 The test statistic and p-value are reported. 
 
-### Additional Resources for Nonparametric Hypothesis Testing
 
-- [wilcoxon rank sum test in SAS](https://stat-methods.com/home/mann-whitney-u-sas/), and
-- [wilcoxon rank sum test in SPSS](https://statistics.laerd.com/spss-tutorials/mann-whitney-u-test-using-spss-statistics.php).
 
 ## ANOVA-type Methods {#nonpram-anova}
 
@@ -251,36 +241,35 @@ The test statistic and p-value are reported.
 We can start with introducing nonparametric one-way ANOVA. 
 We apply ANOVA to test whether or not there is a difference in a response/dependent variable between different groups. The nonparametric equivalent of the ANOVA F test is the *Kruskal Wallis rank test* or KW test for short. 
 
-The KW test does not require a distributional assumption on the data; the data need not be normal in order for the test to be valid. Additionally, since this test is based on ranks it is also robust to extreme observations and/or outliers in the data. These are both valid justification for using Kruskal Wallis ANOVA.
+The KW test does not require a distributional assumption on the data; the data need not be normal in order for the test to be valid. Additionally, since this test is based on ranks, it is also robust to extreme observations and/or outliers in the data. These are both valid justification for using Kruskal Wallis ANOVA.
 
-#### Hypotheses
+The null and alternate hypotheses are
 
 $$
 H_0\colon \tx{All groups have the same distribution. vs. } H_1\colon\ \tx{At least one group stochastically dominates another.}
 $$
+Assumptions:
+
+- The response variable is continuous or ordinal.
+- Data has more than 2 groups (see [here](#nonpram-mwu) for two-group methods.).
+- All responses are independent.
 
 Notes: 
 
 - The alternative is that in essence, one group differs from the others. One can read about stochastic domination [here](https://en.wikipedia.org/wiki/Stochastic_dominance).
 - If the analyst is willing to assume that the distributions of each group have the same shape and scale/variance, then the alternative becomes "At least one group's median differs."
-- Under standard parametric ANOVA assumptions the standard parametric ANOVA hypotheses are covered by these hypotheses. In other words, if the data are normal with the same variance, then this is also a test for a difference in means.
+- Under standard parametric ANOVA assumptions, the standard parametric ANOVA hypotheses are covered by these hypotheses. In other words, if the data are normal with the same variance, then this is also a test for a difference in means.
 - Let $g$ be the number of groups. Mathematically, if $p_j$ is the proportion of observations in group $j$, and $X_j$ is a random observation from group $j$, then the test works if $\sum_{j=1}^g p_jP(X_i-X_j<0)\neq 1/2$ for at least one group $i$. This can generally be interpreted as the median differences $X_i-X_j$ between groups are non-zero for some pairs of groups. 
-
-#### Assumptions 
-
-- Response/dependent variable is [continuous/ordinal](#nonpram-gloss).
-- Data has more than 2 groups (see [here](#nonpram-mwu) for two-group methods.).
-- All responses are independent. 
 
 #### Test Concept 
 
-To perform KW ANOVA, one ranks the response values from lowest to highest, regardless of group. 
+To perform KW ANOVA, the response values are ranked from lowest to highest, regardless of group. 
 
 KW ANOVA relies on the intuition that a group which has a higher response on average, when compared to the remaining groups, will then have higher ranks on average as well. Conversely, if the groups all have the same distribution, we expect them to have roughly equal high and low ranked responses. 
 
 Therefore, the hypothesis is rejected if one or more groups has a disproportionately large amount of high or low ranked responses. 
 
-#### How to Perform in R 
+#### An Example Using R 
 
 We again use the iris data as an example. 
 ```{r nonpram-kw-data}
@@ -291,24 +280,23 @@ hist(iris[51:100, ]$Sepal.Length, xlim = c(3, 9), breaks = 15)
 hist(iris[101:150, ]$Sepal.Length, xlim = c(3, 9), breaks = 15)
 par(mfrow = c(1, 1))
 ```
+
 We see that the medians of the species are quite different, so we expect to reject the Kruskal Wallis test. Notice that the distributions are approximately symmetric, and have a similar variance. This allows us to interpret the Kruskal Wallis test as a test for a difference in medians. We can now run the KW Anova. 
 
-The `kruskal.test()` and the `kruskal_test()` function are used to perform KW ANOVA. You must install the **coin** package to use `kruskal_test()`. See the preliminary concepts for how to install packages. 
+The `kruskal.test()` and the `kruskal_test()` functions are used to perform KW ANOVA. The **coin** package must be installed to use `kruskal_test()`. Both `kruskal.test()` and `kruskal_test()` have a data argument where to specify the data frame that contains the group variable and the response variable. They also have a formula argument which should be in the form `response_variable ~ group_variable`. 
 
-Both `kruskal.test()` and `kruskal_test()` have a data argument where you specify your data frame that contains the group variable and the response variable. 
-
-Both `kruskal.test()` and `kruskal_test()` have a formula argument which should be in the form `response_variable ~ group_variable`. 
-For example, suppose we want to test whether the different species of iris flowers have different mean petal length. Here, `Petal.Length` is the response variable and `Species` is the group variable. These variables are stored in the `iris` data frame, and so we set the data argument to `iris`. 
+Suppose we want to test whether the different species of iris flowers have different mean petal length. Here, `Petal.Length` is the response variable and `Species` is the group variable. These variables are stored in the `iris` data frame, and so we set the data argument to `iris`. 
 
 ```{r nonpram-kw-test}
 kruskal.test(Petal.Length ~ Species, data = iris)
 coin::kruskal_test(Petal.Length ~ Species, data = iris)
 ```
+
 The test outputs the test statistic (130.41) and the p-value (< 2.2e-16). 
 
-Under the null hypothesis the KW test statistic follows a Chi-Squared distribution with $\# \text{of groups}-1$ degrees of freedom. 
-Here, there are 3 groups so the degrees of freedom, or df=3-1=2. 
-`kruskal.test()` relies on an asymptotic approximation of the null distribution, which is appropriate if each group has at least 5 observations. 
+Under the null hypothesis, the KW test statistic follows a Chi-Squared distribution with $\# \text{of groups}-1$ degrees of freedom. Here, there are 3 groups so the degrees of freedom (df) is 2 (=3-1). 
+
+The function `kruskal.test()` relies on an asymptotic approximation of the null distribution, which is appropriate if each group has at least 5 observations. 
 
 #### Notes 
 
@@ -333,7 +321,7 @@ $$
 H_0\colon \tx{Groups have the same distribution. vs. } H_1\colon\ \tx{One group stochastically dominates the other.}
 $$
 
-#### How to Perform in R 
+#### An Example Using R 
 
 Now that we have seen a significant KW Anova result with the iris data, we would like to see between which species there exists differences. Given the boxplots, we expect all 3 pairwise comparisons to be significant. 
 
@@ -384,6 +372,14 @@ $$
 H_0\colon \tx{All treatment groups have the same distribution. vs. } H_1\colon\ \tx{At least one treatment group does not have the same distribution.}
 $$
 
+Assumptions:
+
+- The response/dependent variable should be continuous, or can be approximated by a continuous variable.
+- Data has more than two treatments/groups/time periods (see [here](#nonpram-wst) for two periods only).
+- Subjects are independent.
+- Within subject measurements can be dependent.
+- There are an equal number of measurements per subject/block. *If this does not hold for your data, but the other assumptions do, see the [Durbin test](https://en.wikipedia.org/wiki/Durbin_test). See the Note 2. below.*
+
 Notes: 
 
 - If the groups have similar shape and scale, then the Friedman test tests for a difference in medians between the groups. 
@@ -395,15 +391,7 @@ The Friedman test relies on the same intuition discussed in the KW ANOVA section
 
 The difference between the Friedman test and the KW test is that ranks are now computed within subjects instead of across subjects, to account for intrasubject dependencies.
 
-#### Assumptions
-
-- The response/dependent variable should be continuous, or can be approximated by a continuous variable.
-- Data has more than two treatments/groups/time periods (see [here](#nonpram-wst) for two periods only).
-- Subjects are independent.
-- Within subject measurements can be dependent.
-- There are an equal number of measurements per subject/block. *If this does not hold for your data, but the other assumptions do, see the [Durbin test](https://en.wikipedia.org/wiki/Durbin_test). See the Note 2. below.*
-
-#### How to Perform in R 
+#### An Example Using R 
 
 We create some sample repeated measures data below. 
 
@@ -466,7 +454,7 @@ $$
 
 Note again that if the groups have the same shape and scale this is a test for a difference in median. 
 
-### How to Perform in R 
+### An example using R
 
 We will continue with our fake data. 
 
@@ -507,23 +495,23 @@ Notes:
 
 ## Boostrap Methods
 
-Before proceeding, if the reader is not familiar with the term sampling distribution, then it is useful to read the section [sampling distributions](#nonpram-sd). 
+Before proceeding, if the reader is not familiar with the term sampling distribution, then it is useful to read the section on [sampling distributions](#nonpram-sd). 
 
 ### Bootstrap Confidence Intervals
 
-When computing confidence intervals for an estimated value, such as mean or regression parameter, typically we rely on the fact that the estimated value's sampling distribution is normal; the estimated value is normally distributed for large $n$. 
+When computing confidence intervals for an estimated value, such as mean or regression parameter, typically we rely on the fact that the sampling distribution of the estimated value to be normal. The estimated value is normally distributed for large $n$. 
 
 The confidence interval is then of the form 
 $$\hat{\theta}\pm Z_{1-\alpha/2}s_n,$$
 where $s_n$ is the standard error and $Z_{1-\alpha/2}$ is the $1-\alpha/2$-quantile or percentile of the normal distribution. 
-The key concept here is that $\hat{\theta}$ is approximately normally distributed with mean $\theta$ and variance close to $s_n^2$. 
-This means that the variability or error in our estimation of $\hat{\theta}$ can be approximated by quantiles of the normal distribution. 
+
+The key concept here is that $\hat{\theta}$ is approximately normally distributed with mean $\theta$ and variance close to $s_n^2$. This means that the variability or error in our estimation of $\hat{\theta}$ can be approximated by quantiles of the normal distribution. 
 
 In some contexts, this approximation is not very accurate or even valid. Some examples of such contexts are:
 - small sample sizes ($n<30$);
-- data is very skewed and is moderate ($n<100$);
+- data is very skewed and is moderately large ($n<100$);
 - data is heavy tailed, or has a fair amount of extreme observations (>5\%); and 
-- statistic being estimated does not satisfy asymptotic normality e.g. changepoint statistics, etc.
+- statistic being estimated does not satisfy asymptotic normality such as changepoint statistics, etc.
 
 In these contexts we can use *bootstrapping* to approximate the sampling distribution of the estimator. If we could take many samples and subsequently compute  $\hat{\theta}$ for each sample, we would end up with a sample of $\hat{\theta}$s. We could then make a histogram to estimate the distribution of $\hat{\theta}$. 
 
@@ -543,19 +531,15 @@ The bootstrap procedure is as follows:
 - The bootstrap procedure assumes your sample is a good representative of the population. If your sample contains outliers, it is important to use a robust bootstrap.
 - The value being estimated is not at the edge of the parameter space. This means that the value is not, for example, a minimum or maximum.
 
-### Examples in R 
+### Examples using R
 
-Let's do a simple example, where the goal is to compute a confidence interval for the sample mean. 
+We will use a simple example to demonstrate how to compute a confidence interval for the sample mean. Suppose we would like to create a 95\% confidence interval for the mean petal length of the `setosa` species in the `iris` data. The `boot()` function in the **boot** package in R is used to create bootstrap replicates. 
 
-Suppose we would like to create a 95% confidence interval for the mean petal length of the `setosa` species in the `iris` data. The `boot()` function in the **boot** package in R is used to create bootstrap replicates. 
+The function takes many arguments, but we will cover 3:  
 
-The function takes many arguments, but we will cover 3. 
-
-The first argument `data` is the data you wish to create the bootstrap samples from. 
-
-The second argument `statistic` is an R function which returns your estimator given the original data and the indices of the bootstrap sample. 
-
-The third argument `R` is the number of bootstrap samples. 
+- The first argument `data` is the data you wish to create the bootstrap samples from. 
+- The second argument `statistic` is an R function which returns your estimator given the original data and the indices of the bootstrap sample. 
+- The third argument `R` is the number of bootstrap samples. 
 This should be large. 
 
 We use the `boot.ci` to compute bootstrap confidence intervals. 
@@ -579,12 +563,12 @@ boot_repl <- boot::boot(iris$Petal.Length[1:50], estimator, 1000)
 boot::boot.ci(boot_repl, type = "bca")
 ```
 
-Now that we know how to compute bootstrap confidence intervals in R, we perform the bootstrap in a much more complicated situation. An important part of this section is that the bootstrap can be applied on complex models. 
+Now that we know how to compute bootstrap confidence intervals in R, we perform the bootstrap in a much more complicated situation. An important part of this section is that bootstrap can be applied on complex models. 
 
-When creating multiple confidence intervals at once with the bootstrap, we need to set the `index` argument of `boot.ci`. 
-For example consider a regression model. 
+When creating multiple confidence intervals at once with bootstrap, we need to set the `index` argument of `boot.ci`. 
 
-We have the `catsM` data, which contains bodyweights and heartweights of cats. Suppose we would like to build a regression model to predict heartweight from bodyweight. 
+
+We will consider  a regression model using the `catsM` data, which contains the weights of the body (`Bwt`) and heart (`Hwt`) of cats. Suppose we would like to build a regression model to predict weight of the heart from weight of the body
 ```{r nonpram-bootstrap-regression-1, cache=TRUE}
 # load in cats data
 catsM <- boot::catsM
@@ -592,7 +576,7 @@ head(catsM)
 # It seems like there is a linear relationship between Bwt and Hwt
 plot(catsM[, 2:3])
 
-# Create a regression of heartrate on body weight
+# Create a regression of heart weight on body weight
 model <- lm(Hwt ~ Bwt, catsM)
 summary(model)
 # The intercept and slope are
@@ -629,28 +613,26 @@ abline(a = coef(model)[1], b = coef(model)[2], col = 2, lwd = 3)
 tmp <- mapply(abline, boot_repl$t[, 1], boot_repl$t[, 2], MoreArgs = list(col = scales::alpha(rgb(0, 0, 0), 0.05)))
 ```
 
-### Additional Resources for Boostrapping: 
+### Additional Resources
 
-- [guide for researchers on the bootstrap](https://scholarworks.umass.edu/cgi/viewcontent.cgi?article=1342&context=pare),
-- [bootstrap Methods for Nested Linear Mixed-Effects Models](https://cran.r-project.org/web/packages/lmeresampler/lmeresampler.pdf),
-- [bootstrap for Mixed-Effects](https://datascienceplus.com/introduction-to-bootstrap-with-applications-to-mixed-effect-models/).
-- [bootstrapping SPSS](http://www.sussex.ac.uk/its/pdfs/SPSS_Bootstrapping_22.pdf), and
-- [bootstrapping SAS](https://blogs.sas.com/content/iml/2018/12/12/essential-guide-bootstrapping-sas.html).
+- [Guide for researchers on the bootstrap](https://scholarworks.umass.edu/cgi/viewcontent.cgi?article=1342&context=pare),
+- [Bootstrap Methods for Nested Linear Mixed-Effects Models](https://cran.r-project.org/web/packages/lmeresampler/lmeresampler.pdf),
+- [Bootstrap for Mixed-Effects](https://datascienceplus.com/introduction-to-bootstrap-with-applications-to-mixed-effect-models/).
+- [Bootstrapping SPSS](http://www.sussex.ac.uk/its/pdfs/SPSS_Bootstrapping_22.pdf), and
+- [Bootstrapping SAS](https://blogs.sas.com/content/iml/2018/12/12/essential-guide-bootstrapping-sas.html).
 
 ## Random Forests
 
 Random forests can be used to build predictive models for a response variable based on a set of predictors. The predictors and response can be of *any type*. The model does not have interpretable parameters like a slope and intercept, but the regression function or prediction function is not restricted to being a line. 
 
-Put simply, if your goal is predicting something, you may want to build a random forest. How random forests work is somewhat complicated, so we omit the details. The [additional resources section](#nonpram-arrf) contains some educational material on random forests. 
+Put simply, if the goal is prediction, the random forest is a good option. How random forests work is somewhat complicated, so we will omit the details. The [additional resources section](#nonpram-arrf) contains some educational material on random forests. 
 
-### Assumptions
+To apply random forest, we assume that the observations are independent and there is no outlier in the data.
 
-- Observations are independent.
-- There are no outliers in your data.
+### Examples Using R 
 
-### Example in R 
+To show how random forests differ from regression, we will simulate a set of data.
 
-We start with some example data, to show how random forests differ from regression. 
 ```{r nonpram-rf-test-data, cache=TRUE}
 set.seed(440)
 # invent nonlinear data
@@ -664,14 +646,11 @@ trim <- as.logical(trim + trim2)
 example_data <- cbind(x[!trim], y[!trim])
 plot(example_data, ylab = "y", xlab = "x")
 ```
-Notice how this data clearly does not have a linear relationship. 
-Let's explain how to build a random forest in R. 
+Notice how this data clearly does not have a linear relationship. We will explain how to build a random forest for this data. 
 
-We use the **caret** package to build random forest predictive models. 
-This package includes many different types of predictive models. 
-To train a random forest model, we set the `method` argument to `"rf"`. This function is based on code from the **randomForest** package. 
+The **caret** package will be used to build random forest predictive models.  This package includes many different types of predictive models. To train a random forest model, we set the `method` argument to `"rf"`. This function is based on code from the **randomForest** package. 
 
-Random Forests have a number of parameters, we will cover the two most important ones: 
+Random forests have a number of parameters, we will cover the two most important ones: 
 
 - the number of trees in the forest,  `ntree`, and
 - each leaf on the tree contains two nodes, chosen from a set of size `mtry`.
@@ -701,10 +680,9 @@ preds <- predict(model, newdata = nd)
 plot(example_data)
 lines(c(nd), preds, col = 2)
 ```
-Notice how non-linear the prediction function is? We also have a root mean square error of 1.16, R-squared of 0.5 and mean absolute error of 0.9. 
+Notice how non-linear the prediction function is? We also have a root mean square error of 1.16, R-squared of 0.5 and mean absolute error of 0.9. These three values are useful for prediction purposes.  
 
-We can also use random forests to predict categorical variables. 
-We will try to build a model that predicts the species of the iris plants based on the four predictors in the data set. For categorical data, there are two metrics output by the `train()` function. 
+The random forests can also be used to predict categorical variables. We will demonstrate how this can be done by building a model that predicts the species of the iris plants based on the four predictors in the data set. For categorical data, there are two metrics output by the `train()` function. 
 
 - accuracy: the proportion of time the right category is selected; and
 - $\kappa$ value: the proportion of time the right category is selected normalized by the probability of selecting the right category by chance. This metric takes into account that correct category selection may happen by chance. 
@@ -741,8 +719,8 @@ predict(model, newdata = head(cars[, -1]))
 cars[1:6, 1]
 ```
 
-### Additional Resources for Random Forests {#nonpram-arrf}
+### Additional Resources {#nonpram-arrf}
 
-- [**caret** package Information](http://topepo.github.io/caret/train-models-by-tag.html#random-forest),
-- [introduction to Decision Trees](https://www.youtube.com/watch?v=7VeUPuFGJHk), and 
-- [introduction to Random Forests](https://www.youtube.com/watch?v=J4Wdy0Wc_xQ).
+- [**Caret** package Information](http://topepo.github.io/caret/train-models-by-tag.html#random-forest),
+- [Introduction to Decision Trees](https://www.youtube.com/watch?v=7VeUPuFGJHk), and 
+- [Introduction to Random Forests](https://www.youtube.com/watch?v=J4Wdy0Wc_xQ).

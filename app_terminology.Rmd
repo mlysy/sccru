@@ -1,0 +1,23 @@
+# Terminology
+  
+*Last Updated: Nov 17, 2020*
+
+A list of terminology commonly used throughout this book:
+  
+- Argument: Input for an R function.
+- Binary variable: A categorical variable that takes in only 2 values, 1 or 0.
+- Categorical variable: A variable that can only be a finite number of values. For example marital status or country of origin.
+- Continuous variable: A variable that takes any value over a continuous range. We can have measurement units for it. In R, continuous data is usually defined as `num` or `int`. 
+- Control variable: See independent variable.
+- Covariate: See independent variable.
+- Dependent variable: This is the variable that we want to study, usually denoted as $y$ in linear regression models.
+- Explanatory variable: See independent variable.
+- Independent variable: They are factors which may influence the dependent variable, usually denoted as $X$ in linear models. These variables can be of different data types, *continuous* or *categorical*. 
+- Multivariate: Multiple variables.
+- Nominal variable: Categorical variable that has no clear ordering. Examples are sex, race, hair color etc. 
+- Ordinal variable: Categorical variable that has a clear ordering. Such as grades or highest level of education achieved, etc. 
+- Predicted Variable: See dependent variable.
+- Predictor: See independent variable.
+- Response variable: See dependent variable. 
+- Univariate: One variable.
+

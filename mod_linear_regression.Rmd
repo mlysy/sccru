@@ -69,30 +69,32 @@ econ <- econmath[complete.cases(econmath), ]
     ```{r linreg-data-struc}
 str(econ) # structure of the data set
     ```
-    To convert a variable into categorical data type in R, we use function `factor()`.
+
+To convert a variable into categorical data type in R, we use function `factor()`.
     
-    - Binary variables are categorical variables that takes in only 2 values, 1 or 0. In the data set `econ`, we have `male` (=1 if male), `econhs` (=1 if taken economics), `calculus` (=1 if taken calculus), `fathcoll` (=1 if father has BA), and `mothcoll` (=1 if mother has BA).
-        ```{r linreg-data-factor}
+- Binary variables are categorical variables that takes in only 2 values, 1 or 0. In the data set `econ`, we have `male` (=1 if male), `econhs` (=1 if taken economics), `calculus` (=1 if taken calculus), `fathcoll` (=1 if father has BA), and `mothcoll` (=1 if mother has BA).
+```{r linreg-data-factor}
 econ$male <- factor(econ$male)
 econ$econhs <- factor(econ$econhs)
 econ$calculus <- factor(econ$calculus)
 econ$fathcoll <- factor(econ$fathcoll)
 econ$mothcoll <- factor(econ$mothcoll)
-        ```
-    - Categorical variables with more than 2 levels: In the data set `econ`, there are two variables that indicate attendence: `attexc` (=1 if past attendence is excellent) and `attgood` (=1 if past attendence is good). It will make sense if we combine these two variables into one variable for attendence `att`(=2 if past attendence 'excellent'; =1 if past attendence 'good'; =0 if otherwise).
-        ```{linreg-data-cate}
+```
+- Categorical variables with more than 2 levels: In the data set `econ`, there are two variables that indicate attendence: `attexc` (=1 if past attendence is excellent) and `attgood` (=1 if past attendence is good). It will make sense if we combine these two variables into one variable for attendence `att`(=2 if past attendence 'excellent'; =1 if past attendence 'good'; =0 if otherwise).
+
+```{linreg-data-cate}
 econ$att <- econ$attgood # 1 if past attendance is good
 econ$att[econ$attexc == 1] <- 2 # 2 if past attendance is excellent
 econ$att <- factor(econ$att) # turn att in to categorical variable
 econ <- econ[, -c(13, 14)] # remove the attgood and attexc column
-        ```
+```
         
-    - Ordinal/likert scale: `mathscr` (math quiz score) has 11 levels, but these levels are ordered. For example, a score of 7 is better than a score of 4. So we need to order the levels for the variable `mathscr` using the argument `ordered = TRUE`.
-        ```{r linreg-data-ord}
+- Ordinal/likert scale: `mathscr` (math quiz score) has 11 levels, but these levels are ordered. For example, a score of 7 is better than a score of 4. So we need to order the levels for the variable `mathscr` using the argument `ordered = TRUE`.
+```{r linreg-data-ord}
 econ$mathscr <- factor(econ$mathscr, ordered = TRUE)
-        ```
+```
 
-We can now check the structure of the new dat set `econ`. Notice how it is different from the origial `econmath` data set. The categorical variables are now treated as categorical (`Factor`) in R.  
+We can now check the structure of the new dat set `econ`. Notice how it is different from the original `econmath` data set. The categorical variables are now treated as categorical (`Factor`) in R.  
 
 ```{r linreg-data-struc-cleaned}
 str(econ)
