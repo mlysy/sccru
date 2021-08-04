@@ -17,7 +17,7 @@ require("ggplot2")
 
 The layers of a graph is shown in Figure \@ref(fig:visgg-grammar). In this chapter, we will show you how to build a plot layer by layer. 
 ```{r visgg-grammar, fig.cap="The layers of a graph", echo=FALSE, fig.align='center'}
-knitr::include_graphics("images/visgg-grammarOfGraphics.png")
+knitr::include_graphics("data/images/visgg-grammarOfGraphics.png")
 ```
 
 ### Example Data Set
@@ -105,7 +105,7 @@ display.brewer.all()
 ```
 <!--- For example, this is the "Set 1" colours from `RColorBrewer`.
 ```{r visgg-colbrew-set1, fig.cap="Set 1 from ColorBrewer", echo=FALSE, fig.align='center'}
-knitr::include_graphics("images/visgg-colours-set1.png")
+knitr::include_graphics("data/images/visgg-colours-set1.png")
 ```
 --->
 
@@ -120,11 +120,11 @@ Readers can refer [here](https://www.datanovia.com/en/blog/the-a-z-of-rcolorbrew
 Our preference for general purposes is to use a colour-blind friendly palette such as:
 
 ```{r visgg-colblind-grey, fig.cap="Colour blind friendly palette (grey)", echo=FALSE, fig.align='center'}
-knitr::include_graphics("images/visgg-cbPalette-grey.png")
+knitr::include_graphics("data/images/visgg-cbPalette-grey.png")
 ```
 
 ```{r visgg-colblind-black, fig.cap="Colour blind friendly palette (black)", echo=FALSE, fig.align='center'}
-knitr::include_graphics("images/visgg-cbPalette.png")
+knitr::include_graphics("data/images/visgg-cbPalette.png")
 ```
 
 Both palettes are not part of `RColorBrewer` and are extracted from [Cookbook for R](http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/). They are coded as follow: 
@@ -197,7 +197,7 @@ p + geom_point(aes(col = cut, size = cut))
 Another component to consider is the shape of the points, which are identified using numbers.
 
 ```{r visgg-aes-shape-list, fig.cap="Shapes", echo=FALSE, fig.align='center'}
-knitr::include_graphics("images/visgg-ggplot2-shape-identity.png")
+knitr::include_graphics("data/images/visgg-ggplot2-shape-identity.png")
 ```
 
 For example, we can set the shapes of the points to an inverse triangle. 

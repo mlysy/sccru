@@ -13,7 +13,7 @@
 [RStudio](https://rstudio.com/products/rstudio/) is an integrated development environment ([IDE](https://en.wikipedia.org/wiki/Integrated_development_environment)) for R. It is easier to work with R using RStudio. 
 
 ```{r rintro-rstudio, fig.cap="The RStudio interface", echo=FALSE, fig.align='center'}
-knitr::include_graphics("images/rintro-rstudio.png")
+knitr::include_graphics("data/images/rintro-rstudio.png")
 ```
 
 The interface of RStudio shown in Figure \@ref(fig:rintro-rstudio) contains four panes:
@@ -146,7 +146,9 @@ will set the working directory to "D:/".
 
 In the real world, data are recorded in different formats such as Excel spreadsheet (`xls`), Comma Separated Values (`csv`) or Text (`txt`). Each row of a data files is an observation while each column is a variable or a feature. 
 
-Data are imported into the R Environment using functions such as `read.csv()` and `read.table()`. Imported data are stored as a data frame object. In this section, we will look at two data sets: `r embed_data_file("data/caliRain.csv", text = "caliRain.csv")` and `r embed_data_file("data/drinks.csv", text = "drinks.csv")`. 
+Data are imported into the R Environment using functions such as `read.csv()` and `read.table()`. Imported data are stored as a data frame object. In this section, we will look at two data sets: [`caliRain.csv`](data/caliRain.csv) and [`drinks.csv`](data/drinks.csv).
+
+<!-- `r embed_data_file("data/caliRain.csv", text = "caliRain.csv")` and `r embed_data_file("data/drinks.csv", text = "drinks.csv")`.  -->
 
 Suppose we saved the data sets in a subfolder called `data` in the working directory. We can import both data sets `caliRain.csv` and `drinks.csv` into the R environment and save them as data frames called `drinks_df` and `rain_df` respectively.
 ```{r rintro-data-import, echo=TRUE, eval=TRUE, comment = NA}

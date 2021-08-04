@@ -42,7 +42,19 @@
 
 - Use "" instead of '' for quotes.
 
-- To embed a file in your module, use function `embed_data_file()`. For example, `r embed_data_file("data/caliRain.csv", text = "caliRain.csv")`.
+## Embedding Files
+
+To embed a file in your module, first put it in any subdirectory of the `data` folder of the repo.  For example, the repo currently contains the file `data/caliRain.csv`.  You can then use the file anywhere in your module, e.g.,
+
+```{r app_embed}
+head(read.csv("data/caliRain.csv"))
+```
+
+In order to let users download the file, you can simply provide the link using regular Markdown syntax.  In other words, `[download link](data/caliRain.csv)` will render as [download link](data/caliRain.csv).
+
+**Note:** This method works because somewhere in the project we make a call to `knitr::include_graphics("data/arbitrary/file.ext")`, which has the effect of adding the `data` folder to the bookdown output directory.  In previous attempts we tried explicitly adding the `data` folder to the output via `dir.create()`. However, this requires that the output directory be supplied in advance, whereas in general it can be set on-the-fly via the `output_dir` argument to `bookdown::render_book()`.
+
+<!-- - To embed a file in your module, use function `embed_data_file()`. For example, `r embed_data_file("data/caliRain.csv", text = "caliRain.csv")`. -->
 
 ## Math
 
