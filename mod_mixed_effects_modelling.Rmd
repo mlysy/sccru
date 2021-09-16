@@ -1,0 +1,122 @@
+# Introduction to Longitudinal Data and Mixed Effect Modelling 
+
+*Author: Grace Tompkins*
+
+*Last Updated: September 15, 2021*
+
+--- 
+
+## Introduction
+
+
+<!-- # ```{r setuup, echo = F, warning = F, message = F} -->
+<!-- # source("common_functions.R") -->
+<!-- # ``` -->
+
+To study the relationship between an outcome and other covariates, there are many types of studies and data that one can use. Though observational data is typically the easiest to obtain and analyze in practice, it can be limited with the types of conclusions we can draw from it due to the data being captured at only a single "snapshot" in time. While longitudinal studies can either be prospective (subjects are followed forward in time) or retrospective (measurements on subjects are extracted historically), prospective studies tend to preferred as recall bias, where subjects inaccurately remember past events, can impact the data collected [@diggle02].
+
+We often turn to longitudinal studies in which we take repeated measurements from the individuals whom are followed over a certain period of time. The major advantage of longitudinal studies is that one can distinguish between changes of an outcome within an subject overtime (longitudinal effect )and differences among subjects at a given point in time (cohort effect). Longitudinal studies can also separate time effects and quantify different sources of variation in the data by separating the between-subject and within-subject variation. Observational studies do not have these benefits.
+
+A challenge of longitudinal data is that observations taken within each subject are correlated. We refer to this as the intra-subject correlation. This implies that our typical statistical modeling tools which assume independence among observations are inappropriate for this type of data. Methods that account for intra-subject correlation will be discussed further in the following sections. 
+
+Though longitudinal analysis is often used in the context of health data with subjects and humans, longitudinal data can be found in a variety of disciplines, including (but not limited to) [economics](https://www150.statcan.gc.ca/n1/en/pub/11f0019m/11f0019m2004227-eng.pdf?st=aVJbOo9q), [finance](https://www.sciencedirect.com/science/article/pii/S0167487018301648?casa_token=Zu4t8ubyZPAAAAAA:geM4RGeihOj0gGWgPeZ_xnNBB2ZA3nnOeYzlvSHHuCnEbbd9mmi-5iuR7ysEh_6Zm5_uaatnhKB_), [environmental studies](https://www.mdpi.com/2071-1050/9/6/913), and [education](https://www.tandfonline.com/doi/abs/10.1080/00220973.1997.9943456?casa_token=KBEjZbk9xRAAAAAA:INEZk1fuIr0H59P9fl0ykz5qWKxzXnR1PZ_6H0MHwvgCnjXWC8D0A5xbLadXutbsUJx3lvKF1yXj5QE). 
+
+
+The methodology presented in the following sections is based on the [generalized linear model](https://en.wikipedia.org/wiki/Generalized_linear_model) framework. This framework is flexible and allows for the estimation of longitudinal data with different types of outcomes and covariates. 
+
+### List of R packages Used {#mem-rpackages}
+
+In this chapter, we will be using the packages `r cran_link("geesmv")`, ... and ,...
+
+
+```{r linreg-library, warning=FALSE, message=FALSE}
+# load the required packages
+library(geesmv)
+```
+
+### Motivating Example {#mem-motivating}
+
+Throughout this chapter, we will be considering the data set `dental` from the R package **geesmv**. 
+
+We can first load the data set `dental` to the working environment.
+```{r mem-data-load, warning=FALSE}
+data("dental") # load the data dental
+```
+
+
+This data set was obtained to study the growth of 27 children (16 boys and 11 girls). This data set contains orthodontic measurements (the distance from the center of the pituitary to the pterygomaxillary fissure) in millimeters, along with the children's genders. Measurements were taken from children at ages 8 (baseline), 10, 12, and 14. 
+
+To look at the form of the data, we can look at the first six observations by: 
+
+```{r mem-data-view, warning=FALSE}
+head(dental) # look at the first 6 observations in the dataset
+```
+
+In this data set, the `subject` variable identifies the child and the `gender` variable is a binary variable such that `gender = F` when the subject is female and `gender = M` if male. The last four columns show the orthodontic measurements for each child at the given age, which are continuous measurements.
+
+Using this data, we want to ask the following questions:
+
+* Does the orthodontic measurement increase as the age of the subjects increases?
+* Is there a difference between growth in the two gender groups considered?
+
+In order to answer these, we need to employ longitudinal methods which account for individual random effects and population effects, as described in the following sections. 
+
+## Data Structure for Longitudinal Responses {#mem-datastruc}
+
+Longitudinal data can be presented or stored in two different ways. *Wide form* data has a single row for each subject and a unique column for the response of the subject at different time points. In its unaltered form, the `dental` data set is in wide form. However, we often need to convert our data into *long form* in order to use many popular software packages for longitudinal data analysis. In long form, we have multiple rows per subject representing the outcome measured at different time points. We also include an additional variable denoting the time or occasion in which we obtained the measurement.
+
+As an example, let's change the `dental` data set into long form. We can do this by employing the `reshape` function in `R`. The `reshape` function has many arguments available which can be explored by typing `?reshape` in the console. Some of the important arguments include:
+
+* `data`: the dataframe we are converting.
+* `direction`: the direction in which we are converting to.
+* `idvar`: the column name of the variable identifying subjects (typically some type of id, or name)
+* `varying`: the name of the sets of variables in the wide format that we want to transform into a single variable in long format ("time-varying"). Typically these are the column names of wide form data set in which the the repeated outcome is measured.
+* `times`: the values we are going to use in the long form that indicate when the observations were taken
+* `timevar`: the name of the variable in long form indicating the time. 
+* `drop`: a vector of column names that we do not want to include in the newly reshaped data set.
+
+To reshape the wide form dental data set into long form, we can execute the following code:
+
+```{r mem-reshape}
+
+#reshape the data into long form
+dental.long <- reshape(data = dental, #original data in wide form 
+                       direction = "long", #changing from wide TO long
+                       idvar = "subject", #name of variable indicating unique 
+                                          #subjects in wide form dataset
+                       varying = c("age_8", "age_10", "age_12", "age_14"), #name 
+                                        #of variables in which outcomes recorded
+                       v.names = "distance", #assigning a new name to the outcome
+                       times = c(8,10,12,14), #time points in which above 
+                                              #outcomes were recorded
+                       timevar = "age") #name of the time variable we're using
+
+#order the data by subject ID and then by age
+dental.long <- dental.long[order(dental.long$subject, dental.long$age), ] 
+
+
+#look at the first 10 observations
+head(dental.long, 10)
+
+```
+
+We see that the `distance` variable corresponds to one of the values in one of the last four columns of the `dental` data set in wide form for each subject. For the rest of the example, we will be using the data stored in `dental.long`. 
+
+
+
+
+## Linear Models for Continuous Outcome {#mem-linear}
+
+When we are analyzing data that has a continuous outcome, we can look at answering our research questions based simple linear model.  In this setting, we are assuming that the data has a *balanced design*, meaning that the observation times are the same for all subjects (and we also assume we have no missing data).
+
+### Notation {#mem-linear-notation}
+
+Assume we have $n$ individuals observed at $k$ different times. 
+
+We let:
+* $t_j, j = 1, .., k$ be the $k$ common assessment times.
+
+At every assessment time, we obtain the response of subject $i$ at time $j$, denoted $Y_{ij}$. We can also record other covariates at each assessment time. Let $x_{ij}$ be a $p \times 1$ vector measuring the $p$ covariates of subject $i$ at time $j$. 
+
+
+
