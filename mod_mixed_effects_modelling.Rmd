@@ -31,6 +31,7 @@ In this chapter, we will be using the packages `r cran_link("geesmv")`, ... and 
 
 ```{r linreg-library, warning=FALSE, message=FALSE}
 # load the required packages
+source("common_functions.R")
 library(geesmv)
 ```
 
@@ -118,5 +119,5 @@ We let:
 
 At every assessment time, we obtain the response of subject $i$ at time $j$, denoted $Y_{ij}$. We can also record other covariates at each assessment time. Let $x_{ij}$ be a $p \times 1$ vector measuring the $p$ covariates of subject $i$ at time $j$. 
 
-
+this is a test!
 
