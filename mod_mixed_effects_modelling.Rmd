@@ -1,5 +1,6 @@
 # Introduction to Longitudinal Data and Mixed Effect Modelling 
 
+
 *Author: Grace Tompkins*
 
 *Last Updated: September 15, 2021*
@@ -8,10 +9,11 @@
 
 ## Introduction
 
+```{r mem-setup-for-local, echo = F, warning = F, message = F}
+source("common_functions.R")
+require(bookdown)
 
-<!-- # ```{r setuup, echo = F, warning = F, message = F} -->
-<!-- # source("common_functions.R") -->
-<!-- # ``` -->
+```
 
 To study the relationship between an outcome and other covariates, there are many types of studies and data that one can use. Though observational data is typically the easiest to obtain and analyze in practice, it can be limited with the types of conclusions we can draw from it due to the data being captured at only a single "snapshot" in time. While longitudinal studies can either be prospective (subjects are followed forward in time) or retrospective (measurements on subjects are extracted historically), prospective studies tend to preferred as recall bias, where subjects inaccurately remember past events, can impact the data collected [@diggle02].
 
@@ -29,19 +31,17 @@ The methodology presented in the following sections is based on the [generalized
 In this chapter, we will be using the packages `r cran_link("geesmv")`, ... and ,...
 
 
-```{r linreg-library, warning=FALSE, message=FALSE}
-# load the required packages
-source("common_functions.R")
-library(geesmv)
+```{r mem-library, warning=FALSE, message=FALSE}
+library(geesmv) # load the required packages
 ```
 
 ### Motivating Example {#mem-motivating}
 
-Throughout this chapter, we will be considering the data set `dental` from the R package **geesmv**. 
+Throughout this chapter, we will be considering the data set `dental` from the R package `r cran_link("geesmv")`. 
 
 We can first load the data set `dental` to the working environment.
 ```{r mem-data-load, warning=FALSE}
-data("dental") # load the data dental
+data("dental") # load the data dental from the geesmv package
 ```
 
 
@@ -50,7 +50,7 @@ This data set was obtained to study the growth of 27 children (16 boys and 11 gi
 To look at the form of the data, we can look at the first six observations by: 
 
 ```{r mem-data-view, warning=FALSE}
-head(dental) # look at the first 6 observations in the dataset
+head(dental) # look at the first 6 observations in the data set
 ```
 
 In this data set, the `subject` variable identifies the child and the `gender` variable is a binary variable such that `gender = F` when the subject is female and `gender = M` if male. The last four columns show the orthodontic measurements for each child at the given age, which are continuous measurements.
@@ -115,9 +115,165 @@ When we are analyzing data that has a continuous outcome, we can look at answeri
 Assume we have $n$ individuals observed at $k$ different times. 
 
 We let:
-* $t_j, j = 1, .., k$ be the $k$ common assessment times.
 
-At every assessment time, we obtain the response of subject $i$ at time $j$, denoted $Y_{ij}$. We can also record other covariates at each assessment time. Let $x_{ij}$ be a $p \times 1$ vector measuring the $p$ covariates of subject $i$ at time $j$. 
+* $t_j$ for $j = 1, .., k$ be the $k$ common assessment times,
+* $Y_{ij}$ for $i = 1, ... ,n$ and $j = 1, ... , k$ be the response of subject $i$ at assessment time $j$, and
+* $x_{ij}$ for $i = 1, ... ,n$ and $j = 1, ... , k$ be a $p \times 1$ vector recording other covariates for subject $i$ at time $j$.
 
-this is a test!
+We can write the observed data at each time point (which are assumed to be common for all individuals in this setting) in matrix form. For each subject $i = 1, ..., n$, we let
 
+$$
+\textbf{Y}_i = \begin{bmatrix}
+Y_{i1} \\
+Y_{i2} \\
+\vdots \\
+Y_{ik} \\
+\end{bmatrix} , \text{     and } \textbf{X}_i = \begin{bmatrix}
+\bf{x}_{i1}^T \\
+\bf{x}_{i2}^T  \\
+\vdots \\
+\bf{x}_{ik}^T \\
+\end{bmatrix} = \begin{bmatrix}
+x_{i11} & x_{i12}&\dots & x_{i1p} \\
+x_{i21} & x_{i22}&\dots & x_{i2p} \\
+\vdots & \vdots &\vdots & \vdots \\
+x_{ik1} & x_{ik2}&\dots & x_{ikp} 
+\end{bmatrix}.
+$$
+
+### Model Specification  {#mem-linear-modelspec}
+
+We must specify the model for the mean of our outcome $Y$. We assume that $\bf{Y}_i$ conditional on $\bf{X}_i$ follows a multivariate distribution, where
+
+$$
+\bf{Y}_i | \bf{X}_i \sim N(\mu_i, \bf{\Sigma_i}).
+$$
+We specify a linear model for the $\mu_i$, the mean of the outcome of $Y$ conditional on $X$ as
+
+$$
+\mu_i = E(\bf{Y}_i | \bf{X}_i) = \bf{X}_i\beta = \begin{bmatrix}
+\bf{x}_{i1}^T\beta \\
+\bf{x}_{i2}^T\beta \\
+\vdots \\
+\bf{x}_{ik}^T\beta  \\
+\end{bmatrix}.
+$$
+
+and also must specify the structure of the $n \times n$ covariance matrix $\bf{\Sigma}_i$. Unlike in most cross-sectional studies, longitudinal data is correlated due to the repeated samples taken within subjects. Thus, we need to model both the relationship between the outcome and covariates and the *autocorrelation*  from responses within an individual. 
+
+For clarity, we can re-write the multivariate normal assumption as 
+
+$$
+\bf{Y}_i \sim N(\bf{X}_i\beta, \Sigma_i(\theta)).
+$$
+Without accounting for the autocorrelation, we may end up with
+
+* incorrect conclusions and incorrect inferences on $\bf{\beta}$
+* inefficient estimated of $\bf{\beta}$
+* more biases caused by missing data
+
+[@diggle02]. We also note that under a balanced design with common observation times, we assume a common covariance matrix for all individuals, that is
+
+$$
+\bf{\Sigma}_i = \begin{bmatrix}
+\sigma_1^2 & \sigma_{12}& \dots & \sigma_{1k} \\
+ & \sigma_2^2 & \dots & \sigma_{2k} \\
+ &  & \ddots & \vdots\\
+& &  & \sigma_k^2
+\end{bmatrix}.
+$$
+
+The diagonal elements represent the variances of the outcome $Y$ while the off-diagonal elements represent the covariances between outcomes within a given individual. We consider different structures of covariance matrices as using this covariance matrix can be problematic due to the large number of parameters we need to estimate in practice. We refer to the collection of parameters in this variance-covariance matrix as $\theta = (\sigma_1^2, \sigma_2^2, ..., \sigma_k^2, \sigma_{12}, \sigma_{13}, ..., \sigma_{k-1,k})^T$.
+
+We typically assume that the variances of the responses do not change overtime, and thus we can write 
+
+$$
+\bf{\Sigma}_i = \sigma^2\bf{R}_i
+$$
+where $\bf{R}_i$ is referred to as a correlation matrix such that
+
+$$
+\bf{R}_i = \begin{bmatrix}
+1 & \rho_{12}& \dots & \rho_{1k} \\
+ & 1 & \dots & \rho_{2k} \\
+ &  & \ddots & \vdots\\
+& &  & 1
+\end{bmatrix}.
+$$
+
+This comes from the equation relating correlation and covariance as $\sigma_{12} = \sigma^2\rho_{12}$ when common variances are assumed. 
+
+We consider different structures of $\bf{R}_i$ in our analyses and choose the most appropriate one based on the data. Commonly used correlation structures are:
+
+
+* *Unstructured Correlation*, the least constrained structure
+$$
+\bf{R}_i = \begin{bmatrix}
+1 & \rho_{12}& \dots & \rho_{1k} \\
+ & 1 & \dots & \rho_{2k} \\
+ &  & \ddots & \vdots\\
+& &  & 1
+\end{bmatrix},
+$$
+
+
+* *Exchangeable Correlation*, which is the simplest with only one parameter (exculding the variance $\sigma^2$) to estimate
+$$
+\bf{R}_i = \begin{bmatrix}
+1 & \rho& \dots & \rho \\
+ & 1 & \dots & \rho \\
+ &  & \ddots & \vdots\\
+& &  & 1
+\end{bmatrix},
+$$
+
+* *First-order Auto Regressive Correlation*, which is sometimes referred to as "AR(1)" and is most suitable for evenly spaced observations where we see weaker correlation as the time between observations gets larger
+
+$$
+\bf{R}_i = \begin{bmatrix}
+1 & \rho & \rho^2 &\dots & \rho^{k-1} \\
+ & 1 & \rho &\dots  & \rho^{k-2} \\
+ &  &  &\ddots & \vdots\\
+& & & & 1
+\end{bmatrix},
+$$
+and 
+
+* *Exponential Correlation*, which collapses to AR(1) if observations are equally spaced where $\rho_{jl} = \exp(-\phi|t_{ij} - t_{il}|)$ for some $\phi > 0$
+
+We note that in practice, it is possible that the variance-covariance matrices can differ among subjects, and the matrix may also depend on the covariates present in the data. More details about how to choose the appropriate structure will be discussed in the following sections. 
+
+### Estimation {#mem-linear-estimation}
+
+For convenience, let's condense our notation to stack the response vectors and rewrite the linear model as $\bf{Y}\sim N(\bf{X} \bf{\beta}, \Sigma)$ where
+
+
+$$
+\textbf{Y} = \begin{bmatrix}
+\textbf{Y}_1 \\
+\textbf{Y}_2 \\
+\vdots \\
+\textbf{Y}_n\\
+\end{bmatrix} ,    \textbf{X} = \begin{bmatrix}
+\textbf{X}_1 \\
+\textbf{X}_2  \\
+\vdots \\
+\textbf{X}_n\\
+\end{bmatrix}, \text{     and } \bf{\Sigma} = \begin{bmatrix}
+\bf{\Sigma}_1 & 0 &\dots & 0 \\
+ &  \bf{\Sigma}_2 &\dots  & 0 \\
+ &    &\ddots & \vdots\\
+& & & \bf{\Sigma}_n
+\end{bmatrix},
+$$
+
+
+Under the multivariate normality assumptions, and with a fully specified distribution, one approach to estimating our regression parameters $\beta$ and variance-covariance parameters $\theta = (\sigma_1^2, \sigma_2^2, ..., \sigma_k^2, \sigma_{12}, \sigma_{13}, ..., \sigma_{k-1,k})^T$ is through maximum likelihood estimation. 
+
+The maximum likelihood estimate (MLE) of $\beta$ is 
+
+$$
+\widehat{\bf{\beta}} = (\bf{X}^T\bf{\Sigma}^{-1}\bf{X})^{-1}\bf{X}^T\bf{\Sigma}^{-1}\bf{Y}
+$$
+
+which is a function of our variance-covariance matrix $\bf{\Sigma}$ and thus a function of the parameters $\theta$. To deal with this, we then need to first maximize the *profile likelihood* $l_p(\theta)$ to get the MLE for 
