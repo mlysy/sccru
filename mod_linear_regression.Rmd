@@ -6,6 +6,11 @@
 
 --- 
 
+```{r mem-setup-for-local, echo = F, warning = F, message = F}
+source("common_functions.R")
+require(bookdown)
+```
+
 ## Introduction
 
 The goal of this chapter is to introduce linear regression, an important model which is widely used in data analysis. The reasons for its popularity are

@@ -1,9 +1,13 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
 # Introduction to Longitudinal Data and Mixed Effect Modelling 
-
 
 *Author: Grace Tompkins*
 
-*Last Updated: September 15, 2021*
+*Last Updated: October 12, 2021*
 
 --- 
 
@@ -12,27 +16,27 @@
 ```{r mem-setup-for-local, echo = F, warning = F, message = F}
 source("common_functions.R")
 require(bookdown)
-
 ```
 
-To study the relationship between an outcome and other covariates, there are many types of studies and data that one can use. Though observational data is typically the easiest to obtain and analyze in practice, it can be limited with the types of conclusions we can draw from it due to the data being captured at only a single "snapshot" in time. While longitudinal studies can either be prospective (subjects are followed forward in time) or retrospective (measurements on subjects are extracted historically), prospective studies tend to preferred as recall bias, where subjects inaccurately remember past events, can impact the data collected [@diggle02].
+To study the relationship between an outcome and other covariates, there are many types of studies and data that one can use. Although observational data is typically the easiest to obtain and analyze in practice, it can be limited with the types of conclusions we can draw from it due to the data being captured at only a single "snapshot" in time. While longitudinal studies can either be prospective (subjects are followed forward in time) or retrospective (measurements on subjects are extracted historically), prospective studies tend to preferred as recall bias, where subjects inaccurately remember past events, can impact the data collected [@diggle02].
 
 We often turn to longitudinal studies in which we take repeated measurements from the individuals whom are followed over a certain period of time. The major advantage of longitudinal studies is that one can distinguish between changes of an outcome within an subject overtime (longitudinal effect )and differences among subjects at a given point in time (cohort effect). Longitudinal studies can also separate time effects and quantify different sources of variation in the data by separating the between-subject and within-subject variation. Observational studies do not have these benefits.
 
-A challenge of longitudinal data is that observations taken within each subject are correlated. We refer to this as the intra-subject correlation. This implies that our typical statistical modeling tools which assume independence among observations are inappropriate for this type of data. Methods that account for intra-subject correlation will be discussed further in the following sections. 
+A challenge of longitudinal data is that observations taken within each subject are correlated. Even after a great amount of time separation between observations, the correlation between a pair of responses on the same unit rarely approaches zero [@fitzmaurice11]. We refer to this as the intra-subject correlation. This implies that our typical statistical modeling tools which assume independence among observations are inappropriate for this type of data. Methods that account for intra-subject correlation will be discussed further in the following sections. 
 
-Though longitudinal analysis is often used in the context of health data with subjects and humans, longitudinal data can be found in a variety of disciplines, including (but not limited to) [economics](https://www150.statcan.gc.ca/n1/en/pub/11f0019m/11f0019m2004227-eng.pdf?st=aVJbOo9q), [finance](https://www.sciencedirect.com/science/article/pii/S0167487018301648?casa_token=Zu4t8ubyZPAAAAAA:geM4RGeihOj0gGWgPeZ_xnNBB2ZA3nnOeYzlvSHHuCnEbbd9mmi-5iuR7ysEh_6Zm5_uaatnhKB_), [environmental studies](https://www.mdpi.com/2071-1050/9/6/913), and [education](https://www.tandfonline.com/doi/abs/10.1080/00220973.1997.9943456?casa_token=KBEjZbk9xRAAAAAA:INEZk1fuIr0H59P9fl0ykz5qWKxzXnR1PZ_6H0MHwvgCnjXWC8D0A5xbLadXutbsUJx3lvKF1yXj5QE). 
+While longitudinal analysis is often used in the context of health data involving repeated measurements from patients, longitudinal data can be found in a variety of disciplines, including (but not limited to) [economics](https://www150.statcan.gc.ca/n1/en/pub/11f0019m/11f0019m2004227-eng.pdf?st=aVJbOo9q), [finance](https://www.sciencedirect.com/science/article/pii/S0167487018301648?casa_token=Zu4t8ubyZPAAAAAA:geM4RGeihOj0gGWgPeZ_xnNBB2ZA3nnOeYzlvSHHuCnEbbd9mmi-5iuR7ysEh_6Zm5_uaatnhKB_), [environmental studies](https://www.mdpi.com/2071-1050/9/6/913), and [education](https://www.tandfonline.com/doi/abs/10.1080/00220973.1997.9943456?casa_token=KBEjZbk9xRAAAAAA:INEZk1fuIr0H59P9fl0ykz5qWKxzXnR1PZ_6H0MHwvgCnjXWC8D0A5xbLadXutbsUJx3lvKF1yXj5QE). 
 
 
 The methodology presented in the following sections is based on the [generalized linear model](https://en.wikipedia.org/wiki/Generalized_linear_model) framework. This framework is flexible and allows for the estimation of longitudinal data with different types of outcomes and covariates. 
 
 ### List of R packages Used {#mem-rpackages}
 
-In this chapter, we will be using the packages `r cran_link("geesmv")`, ... and ,...
+In this chapter, we will be using the packages `r cran_link("geesmv")`, `r cran_link("nmle")`and ,...
 
 
 ```{r mem-library, warning=FALSE, message=FALSE}
 library(geesmv) # load the required packages
+library(nlme)
 ```
 
 ### Motivating Example {#mem-motivating}
@@ -123,12 +127,12 @@ We let:
 We can write the observed data at each time point (which are assumed to be common for all individuals in this setting) in matrix form. For each subject $i = 1, ..., n$, we let
 
 $$
-\textbf{Y}_i = \begin{bmatrix}
+\bf{Y}_i = \begin{bmatrix}
 Y_{i1} \\
 Y_{i2} \\
 \vdots \\
 Y_{ik} \\
-\end{bmatrix} , \text{     and } \textbf{X}_i = \begin{bmatrix}
+\end{bmatrix} , \text{     and } \bf{X}_i = \begin{bmatrix}
 \bf{x}_{i1}^T \\
 \bf{x}_{i2}^T  \\
 \vdots \\
@@ -207,6 +211,7 @@ We consider different structures of $\bf{R}_i$ in our analyses and choose the mo
 
 
 * *Unstructured Correlation*, the least constrained structure
+
 $$
 \bf{R}_i = \begin{bmatrix}
 1 & \rho_{12}& \dots & \rho_{1k} \\
@@ -218,6 +223,7 @@ $$
 
 
 * *Exchangeable Correlation*, which is the simplest with only one parameter (exculding the variance $\sigma^2$) to estimate
+
 $$
 \bf{R}_i = \begin{bmatrix}
 1 & \rho& \dots & \rho \\
@@ -249,16 +255,16 @@ For convenience, let's condense our notation to stack the response vectors and r
 
 
 $$
-\textbf{Y} = \begin{bmatrix}
-\textbf{Y}_1 \\
-\textbf{Y}_2 \\
+\bf{Y} = \begin{bmatrix}
+\bf{Y}_1 \\
+\bf{Y}_2 \\
 \vdots \\
-\textbf{Y}_n\\
-\end{bmatrix} ,    \textbf{X} = \begin{bmatrix}
-\textbf{X}_1 \\
-\textbf{X}_2  \\
+\bf{Y}_n\\
+\end{bmatrix} ,    \bf{X} = \begin{bmatrix}
+\bf{X}_1 \\
+\bf{X}_2  \\
 \vdots \\
-\textbf{X}_n\\
+\bf{X}_n\\
 \end{bmatrix}, \text{     and } \bf{\Sigma} = \begin{bmatrix}
 \bf{\Sigma}_1 & 0 &\dots & 0 \\
  &  \bf{\Sigma}_2 &\dots  & 0 \\
@@ -276,4 +282,279 @@ $$
 \widehat{\bf{\beta}} = (\bf{X}^T\bf{\Sigma}^{-1}\bf{X})^{-1}\bf{X}^T\bf{\Sigma}^{-1}\bf{Y}
 $$
 
-which is a function of our variance-covariance matrix $\bf{\Sigma}$ and thus a function of the parameters $\theta$. To deal with this, we then need to first maximize the *profile likelihood* $l_p(\theta)$ to get the MLE for 
+which we note is a function of our variance-covariance matrix $\bf{\Sigma}$ and thus a function of the parameters $\theta$. As such, we can either estimate the parameters using [profile likelihood](https://en.wikipedia.org/wiki/Likelihood_function) or [restricted maximum likelihood estimation (REML)](https://en.wikipedia.org/wiki/Restricted_maximum_likelihood). Using profile likelihood estimation is desirable because of the MLE's large sample properties, however the MLEs of our variance and covariance parameters $\theta$ will be biased. REML was developed to overcome this issue. In general, the MLE and REML estimates are not equal to each other for the regression parameters $\beta$, and thus we typically only use REML when estimating the variance and covariance parameters. 
+
+The MLE $\widehat\beta$ found my maximum likelihood estimation has asymptotic normality. That is,
+
+$$
+\hat{\beta} \sim N(\beta, [X^T\Sigma^{-1}X]^{-1}).
+$$
+
+As $\Sigma$ must be estimated, we typically estimate the asymptotic variance-covariance matrix as 
+
+$$
+\widehat{asvar}(\widehat{\beta}) = (X^T\widehat{\Sigma}^{-1}X)^{-1}
+$$
+We can use this to make inference about regression parameters and perform hypothesis testing. For example, 
+
+$$
+\frac{\widehat{\beta}_j - \beta_j}{\sqrt{\widehat{se}(\widehat{\beta}}_j)} \dot{\sim} N(0,1).
+$$
+
+
+### Modelling in R {#mem-linear-R}
+
+To fit a linear model in `R`, we can use the `gls()` function from the `r cran_link("nmle")` package. This function has a number of parameters, including
+
+* `model`: a linear formula description of the form `model = response ~ covariate1 + covariate2`. Interaction effects can be specified using the form `covariate1*covariate2`. 
+* `correlation`: the name of the within-group correlation structure, which may include `corAR1` for the AR(1) structure, `corCompSymm` for the exchangeable structure, `corExp` for exponential structure, `corSymm` for unstructured, and others (see `?corClasses` for other options). Default is an independent covariance structure. 
+* `weights`: an optional argument to allow for different marginal variances. For example, to allow for the variance of the responses to change for different discrete time/observation points, we can use `weights = varIndent(form ~1 | factor(time))`.
+* `method`: the name of the estimation method, where options include "ML" and "REML" (default). 
+
+To demonstrate the use of this package, we will apply the `gls()` function to the transformed (long form) dental data set. We first assess the assumption of normality in the outcome. We can the outcome for all subjects, using a histogram and a [quantile-quantile (QQ)](https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot) plot to assess normality.
+
+```{r mem-normality}
+par(mfrow = c(1,2)) #set graphs to be arranged in one row and two columns
+
+hist(dental.long$distance, xlab = "Distance", main = "Histogram of Outcome")
+#histogram of outcome
+
+qqnorm(dental.long$distance) #plot quantiles against normal distribution
+qqline(dental.long$distance) #add line
+```
+
+From these plots, we see that our outcome appears to be normal by the histogram and that there are no indications of non-normality in the data by the Q-Q plot. 
+
+Now, we can start to build our model, treating `age` as a categorical time variable. let's define
+
+* $z_i$ to be the indicator for if subject $i$ is male
+* $t_{ij1}$ be the indicator for if the age of individual $i$ at observation $j$ is 10
+* $t_{ij2}$ be the indicator for if the age of individual $i$ at observation $j$ is 12
+* $t_{ij3}$ be the indicator for if the age of individual $i$ at observation $j$ is 14
+
+
+The main effects model can be written as
+
+$$
+\mu_{ij} = \beta_0 + \beta_1z_i + \beta_2t_{ij1} + \beta_3t_{ij2} + \beta_4t_{ij3}.
+$$
+
+We can start by first assuming an independent working correlation model. In the next section, we will describe how to choose the working correlation structure.
+
+To fit a model and see the output, we can write:
+
+```{r mem-modelbuild1}
+fit1 <- gls(distance ~ factor(gender)+factor(age), data = dental.long, 
+            method = "ML") #no specified correlation structure means we are 
+        #assuming independence. Note we are fitting the model using Maximum 
+        #likelihood estimation and with no interactions (main effects only). 
+
+summary(fit1) #see the output of the fit
+```
+
+Under the assumption that the working correlation is independent, we can assess which variables impact the outcome of our distance measurement. In the summary of the coefficients, we have very small p-values for our gender variable, indicating that there is a difference in distance measurements between boys and girls enrolled in the study. Additionally, the variables indicating the subject was at age 12 or 14 are very small, with increasingly large coefficients, providing evidence of a possible time trend in our data. These p-values come from a t-test for the null hypothesis that the coefficient of interest is non-zero. 
+
+
+### Hypothesis Testing {#mem-linear-HT}
+
+
+
+
+Suppose we want to see if the time trend differs between boys and girls enrolled in the study. To formally test if there is a common time-trend between groups (gender), we can fit a model including an interaction term and perform a hypothesis test. 
+
+The interaction model can be written as
+
+$$
+\mu_{ij} = \beta_0 + \beta_1z_i + \beta_2t_{ij1} + \beta_3t_{ij2} + \beta_4t_{ij3} + \beta_5z_it_{ij1} + \beta_6z_it_{ij2} + \beta_7z_it_{ij3}.
+$$
+We fit the model as:
+
+```{r mem-modelbuild2}
+fit2 <- gls(distance ~ factor(gender)*factor(age), data = dental.long, 
+            method = "ML") #no specified correlation structure means we are 
+        #assuming independence. Note we are fitting the model using Maximum 
+        #likelihood estimation and with interactions (by using *). 
+
+summary(fit2) #see the output of the fit
+```
+
+We want to test if the last three coefficients ($\beta_5$, $\beta_6$, and $\beta_7$) are all equal to zero. We are testing $H_0: \beta_5 = \beta_6 = \beta_7 = 0$ vs $H_a$: at least one of these coefficients is non-zero. To do so, we need to define a matrix. This matrix has one column for each estimated coefficient (including the intercept) and one row for each coefficient in the hypothesis test. As such, for this particular hypothesis test let's define the matrix
+
+$$
+L = \begin{bmatrix}
+0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+\end{bmatrix}
+$$
+which will be used to calculate our Wald test-statistic $(L\widehat{\beta})^T[L\widehat{asvar})\widehat{\beta}L^T]^{-1}(L\widehat{\beta})$ which follows a chi-squared distribution with degrees of freedom equal to the rank of the matrix $L$ (which is 3 in this case). 
+
+To perform this hypothesis test in `R`, we do the following:
+
+```{r mem-waldtest1}
+L <- rbind(c(0,0,0,0,0,1,0,0),
+           c(0,0,0,0,0,0,1,0),
+           c(0,0,0,0,0,0,0,1)) #create L matrix as above
+
+betahat <- fit2$coef #get estimated beta hats from the model
+
+asvar <- fit2$varBeta #get the estimated covariances from the model
+
+#calculate test statistic using given formula
+waldtest.stat <- t(L%*%betahat)%*%solve(L %*%asvar%*%t(L))%*%(L%*%betahat) 
+waldtest.stat
+```
+
+To get a p-value for this test, we perform the following:
+```{r mem-pvalue1}
+p.val <- 1 - pchisq(waldtest.stat, 3) #test stat follows chi-squared 3 in this case
+p.val
+```
+
+We have a large p-value, which tells us that we do not have sufficient evidence against $H_0$. That is, we do not have evidence to suggest that the time trends vary by gender, and the model (`fit1`) without the interaction is most sufficient. 
+
+We can also do a [likelihood ratio test (LRT)](https://en.wikipedia.org/wiki/Likelihood-ratio_test) as these models are nested within each other (all parameters in `fit1` are also present in `fit2`, so `fit1` is nested in `fit2`). The test statistic is $\Lambda = -2(l_2-l_1)$ where $l_2$ is the log-likelihood of `fit2`, and $l_1$ is the log-likelihood of `fit1` (nested model). The degrees of freedom are the same as in the chi-squared test. We can note that models must be fit using maximum likelihood (`ML` argument) to perform the LRT.
+
+```{r mem-lrt1}
+anova(fit1, fit2)
+```
+
+Again, we have a large p-value and come to the same conclusion as in the Wald test. 
+
+Now that we have come to the conclusion that the time trends are the same among groups, the same methods could be used to test the hypothesis that there is no time effect ($H_0: \beta_2 = \beta_3 = \beta_4 = 0$) or the hypothesis that there is no difference in mean outcome by gender ($H_0: \beta_1 = 0$).
+
+### Population Means {#mem-linear-population}
+
+Using the asymptotic results of our MLE for $\beta$, we can estimate the population means for different subgroups in the data, and/or at different time points. 
+
+For example, suppose we would like to know the mean distance at age 14 for males in the study, i.e. we want to estimate $\mu = \beta_0 + \beta_1 + \beta_4$. We can define a vector
+
+$$
+L = [1,1,0,0,1]
+$$
+to obtain the estimate
+
+$$
+\widehat{\mu}  = L\widehat{\beta} = \widehat{\beta_0} + \widehat{\beta_1} + \widehat{\beta_4}
+$$
+
+along with its standard error
+
+$$
+se(\widehat{\mu}) = \sqrt{L\widehat{Var}(\widehat{\beta})L^T}.
+$$
+
+The code to obtain these estimates is as follows:
+
+```{r mem-linear-popmean}
+betahat <- fit1$coef #get estimated betas from model 1
+varbeta <- fit1$varBeta #get estimated variance covariance matrix from model 1
+
+L <- matrix(c(1,1,0,0,1), nrow =1) #set up row vector L
+
+muhat <- L%*%betahat #calculate estimated mean
+se <- sqrt(L%*%varbeta%*%t(L)) #calculated estimated variance
+
+muhat
+se
+```
+
+With these quantities, we can also construct a 95% confidence interval for the mean as $\widehat{\mu} \pm 1.960*se(\widehat{\mu})$
+
+```{r mem-linear-popCI}
+CI.l <- muhat - 1.960*se #calculate lower CI bound
+CI.u <- muhat + 1.960*se #calculate upper CI bound
+
+print(paste("(", round(CI.l,3), ", ", round(CI.u,3), ")", sep = "")) #output the CI 
+
+```
+
+
+### Selecting a Covariance Structure {#mem-linear-cov}
+
+In the previous examples, for illustrative purposes we assumed an independent covariance structure for. It is likely that in practice, the repeated measures within an individual are in fact correlated and thus we need to perform some tests to select the appropriate structure. 
+
+To select a correlation structure, we use the `REML` fit instead of `ML` when fitting our models, as maximum likelihood estimation is biased for our covariance parameters. Our goal is to choose the simplest correlation structure while maintaining an adequate model fit. 
+
+Some correlation structures are nested in each other, and we can perform a likelihood ratio test to assess the adequacy of the correlation structure. For example, the exchangeable correlation structure is nested within the unstructured covariance structure. As such, we can perform a hypothesis test of 
+
+$$
+H_0: \text{The simpler correlation structure (exchangeable) fits as well as the more complex structure (unstructured)}
+$$
+
+To do this test, we fit our model (we will do the main effects model here) using restricted maximum likelihood estimation and perform the LRT.
+
+```{r mem-linear-corrstruct1}
+fit1.unstructured <-  gls(distance ~ factor(gender)+factor(age), data = dental.long, 
+            method = "REML", 
+            corr = corSymm(form= ~1 | subject)) #subject is the variable indicating 
+                            #repeated measures. Unstructured corr
+
+fit1.exchangeable <- gls(distance ~ factor(gender)+factor(age), data = dental.long, 
+            method = "REML", 
+            corr = corCompSymm(form= ~1 | subject)) #subject is the variable indicating 
+                            #repeated measures. Exchangeable corr
+anova(fit1.unstructured, fit1.exchangeable)
+
+```
+
+We have a large p-value and thus fail to reject the null hypothesis. That is, we will use the exchangeable correlation structure as it is simpler and fits as well. 
+
+For non-nested correlation structures like AR(1) and exchangeable, we can use AIC or BIC to assess fit, where a smaller AIC/BIC indicates a better fit. 
+
+
+### Final Note: Model Fitting Procedure {#mem-linear-final}
+When fitting models, it is usually recommended to first focus on the time trend of the response (should we have it continuous or discrete? Do we need higher-order terms?). Then, we look for the appropriate covariance structure and then consider variable selection. This can be done iteratively until a final model is chosen based on the appropriate statistical tests.
+
+## Linear Mixed Effect Models {#mem-linearmixed}
+
+Linear mixed effects models model both the population average (similar to the linear model in the previous section) along with subject-specific trends. We do this by including subject-specific regression coefficients into our model, as 
+
+$$
+Y_{ij} = \bf{x}_{ij}^T\bf{\beta} + \bf{z}_{ij}^T\bf{b}_{i} + \epsilon_{ij}
+$$
+
+where
+
+* $Y_{ij}$ is the response of individual $i$ at time $j$,
+* $\bf{x}_{ij}$ is a $p \times 1$ covariate vector for the fixed effects,
+* $\bf{\beta}$ is the vector of parameters for the fixed effects,
+* $\bf{z}_{ij}$ is a $q \times 1$ covariate vector for the random effects,
+* $\bf{b}_{ij}$ is a vector of parameters for the random effects, and
+* $\epsilon_{ij}$ is the random error associated with individual $i$ at time $j$.
+
+Typically we assume the covariate vector for the random effects is a subset of the fixed effects.
+
+We can write this in matrix form as
+
+$$
+\bf{Y}_i = \bf{X}_i \bf{\beta} + \bf{Z}_i\bf{b}_i + \bf{\epsilon}_i
+$$
+
+where 
+
+$$
+\bf{Y}_i = \begin{bmatrix}
+Y_{i1} \\
+Y_{i2} \\
+\vdots \\
+Y_{i,k_i}\\
+\end{bmatrix} ,    \bf{X}_i = \begin{bmatrix}
+\bf{x}_{i1}^T\\
+\bf{x}_{i2}^T \\
+\vdots \\
+\bf{x}_{i, k_i}^T\\
+\end{bmatrix}, \bf{Z}_i = \begin{bmatrix}
+\bf{z}_{i1}^T\\
+\bf{z}_{i2}^T \\
+\vdots \\
+\bf{z}_{i, k_i}^T\\
+\end{bmatrix}, \text{     and } \bf{\epsilon}_i = \begin{bmatrix}
+\epsilon_{i1}^T\\
+\epsilon_{i2}^T\\
+\vdots\\
+\epsilon_{i,k_i}^T
+\end{bmatrix}.
+$$
+
+
