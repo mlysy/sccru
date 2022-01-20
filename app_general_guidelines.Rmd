@@ -42,7 +42,7 @@
 
 ### Style
 
-Don't worry about formatting details regarding the appearance of the e-book as these will be set later at the global level.  Instead, please focus on:
+Don't worry about formatting details regarding the appearance of the e-book as these will be set later at the global level. Instead, please focus on:
 
 i.  Creating a clear organization of topics within your module using section/subsection/subsubsection headers
 
@@ -66,4 +66,4 @@ For external websites it's sufficient to provide a link as I've done in this doc
 
 Add your citations to the bibliography file `references.bib`. To separate the citations for each module, add the name of your module using the comment sign $\%$ when you start to add citations. 
 
-For citation labels, please use the standardized format with the author label followed by the last two digits of the year. The rules for the author labels are, if there is only one author, use `@firstauthorlastname`, if there are two authors, use `@firstauthorlastname.secondauthorlastname`, if there are more than 2 authors, use `@firstauthorlastname.etal`. Here's some examples [@gelman13], [@friednam.etal09]. 
+For citation labels, please use the standardized format with the author label followed by the last two digits of the year. The rules for the author labels are, if there is only one author, use `@firstauthorlastname`, if there are two authors, use `@firstauthorlastname.secondauthorlastname`, if there are more than 2 authors, use `@firstauthorlastname.etal`. Here's some examples [@gelman13], [@friedman.etal09]. 

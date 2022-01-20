@@ -14,6 +14,5 @@ rmd_files:
   - "app_git_tutorial.Rmd"
   - "app_bookdown_tests.Rmd"
   - "app_terminology.Rmd"
-  - "app_mixed_effects_modelling.Rmd"
   - "Z_references.Rmd"
 

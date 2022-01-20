@@ -627,7 +627,7 @@ Random forests can be used to build predictive models for a response variable ba
 
 Put simply, if the goal is prediction, the random forest is a good option. How random forests work is somewhat complicated, so we will omit the details. The [additional resources section](#nonpram-arrf) contains some educational material on random forests. 
 
-To apply random forest, we assume that the observations are independent and there is no outlier in the data.
+To apply random forest, we assume that the observations are independent and there are no outliers in the data.
 
 ### Examples Using R 
 

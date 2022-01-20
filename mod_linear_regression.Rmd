@@ -6,11 +6,6 @@
 
 --- 
 
-```{r mem-setup-for-local, echo = F, warning = F, message = F}
-source("common_functions.R")
-require(bookdown)
-```
-
 ## Introduction
 
 The goal of this chapter is to introduce linear regression, an important model which is widely used in data analysis. The reasons for its popularity are
@@ -85,7 +80,7 @@ econ$calculus <- factor(econ$calculus)
 econ$fathcoll <- factor(econ$fathcoll)
 econ$mothcoll <- factor(econ$mothcoll)
 ```
-- Categorical variables with more than 2 levels: In the data set `econ`, there are two variables that indicate attendence: `attexc` (=1 if past attendence is excellent) and `attgood` (=1 if past attendence is good). It will make sense if we combine these two variables into one variable for attendence `att`(=2 if past attendence 'excellent'; =1 if past attendence 'good'; =0 if otherwise).
+- Categorical variables with more than 2 levels: In the data set `econ`, there are two variables that indicate attendance: `attexc` (=1 if past attendance is excellent) and `attgood` (=1 if past attendance is good). It will make sense if we combine these two variables into one variable for attendance `att`(=2 if past attendance 'excellent'; =1 if past attendance 'good'; =0 if otherwise).
 
 ```{linreg-data-cate}
 econ$att <- econ$attgood # 1 if past attendance is good
@@ -99,7 +94,7 @@ econ <- econ[, -c(13, 14)] # remove the attgood and attexc column
 econ$mathscr <- factor(econ$mathscr, ordered = TRUE)
 ```
 
-We can now check the structure of the new dat set `econ`. Notice how it is different from the original `econmath` data set. The categorical variables are now treated as categorical (`Factor`) in R.  
+We can now check the structure of the new data set `econ`. Notice how it is different from the original `econmath` data set. The categorical variables are now treated as categorical (`Factor`) in R.  
 
 ```{r linreg-data-struc-cleaned}
 str(econ)
@@ -107,21 +102,21 @@ str(econ)
 
 ## Simple Linear Regression {#linreg-slm}
 
-Consider the case where we are interested to know how an indepedent variable $x$ is associated $y$. Suppose we have a *random* sample of size $n$ \{$(x_i, y_i)$: $i=1,\ldots, n$\} following the model
+Consider the case where we are interested to know how an independent variable $x$ is associated $y$. Suppose we have a *random* sample of size $n$ \{$(x_i, y_i)$: $i=1,\ldots, n$\} following the model
 $$
-y_i = \beta_0 + \beta_1 x_i + \epsilon_i, \quad \epsilon_i \overset{iid}{\sim} \N(0, \sigma^2)
+y_i = \beta_0 + \beta_1 x_i + \epsilon_i, \quad \epsilon_i \overset{iid}{\sim} \N(0, \sigma^2).
 $$
 
-In this model, the values of the indepedent variable $x$ in the data set $x = (x_1, \ldots, x_n)$ are fixed and known while the model parameters $\beta_0, \beta_1, \sigma$ are fixed but unknown.
+In this model, the values of the independent variable $x$ in the data set $x = (x_1, \ldots, x_n)$ are fixed and known while the model parameters $\beta_0, \beta_1, \sigma$ are fixed but unknown.
 
 Here, $\beta_0$ represents the average response for $y$ if the value of $x$ is 0, $\beta_1$ represents the average increase in $y$ for every one unit increase in $x$. Graphically, $\beta_0$ represents an intercept and $\beta_1$ a slope of a straight line. $\epsilon_i$'s, which are usually called the "errors", represent the part of $y$ that is not explained by $\beta_0$, $\beta_1$ and $x$. 
 
 ### Assumptions {#linreg-slm-assumption}
 A simple linear regression model has the LINE assumptions.
 
-- L-inearity: given the value $x_i$, the [expectation](https://en.wikipedia.org/wiki/Expected_value) of the response $y_i$ is a linear function: 
+- L-inearity: given the value $x_i$, the [expectation](https://en.wikipedia.org/wiki/Expected_value) of the response $y_i$ is a linear function 
     $$
-\E(y_i|x_i) = \beta_0 + \beta_1 x_i
+\E(y_i|x_i) = \beta_0 + \beta_1 x_i.
     $$
 
 - I-ndependence: the errors $\epsilon_i = y_i - \beta_0 - \beta_1 x_i$ are [independently](https://en.wikipedia.org/wiki/Independence_(probability_theory)) distributed. 
@@ -132,7 +127,7 @@ A simple linear regression model has the LINE assumptions.
 
 The INE assumptions can be summarized with
     $$
-\epsilon_i \overset{iid}{\sim} \N(0, \sigma^2)
+\epsilon_i \overset{iid}{\sim} \N(0, \sigma^2).
     $$
 Here, iid means [independently and identically distributed](https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables).
 
@@ -180,13 +175,13 @@ If we want to find evidence that college GPA is associated with the final score,
 
 Then, to test this null hypothesis, we use the test statistics 
 $$
-t_1 = \frac{\hat\beta_1}{\std(\hat{\beta}_1)}
+t_1 = \frac{\hat\beta_1}{\std(\hat{\beta}_1)},
 $$
 which is shown to follow the [$t$ distribution](https://en.wikipedia.org/wiki/Student%27s_t-distribution) with $n-2$ degrees of freedom under the null hypothesis $H_0: \beta_1 = 0$. We can get $t_1$ from the model fit `slm` in Section [3.2.2](#linreg-slm-est). 
 
 If the value of this test statistic $t_1$ is extreme compared to the $t(n-2)$ distribution, then the null hypothesis $H_0$ is less likely to be true. We can try to quantify this by calculating the probability that the $t(n-2)$ distribution has values greater than the one we have based on our data set $t_1$ 
 $$
-p = \Pr(t(n-2) > t_1)
+p = \Pr(t(n-2) > t_1),
 $$
 which is called the $p$-value of the test.
 
@@ -206,7 +201,7 @@ The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) of 
 
 The ($1-\alpha$)100\% confidence interval for $\beta_1$, is given by
 $$
-\left( \hat\beta_1 + t(n-2)_{\frac{\alpha}{2}} \std(\hat{\beta}_1),\quad \hat\beta_1 + t(n-2)_{1 - \frac{\alpha}{2}} \std(\hat{\beta}_1) \right)
+\left( \hat\beta_1 + t(n-2)_{\frac{\alpha}{2}} \std(\hat{\beta}_1),\quad \hat\beta_1 + t(n-2)_{1 - \frac{\alpha}{2}} \std(\hat{\beta}_1) \right),
 $$
 where $t(n-2)_q$ is the $q$ [quantile](https://en.wikipedia.org/wiki/Quantile) of the $t$ distribution with $n-2$ degrees of freedom. Confidence interval for $\beta_0$ is calculated similarly.
 
@@ -269,7 +264,7 @@ The linear trend plot of the perfect linear model looks like the below
 plot(resid(plm))
 ```
 
-There are situations where the independence of residuals assumption is not valid. For example, if the economic class has several different sections, then the final scores of the students in each section may be correlated with each other. In this case, ploting the residuals against its order of appearance in the data set may not be sufficient to help us detect the violation of residual independence. Subject matter expertise may be necessary to determine whether observations are independent, given covariates.
+There are situations where the independence of residuals assumption is not valid. For example, if the economic class has several different sections, then the final scores of the students in each section may be correlated with each other. In this case, plotting the residuals against its order of appearance in the data set may not be sufficient to help us detect the violation of residual independence. Subject matter expertise may be necessary to determine whether observations are independent, given covariates.
 
 If the independence of residuals assumption is invalid, the estimators are still unbiased if the linearity assumption is satisfied. However, standard errors, confidence intervals, and $p$-values are no longer valid. If there is error correlation, consider adding variables that can explain the correlation. In the above example, we can add `section` to the linear regression model. Consult [Multiple linear regression](#linreg-mlm) section for linear regression with more than one variable.
 
@@ -415,19 +410,19 @@ In particular, Analysis of Variance ([ANOVA](https://en.wikipedia.org/wiki/Analy
 
 Usually, one independent variable may not be enough to explain the response variable. Hence, we may want to incorporate more than one variables in our model.
 
-The multiple linear regression model with $n$ samples and $p$ independent varaibles can be written as
+The multiple linear regression model with $n$ samples and $p$ independent variables can be written as
 $$
 y_i = \beta_0 + \beta_1 x_{i1} + \ldots + \beta_p x_{ip} + \epsilon_i,
 $$
 with $\epsilon_i \overset{iid}{\sim} \N(0, \sigma^2)$.
 
-Similar to the [simple linear regression models](#linreg-slm), the values of the indepedent variable in the data set $x = (x_{i1}, \ldots, x_{ip})$ for $i = 1, ..., n$ are fixed and known while the model parameters $\beta_0, \beta_1, ..., \beta_p$ and $\sigma$ are fixed but unknown. The multiple linear regression model also assumes the [LINE assumptions](#linreg-slm-assumption).
+Similar to the [simple linear regression models](#linreg-slm), the values of the independent variable in the data set $x = (x_{i1}, \ldots, x_{ip})$ for $i = 1, ..., n$ are fixed and known while the model parameters $\beta_0, \beta_1, ..., \beta_p$ and $\sigma$ are fixed but unknown. The multiple linear regression model also assumes the [LINE assumptions](#linreg-slm-assumption).
 
 ### Estimation {#linreg-mlm-est}
 
 We can estimate the unknown parameters of a multiple linear regression in a similar fashion to simple linear regression using [least squares method](https://en.wikipedia.org/wiki/Least_squares). 
 
-For example, consider a multiple linear model with only 2 variables `colgpa` and `hsgpa`:
+For example, consider a multiple linear model with only 2 variables `colgpa` and `hsgpa`
 $$
 y_i = \beta_0 + \beta_1 colgpa + \beta_2 hsgpa + \epsilon_i.
 $$
@@ -452,9 +447,9 @@ summary(mln1)
 
 In a multiple linear regression model, the independent variables can have "combined" effect, which can be modeled as "interaction" among variables.
 
-Interaction can be introduced into the multiple regression model between any type of covaraites, i.e. continuous and continuous, continuous and categorical, categorical and categorical. For example, if we only have two covaraite: `colgpa` (continuous) and `calculus` (binary). We may fit a model with `calculus` as an additive main effects:
+Interaction can be introduced into the multiple regression model between any type of covariates, i.e. continuous and continuous, continuous and categorical, categorical and categorical. For example, if we only have two covariate: `colgpa` (continuous) and `calculus` (binary). We may fit a model with `calculus` as an additive main effects
 $$
-y_i = \beta_0 + \beta_1 colgpa_i + \beta_2 I(calculus_i = 1) + \epsilon_i 
+y_i = \beta_0 + \beta_1 colgpa_i + \beta_2 I(calculus_i = 1) + \epsilon_i.
 $$
 The result of this model is
 ```{r linreg-mlm-ex2, cache=TRUE}
@@ -482,9 +477,9 @@ y <- mln2$coefficients[1] + mln2$coefficients[2] * x + mln2$coefficients[3]
 lines(x, y, col = "blue", lty = 1, lwd = 1)
 ```
 
-If we wish to know whether the impact of `colgpa` on `score` would be different or not if a student has taken calculus before, we need to introduce the interaction term:
+If we wish to know whether the impact of `colgpa` on `score` would be different or not if a student has taken calculus before, we need to introduce the interaction term
 $$
-y_i = \beta_0 + \beta_1 colgpa_i + \beta_2 I(calculus_i = 1) + \beta_3 (colgpa \cdot I(calculus_i = 1)) + \epsilon_i 
+y_i = \beta_0 + \beta_1 colgpa_i + \beta_2 I(calculus_i = 1) + \beta_3 (colgpa \cdot I(calculus_i = 1)) + \epsilon_i. 
 $$
 For the group who have taken calculus before, the intercept is $\beta_0 + \beta_2$ and the slope is $\beta_1 + \beta_3$. For the other group who have not taken calculus, the intercept is $\beta_0$ and the slope is $\beta_1$. Here, $\beta_2$ measures the difference in `score` between the two groups when `colgpa = 0`.
 ```{r linreg-mlm-ex3, cache=TRUE}
@@ -520,11 +515,11 @@ There are two interesting questions we may ask:
 
 - Does mean `score` differ between those who took calculus and those who didn’t, holding `colgpa` fixed? This leads question to a hypothesis testing $H_0: \beta_2 = \beta_3 = 0$ which requires a [likelihood ratio test](https://en.wikipedia.org/wiki/Likelihood-ratio_test). In R, we can conduct the test by comparing two models 
     $$
-    y_i = \beta_0 + \beta_1 colgpa_i + \epsilon_i 
+    y_i = \beta_0 + \beta_1 colgpa_i + \epsilon_i, 
     $$
     where $\beta_2 = \beta_3 = 0$ and the full original model that we consider from above 
     $$
-    y_i = \beta_0 + \beta_1 colgpa_i + \beta_2 I(calculus_i = 1) + \beta_3 (colgpa \cdot I(calculus_i = 1)) + \epsilon_i 
+    y_i = \beta_0 + \beta_1 colgpa_i + \beta_2 I(calculus_i = 1) + \beta_3 (colgpa \cdot I(calculus_i = 1)) + \epsilon_i. 
     $$
     We will use the `lrtest()` function from R package **lmtest** with the first argument being the smaller (nested) model and the argument being the bigger model. 
     ```{r linreg-mlm-lrtest}
@@ -534,7 +529,7 @@ lrtest(slm, mln3)
        
 ### Model Selection
 
-The dataset `econ` has 15 independent variables, hence our linear regression models can contain any combination of these variables or their interactions. So which model we should choose? A good model should
+The data set `econ` has 15 independent variables, hence our linear regression models can contain any combination of these variables or their interactions. So which model we should choose? A good model should
 
 - fit the observed data well. This means that the model should explain the dependent variable very well. In linear regression, this means "minimizes the residual sum of squares."
 
@@ -587,7 +582,7 @@ We can check homoscedasticity (equal variance) and normality with the same comma
 plot(Mstep, which = c(1, 2), ask = FALSE)
 ```
 
-We can see the same problem from Section [3.2.5.4](#linreg-powertransform) that the varibility of the residuals are not constant with respect the the fitted values (heteroskedasticity). One solution is to use power transformation as in Section [3.2.5.4](#linreg-powertransform) to try solve this problem. 
+We can see the same problem from Section [3.2.5.4](#linreg-powertransform) that the variability of the residuals are not constant with respect the the fitted values (heteroskedasticity). One solution is to use power transformation as in Section [3.2.5.4](#linreg-powertransform) to try solve this problem. 
 
 Further discussion about the situation where each of the LINE [assumptions](#linreg-slm-assumption) are invalid can be found in Section [3.2.5](#linreg-slm-modelcheck)
 
@@ -612,7 +607,7 @@ par(mfrow = c(1, 2))
 plot(Mstep, which = c(4, 5), ask = FALSE)
 ```
 
-<!-- Obsrvations with high Cook's distance will have a high influence on the output of the regression model, which can be shown in the first plot. Observations with high leverage will be far away from other observations. --> 
+<!-- Observations with high Cook's distance will have a high influence on the output of the regression model, which can be shown in the first plot. Observations with high leverage will be far away from other observations. --> 
 
 In the second plot, we can detect outliers by points that lie outside of the red contours of Cook's distance. In our case, we are fine as there are no points like that in the plot. 
 
@@ -637,4 +632,4 @@ More advanced issues we didn't cover in this chapter:
 - Sometimes our data may vary across time and we may collect samples from a series of time points. We may further need to study time series analysis, panel data/longitudinal data. 
 
 ### Recommendations
-The introductory level book by [@wooldridge16] is a great starting point. It is classic, comprehensive and full of examples. But it is mainly from the perspective of econometricans. If you are more interested in the machine learning perspective of linear regression, another great book is [@friednam.etal09]. For an elegant theorectical description from a statistician, please see [@agresti15].
+The introductory level book by [@wooldridge16] is a great starting point. It is classic, comprehensive and full of examples. But it is mainly from the perspective of econometricians. If you are more interested in the machine learning perspective of linear regression, another great book is [@friedman.etal09]. For an elegant theoretical description from a statistician, please see [@agresti15].

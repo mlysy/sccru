@@ -227,7 +227,7 @@ To modify a variable, we need to
 
 We recommend storing the conversion as a new variable in the data frame to avoid confusion.
 
-Suppose we are interested to analyze `DISTANCE` in metres ($1 \tx{ ft} = 0.3048 \tx{ m}$). We can make the conversion and save it as a new column called `DISTANCE_M` in the data set. 
+Suppose we are interested to analyze `DISTANCE` in meters ($1 \tx{ ft} = 0.3048 \tx{ m}$). We can make the conversion and save it as a new column called `DISTANCE_M` in the data set. 
 ```{r rintro-data-modcol, echo=TRUE, eval=TRUE,comment=NA}
 rain_df$DISTANCE_M <- rain_df$DISTANCE * 0.3048
 ```
@@ -306,7 +306,7 @@ range(rain_df$PRECIP)
     
 ### Data Visualization
 
-There are a wide variety of plots that can be created using R, but we will focus on some of our favourites:
+There are a wide variety of plots that can be created using R, but we will focus on some of our favorites:
 
 - bar graphs: show the distribution of categorical variables,
 - boxplots: show the five-number summaries of continuous variables, and
@@ -321,7 +321,7 @@ count_of_shadow <- table(rain_df$SHADOW)
 count_of_shadow
 ```
 
-A cross-tabulation table (or contingency table) can also be done. Suppose we are intested to create cross-tab for the variables `hasMilk` and `temp` in the `drinks_df`, we can do the following:
+A cross-tabulation table (or contingency table) can also be done. Suppose we are interested to create cross-tab for the variables `hasMilk` and `temp` in the `drinks_df`, we can do the following:
 ```{r rintro-data-table-milk, echo=TRUE, eval=TRUE, comment=NA}
 table_of_milk_by_temp <- table(
   drinks_df$hasMilk,

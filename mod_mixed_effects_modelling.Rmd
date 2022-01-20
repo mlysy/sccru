@@ -1,22 +1,12 @@
----
-output:
-  html_document: default
-  pdf_document: default
----
 # Introduction to Longitudinal Data and Mixed Effect Modelling 
 
 *Author: Grace Tompkins*
 
-*Last Updated: October 12, 2021*
+*Last Updated: January 19, 2022*
 
 --- 
 
 ## Introduction
-
-```{r mem-setup-for-local, echo = F, warning = F, message = F}
-source("common_functions.R")
-require(bookdown)
-```
 
 To study the relationship between an outcome and other covariates, there are many types of studies and data that one can use. Although observational data is typically the easiest to obtain and analyze in practice, it can be limited with the types of conclusions we can draw from it due to the data being captured at only a single "snapshot" in time. While longitudinal studies can either be prospective (subjects are followed forward in time) or retrospective (measurements on subjects are extracted historically), prospective studies tend to preferred as recall bias, where subjects inaccurately remember past events, can impact the data collected [@diggle02].
 
@@ -31,7 +21,7 @@ The methodology presented in the following sections is based on the [generalized
 
 ### List of R packages Used {#mem-rpackages}
 
-In this chapter, we will be using the packages `r cran_link("geesmv")`, `r cran_link("nmle")`, `r cran_link("ggplot2")` and ,...
+In this chapter, we will be using the packages `r cran_link("geesmv")`, `r cran_link("nmle")`, and `r cran_link("ggplot2")`.
 
 
 ```{r mem-library, warning=FALSE, message=FALSE}
@@ -48,12 +38,12 @@ We can first load the data set `dental` to the working environment.
 ```{r mem-data-load, warning=FALSE}
 data("dental") # load the data dental from the geesmv package
 
-#update sex variable to sex
-colnames(dental) <- c("subject", "sex", "age_8", "age_10", "age_12", "age_14") 
+# update sex variable to sex
+colnames(dental) <- c("subject", "sex", "age_8", "age_10", "age_12", "age_14")
 ```
 
 
-This data set was obtained to study the growth of 27 children (16 boys and 11 girls). This data set contains orthodontic measurements (the distance from the center of the pituitary to the pterygomaxillary fissure) in millimeters, along with the children's sexs. Measurements were taken from children at ages 8 (baseline), 10, 12, and 14. 
+This data set was obtained to study the growth of 27 children (16 boys and 11 girls). This data set contains orthodontic measurements (the distance from the center of the pituitary to the pterygomaxillary fissure) in millimeters, along with the children's sexes. Measurements were taken from children at ages 8 (baseline), 10, 12, and 14. 
 
 To look at the form of the data, we can look at the first six observations by: 
 
@@ -65,8 +55,8 @@ In this data set, the `subject` variable identifies the child and the `sex` vari
 
 Using this data, we want to ask the following questions:
 
-* Does the orthodontic measurement increase as the age of the subjects increases?
-* Is there a difference between growth in the two sex groups considered?
+- Does the orthodontic measurement increase as the age of the subjects increases?
+- Is there a difference between growth in the two sex groups considered?
 
 In order to answer these, we need to employ longitudinal methods which account for individual random effects and population effects, as described in the following sections. 
 
@@ -76,47 +66,45 @@ Longitudinal data can be presented or stored in two different ways. *Wide form* 
 
 As an example, let's change the `dental` data set into long form. We can do this by employing the `reshape` function in `R`. The `reshape` function has many arguments available which can be explored by typing `?reshape` in the console. Some of the important arguments include:
 
-* `data`: the dataframe we are converting.
-* `direction`: the direction in which we are converting to.
-* `idvar`: the column name of the variable identifying subjects (typically some type of id, or name)
-* `varying`: the name of the sets of variables in the wide format that we want to transform into a single variable in long format ("time-varying"). Typically these are the column names of wide form data set in which the the repeated outcome is measured.
-* `times`: the values we are going to use in the long form that indicate when the observations were taken
-* `timevar`: the name of the variable in long form indicating the time. 
-* `drop`: a vector of column names that we do not want to include in the newly reshaped data set.
+- `data`: the dataframe we are converting;
+- `direction`: the direction in which we are converting to;
+- `idvar`: the column name of the variable identifying subjects (typically some type of id, or name);
+- `varying`: the name of the sets of variables in the wide format that we want to transform into a single variable in long format ("time-varying"). Typically these are the column names of wide form data set in which the the repeated outcome is measured;
+- `times`: the values we are going to use in the long form that indicate when the observations were taken;
+- `timevar`: the name of the variable in long form indicating the time; and
+- `drop`: a vector of column names that we do not want to include in the newly reshaped data set.
 
 To reshape the wide form dental data set into long form, we can execute the following code:
 
 ```{r mem-reshape}
 
-#reshape the data into long form
-dental.long <- reshape(data = dental, #original data in wide form 
-                       direction = "long", #changing from wide TO long
-                       idvar = "subject", #name of variable indicating unique 
-                                          #subjects in wide form dataset
-                       varying = c("age_8", "age_10", "age_12", "age_14"), #name 
-                                        #of variables in which outcomes recorded
-                       v.names = "distance", #assigning a new name to the outcome
-                       times = c(8,10,12,14), #time points in which above 
-                                              #outcomes were recorded
-                       timevar = "age") #name of the time variable we're using
+# reshape the data into long form
+dental.long <- reshape(
+  data = dental, # original data in wide form
+  direction = "long", # changing from wide TO long
+  idvar = "subject", # name of variable indicating unique
+  # subjects in wide form data set
+  varying = c("age_8", "age_10", "age_12", "age_14"), # name
+  # of variables in which outcomes recorded
+  v.names = "distance", # assigning a new name to the outcome
+  times = c(8, 10, 12, 14), # time points in which above
+  # outcomes were recorded
+  timevar = "age"
+) # name of the time variable we're using
 
-#order the data by subject ID and then by age
-dental.long <- dental.long[order(dental.long$subject, dental.long$age), ] 
+# order the data by subject ID and then by age
+dental.long <- dental.long[order(dental.long$subject, dental.long$age), ]
 
 
-#look at the first 10 observations
+# look at the first 10 observations
 head(dental.long, 10)
-
 ```
 
 We see that the `distance` variable corresponds to one of the values in one of the last four columns of the `dental` data set in wide form for each subject. For the rest of the example, we will be using the data stored in `dental.long`. 
 
-
-
-
 ## Linear Models for Continuous Outcome {#mem-linear}
 
-When we are analyzing data that has a continuous outcome, we can look at answering our research questions based simple linear model.  In this setting, we are assuming that the data has a *balanced design*, meaning that the observation times are the same for all subjects (and we also assume we have no missing data).
+When we are analyzing data that has a continuous outcome, we can look at answering our research questions based simple linear model. In this setting, we are assuming that the data has a *balanced design*, meaning that the observation times are the same for all subjects (and we also assume we have no missing data).
 
 ### Notation and Model Specification {#mem-linear-modelspec}
 
@@ -124,9 +112,9 @@ Assume we have $n$ individuals observed at $k$ common observation times.
 
 We let:
 
-* $t_j$ for $j = 1, .., k$ be the $k$ common assessment times,
-* $Y_{ij}$ for $i = 1, ... ,n$ and $j = 1, ... , k$ be the response of subject $i$ at assessment time $j$, and
-* $x_{ij}$ for $i = 1, ... ,n$ and $j = 1, ... , k$ be a $p \times 1$ vector recording other covariates for subject $i$ at time $j$.
+- $t_j$ for $j = 1, .., k$ be the $k$ common assessment times,
+- $Y_{ij}$ for $i = 1, ... ,n$ and $j = 1, ... , k$ be the response of subject $i$ at assessment time $j$, and
+- $x_{ij}$ for $i = 1, ... ,n$ and $j = 1, ... , k$ be a $p \times 1$ vector recording other covariates for subject $i$ at time $j$.
 
 We can write the observed data at each time point (which are assumed to be common for all individuals in this setting) in matrix form. For each subject $i = 1, ..., n$, we let
 
@@ -153,7 +141,7 @@ $$
 To model the relationship between the outcome and other covariates, we can consider a linear regression model for the outcome of interest, $Y_{ij}$, on covariates $x_{ij}$ as
 
 $$
-Y_{ij} = \beta_1x_{ij1} + \beta_2x_{ij2} + ... + \beta_px_{ijp} + e_{ij}, \tx{           for } j = 1, ..., k
+Y_{ij} = \beta_1x_{ij1} + \beta_2x_{ij2} + ... + \beta_px_{ijp} + e_{ij}, \tx{           for } j = 1, ..., k,
 $$
 
 where $e_{ij}$ represents the random errors with mean zero. To include an intercept in this model, we can let $x_{ij1} = 1$ for all subjects $i$.
@@ -162,7 +150,7 @@ where $e_{ij}$ represents the random errors with mean zero. To include an interc
 In practice, for longitudinal data we model the mean of our outcome $Y$. We assume that $\bm{Y}_i$ conditional on $\bm{X}_i$ follows a multivariate distribution, as
 
 $$
-\bm{Y}_i | \bm{X}_i \sim \N(\mu_i, \bm{\Sigma_i})
+\bm{Y}_i | \bm{X}_i \sim \N(\mu_i, \bm{\Sigma_i}),
 $$
 where $\bm{\Sigma}_i = \tx{Cov}(\YY_i | \XX_i)$ is a covariance matrix, whose form must be specified. Specification of the correlation structure is given in Section \@ref(mem-linear-corr). 
 
@@ -193,9 +181,9 @@ Unlike in most cross-sectional studies, longitudinal data is correlated due to t
 
 Without accounting for the autocorrelation, we may end up with
 
-* incorrect conclusions and incorrect inferences on $\bm{\beta}$,
-* inefficient estimated of $\bm{\beta}$, and/or
-* more biases caused by missing data [@diggle02].
+- incorrect conclusions and incorrect inferences on $\bm{\beta}$,
+- inefficient estimated of $\bm{\beta}$, and/or
+- more biases caused by missing data [@diggle02].
 
 
 We also note that under a balanced design with common observation times, we assume a common covariance matrix for all individuals, that is
@@ -214,7 +202,7 @@ The diagonal elements represent the variances of the outcome $Y$ while the off-d
 We typically assume that the variances of the responses do not change overtime, and thus we can write 
 
 $$
-\bm{\Sigma}_i = \sigma^2\bm{R}_i
+\bm{\Sigma}_i = \sigma^2\bm{R}_i,
 $$
 where $\bm{R}_i$ is referred to as a correlation matrix such that
 
@@ -232,7 +220,7 @@ This comes from the equation relating correlation and covariance as, for example
 We consider different structures of $\bm{R}_i$ in our analyses and choose the most appropriate one based on the data. Commonly used correlation structures are:
 
 
-* *Unstructured Correlation*, the least constrained structure
+- *Unstructured Correlation*, the least constrained structure
 
 $$
 \bm{R}_i = \begin{bmatrix}
@@ -244,7 +232,7 @@ $$
 $$
 
 
-* *Exchangeable Correlation*, which is the simplest with only one parameter (exculding the variance $\sigma^2$) to estimate
+- *Exchangeable Correlation*, which is the simplest with only one parameter (excluding the variance $\sigma^2$) to estimate
 
 $$
 \bm{R}_i = \begin{bmatrix}
@@ -255,7 +243,7 @@ $$
 \end{bmatrix},
 $$
 
-* *First-order Auto Regressive Correlation*, which is sometimes referred to as "AR(1)" and is most suitable for evenly spaced observations where we see weaker correlation as the time between observations gets larger
+- *First-order Auto Regressive Correlation*, which is sometimes referred to as "AR(1)" and is most suitable for evenly spaced observations where we see weaker correlation as the time between observations gets larger
 
 $$
 \bm{R}_i = \begin{bmatrix}
@@ -263,11 +251,10 @@ $$
  & 1 & \rho &\dots  & \rho^{k-2} \\
  &  &  &\ddots & \vdots\\
 & & & & 1
-\end{bmatrix},
+\end{bmatrix}, \hspace{5mm} \tx{and}
 $$
-and 
 
-* *Exponential Correlation*, which collapses to AR(1) if observations are equally spaced where $\rho_{jl} = \exp(-\phi|t_{ij} - t_{il}|)$ for some $\phi > 0$
+- *Exponential Correlation*, which collapses to AR(1) if observations are equally spaced where $\rho_{jl} = \exp(-\phi|t_{ij} - t_{il}|)$ for some $\phi > 0$.
 
 We note that in practice, it is possible that the variance-covariance matrices can differ among subjects, and the matrix may also depend on the covariates present in the data. More details about how to choose the appropriate structure will be discussed in the following sections. 
 
@@ -301,7 +288,7 @@ Under the multivariate normality assumptions, and with a fully specified distrib
 The maximum likelihood estimate (MLE) of $\beta$ is 
 
 $$
-\widehat{\bm{\beta}} = (\bm{X}^T\bm{\Sigma}^{-1}\bm{X})^{-1}\bm{X}^T\bm{\Sigma}^{-1}\bm{Y}
+\widehat{\bm{\beta}} = (\bm{X}^T\bm{\Sigma}^{-1}\bm{X})^{-1}\bm{X}^T\bm{\Sigma}^{-1}\bm{Y},
 $$
 
 which we note is a function of our variance-covariance matrix $\bm{\Sigma}$ and thus a function of the parameters $\theta$. As such, we can either estimate the parameters using [profile likelihood](https://en.wikipedia.org/wiki/Likelihood_function) or [restricted maximum likelihood estimation (REML)](https://en.wikipedia.org/wiki/Restricted_maximum_likelihood). Using profile likelihood estimation is desirable because of the MLE's large sample properties, however the MLEs of our variance and covariance parameters $\bm{\theta}$ will be biased. REML was developed to overcome this issue. In general, the MLE and REML estimates are not equal to each other for the regression parameters $\bm{\beta}$, and thus we typically only use REML when estimating the variance and covariance parameters. 
@@ -315,12 +302,12 @@ $$
 As $\Sigma$ must be estimated, we typically estimate the asymptotic variance-covariance matrix as 
 
 $$
-\widehat{\text{asvar}}(\widehat{\bm{\beta}}) = (\bm{X}^T\widehat{\bm{\Sigma}}^{-1}\bm{X})^{-1}
+\widehat{\text{asvar}}(\widehat{\bm{\beta}}) = (\bm{X}^T\widehat{\bm{\Sigma}}^{-1}\bm{X})^{-1}.
 $$
 We can use this to make inference about regression parameters and perform hypothesis testing. For example, 
 
 $$
-\frac{\widehat{\beta}_j - \beta_j}{\sqrt{\widehat{\text{asvar}}}(\widehat{\beta}_j)} \dot{\sim} N(0,1).
+\frac{\widehat{\beta}_j - \beta_j}{\sqrt{\widehat{\text{asvar}}}(\widehat{\beta}_j)} \dot{\sim} N(0,1),
 $$
 where $\sqrt{\widehat{\text{asvar}}(\widehat{\beta}_j)} = (\bm{X}^T\widehat{\bm{\Sigma}}^{-1}\bm{X})^{-1}_{(jj)}$, i.e. the $(j,j)^{th}$ element of the asymptotic variance-covariance matrix.
 
@@ -328,31 +315,31 @@ where $\sqrt{\widehat{\text{asvar}}(\widehat{\beta}_j)} = (\bm{X}^T\widehat{\bm{
 
 To fit a linear model in `R`, we can use the `gls()` function from the `r cran_link("nmle")` package. This function has a number of parameters, including
 
-* `model`: a linear formula description of the form `model = response ~ covariate1 + covariate2`. Interaction effects can be specified using the form `covariate1*covariate2`. 
-* `correlation`: the name of the within-group correlation structure, which may include `corAR1` for the AR(1) structure, `corCompSymm` for the exchangeable structure, `corExp` for exponential structure, `corSymm` for unstructured, and others (see `?corClasses` for other options). Default is an independent covariance structure. 
-* `weights`: an optional argument to allow for different marginal variances. For example, to allow for the variance of the responses to change for different discrete time/observation points, we can use `weights = varIndent(form ~1 | factor(time))`.
-* `method`: the name of the estimation method, where options include "ML" and "REML" (default). 
+- `model`: a linear formula description of the form `model = response ~ covariate1 + covariate2`. Interaction effects can be specified using the form `covariate1*covariate2`;
+- `correlation`: the name of the within-group correlation structure, which may include `corAR1` for the AR(1) structure, `corCompSymm` for the exchangeable structure, `corExp` for exponential structure, `corSymm` for unstructured, and others (see `?corClasses` for other options). Default is an independent covariance structure; 
+- `weights`: an optional argument to allow for different marginal variances. For example, to allow for the variance of the responses to change for different discrete time/observation points, we can use `weights = varIndent(form ~1 | factor(time))`; and
+- `method`: the name of the estimation method, where options include "ML" and "REML" (default). 
 
 To demonstrate the use of this package, we will apply the `gls()` function to the transformed (long form) dental data set. We first assess the assumption of normality in the outcome. We can the outcome for all subjects, using a histogram and a [quantile-quantile (QQ)](https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot) plot to assess normality.
 
 ```{r mem-normality}
-par(mfrow = c(1,2)) #set graphs to be arranged in one row and two columns
+par(mfrow = c(1, 2)) # set graphs to be arranged in one row and two columns
 
 hist(dental.long$distance, xlab = "Distance", main = "Histogram of Outcome")
-#histogram of outcome
+# histogram of outcome
 
-qqnorm(dental.long$distance) #plot quantiles against normal distribution
-qqline(dental.long$distance) #add line
+qqnorm(dental.long$distance) # plot quantiles against normal distribution
+qqline(dental.long$distance) # add line
 ```
 
 From these plots, we see that our outcome appears to be normally distributed by the histogram. Additionally, we do not see any indications of non-normality in the data by the Q-Q plot as the sample quantiles do not deviate greatly from the theoretical quantiles of a normal distribution. 
 
 Now, we can start to build our model, treating `age` as a categorical time variable. let's define
 
-* $z_i$ to be the indicator for if subject $i$ is male
-* $t_{ij1}$ be the indicator for if the age of individual $i$ at observation $j$ is 10
-* $t_{ij2}$ be the indicator for if the age of individual $i$ at observation $j$ is 12
-* $t_{ij3}$ be the indicator for if the age of individual $i$ at observation $j$ is 14
+- $z_i$ to be the indicator for if subject $i$ is male,
+- $t_{ij1}$ to be the indicator for if the age of individual $i$ at observation $j$ is 10,
+- $t_{ij2}$ to be the indicator for if the age of individual $i$ at observation $j$ is 12, and
+- $t_{ij3}$ to be the indicator for if the age of individual $i$ at observation $j$ is 14.
 
 
 The main effects model can be written as
@@ -366,12 +353,14 @@ We will be assuming an independent working correlation structure for this model 
 To fit a model and see the output, we can write:
 
 ```{r mem-modelbuild1}
-fit1 <- gls(distance ~ factor(sex) + factor(age), data = dental.long, 
-            method = "ML") #no specified correlation structure means we are 
-        #assuming independence. Note we are fitting the model using Maximum 
-        #likelihood estimation and with no interactions (main effects only). 
+fit1 <- gls(distance ~ factor(sex) + factor(age),
+  data = dental.long,
+  method = "ML"
+) # no specified correlation structure means we are
+# assuming independence. Note we are fitting the model using Maximum
+# likelihood estimation and with no interactions (main effects only).
 
-summary(fit1) #see the output of the fit
+summary(fit1) # see the output of the fit
 ```
 
 Under the assumption that the working correlation is independent, we can assess which variables impact the outcome of our distance measurement. In the summary of the coefficients, we have very small p-values for our sex variable, indicating that there is a difference in distance measurements between boys and girls enrolled in the study. Additionally, the variables indicating the subject was at age 12 or 14 are very small, with increasingly large coefficients, providing evidence of a possible time trend in our data. These p-values come from a t-test for the null hypothesis that the coefficient of interest is zero. 
@@ -392,12 +381,14 @@ $$
 We fit the model as:
 
 ```{r mem-modelbuild2}
-fit2 <- gls(distance ~ factor(sex)*factor(age), data = dental.long, 
-            method = "ML") #no specified correlation structure means we are 
-        #assuming independence. Note we are fitting the model using Maximum 
-        #likelihood estimation and with interactions (by using *). 
+fit2 <- gls(distance ~ factor(sex) * factor(age),
+  data = dental.long,
+  method = "ML"
+) # no specified correlation structure means we are
+# assuming independence. Note we are fitting the model using Maximum
+# likelihood estimation and with interactions (by using *).
 
-summary(fit2) #see the output of the fit
+summary(fit2) # see the output of the fit
 ```
 
 We want to test if the last three coefficients ($\beta_5$, $\beta_6$, and $\beta_7$) are all equal to zero. We are testing $H_0: \beta_5 = \beta_6 = \beta_7 = 0$ vs $H_a$: at least one of these coefficients is non-zero. To do so, we need to define a matrix. This matrix has one column for each estimated coefficient (including the intercept) and one row for each coefficient in the hypothesis test. As such, for this particular hypothesis test let's define the matrix
@@ -407,29 +398,31 @@ $$
 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
-\end{bmatrix}
+\end{bmatrix},
 $$
 which will be used to calculate our Wald test-statistic $(\bm{L}\widehat{\bm{\beta}})^T[\bm{L}\widehat{\text{asvar}}(\widehat{\bm{\beta}})\bm{L}^T]^{-1}(\bm{L}\widehat{\bm{\beta}})$ which follows a chi-squared distribution with degrees of freedom equal to the rank of the matrix $\bm{L}$ (which is 3 in this case). 
 
 To perform this hypothesis test in `R`, we do the following:
 
 ```{r mem-waldtest1}
-L <- rbind(c(0,0,0,0,0,1,0,0),
-           c(0,0,0,0,0,0,1,0),
-           c(0,0,0,0,0,0,0,1)) #create L matrix as above
+L <- rbind(
+  c(0, 0, 0, 0, 0, 1, 0, 0),
+  c(0, 0, 0, 0, 0, 0, 1, 0),
+  c(0, 0, 0, 0, 0, 0, 0, 1)
+) # create L matrix as above
 
-betahat <- fit2$coef #get estimated beta hats from the model
+betahat <- fit2$coef # get estimated beta hats from the model
 
-asvar <- fit2$varBeta #get the estimated covariances from the model
+asvar <- fit2$varBeta # get the estimated covariances from the model
 
-#calculate test statistic using given formula
-waldtest.stat <- t(L%*%betahat)%*%solve(L %*%asvar%*%t(L))%*%(L%*%betahat) 
+# calculate test statistic using given formula
+waldtest.stat <- t(L %*% betahat) %*% solve(L %*% asvar %*% t(L)) %*% (L %*% betahat)
 waldtest.stat
 ```
 
 To get a p-value for this test, we perform the following:
 ```{r mem-pvalue1}
-p.val <- 1 - pchisq(waldtest.stat, 3) #test stat follows chi-squared 3 in this case
+p.val <- 1 - pchisq(waldtest.stat, 3) # test stat follows chi-squared 3 in this case
 p.val
 ```
 
@@ -457,7 +450,7 @@ $$
 to obtain the estimate
 
 $$
-\widehat{\mu}  = \bm{L}\widehat{\bm{\beta}} = \widehat{\beta_0} + \widehat{\beta_1} + \widehat{\beta_4}
+\widehat{\mu}  = \bm{L}\widehat{\bm{\beta}} = \widehat{\beta_0} + \widehat{\beta_1} + \widehat{\beta_4},
 $$
 
 along with its standard error
@@ -469,13 +462,13 @@ $$
 The code to obtain these estimates is as follows:
 
 ```{r mem-linear-popmean}
-betahat <- fit1$coef #get estimated betas from model 1
-varbeta <- fit1$varBeta #get estimated variance covariance matrix from model 1
+betahat <- fit1$coef # get estimated betas from model 1
+varbeta <- fit1$varBeta # get estimated variance covariance matrix from model 1
 
-L <- matrix(c(1,1,0,0,1), nrow =1) #set up row vector L
+L <- matrix(c(1, 1, 0, 0, 1), nrow = 1) # set up row vector L
 
-muhat <- L%*%betahat #calculate estimated mean
-se <- sqrt(L%*%varbeta%*%t(L)) #calculated estimated variance
+muhat <- L %*% betahat # calculate estimated mean
+se <- sqrt(L %*% varbeta %*% t(L)) # calculated estimated variance
 
 muhat
 se
@@ -484,10 +477,10 @@ se
 With these quantities, we can also construct a 95% confidence interval for the mean as $\widehat{\mu} \pm 1.960*se(\widehat{\mu})$
 
 ```{r mem-linear-popCI}
-CI.l <- muhat - 1.960*se #calculate lower CI bound
-CI.u <- muhat + 1.960*se #calculate upper CI bound
+CI.l <- muhat - 1.960 * se # calculate lower CI bound
+CI.u <- muhat + 1.960 * se # calculate upper CI bound
 
-print(paste("(", round(CI.l,3), ", ", round(CI.u,3), ")", sep = "")) #output the CI 
+print(paste("(", round(CI.l, 3), ", ", round(CI.u, 3), ")", sep = "")) # output the CI
 ```
 
 
@@ -507,17 +500,20 @@ Some correlation structures are nested in each other, and we can perform a likel
 To do this test, we fit our model (we will do the main effects model here) using restricted maximum likelihood estimation and perform the LRT.
 
 ```{r mem-linear-corrstruct1}
-fit1.unstructured <-  gls(distance ~ factor(sex)+factor(age), data = dental.long, 
-            method = "REML", 
-            corr = corSymm(form= ~1 | subject)) #subject is the variable indicating 
-                            #repeated measures. Unstructured corr
+fit1.unstructured <- gls(distance ~ factor(sex) + factor(age),
+  data = dental.long,
+  method = "REML",
+  corr = corSymm(form = ~ 1 | subject)
+) # subject is the variable indicating
+# repeated measures. Unstructured corr
 
-fit1.exchangeable <- gls(distance ~ factor(sex)+factor(age), data = dental.long, 
-            method = "REML", 
-            corr = corCompSymm(form= ~1 | subject)) #subject is the variable indicating 
-                            #repeated measures. Exchangeable corr
+fit1.exchangeable <- gls(distance ~ factor(sex) + factor(age),
+  data = dental.long,
+  method = "REML",
+  corr = corCompSymm(form = ~ 1 | subject)
+) # subject is the variable indicating
+# repeated measures. Exchangeable corr
 anova(fit1.unstructured, fit1.exchangeable)
-
 ```
 
 We have a large p-value and thus fail to reject the null hypothesis. That is, we will use the exchangeable correlation structure as it is simpler and fits as well. 
@@ -525,12 +521,15 @@ We have a large p-value and thus fail to reject the null hypothesis. That is, we
 For non-nested correlation structures like AR(1) and exchangeable, we can use [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion) or [BIC](https://en.wikipedia.org/wiki/Bayesian_information_criterion) to assess fit, where a smaller AIC/BIC indicates a better fit. 
 
 ```{r mem-linear-corrstruct2}
-fit1.ar1 <- gls(distance ~ factor(sex)+factor(age), data = dental.long, 
-            method = "REML", 
-            corr = corAR1(form= ~1 | subject)) #subject is the variable indicating 
-                            #repeated measures. Exchangeable corr
+fit1.ar1 <- gls(distance ~ factor(sex) + factor(age),
+  data = dental.long,
+  method = "REML",
+  corr = corAR1(form = ~ 1 | subject)
+) # subject is the variable indicating
+# repeated measures. Exchangeable corr
 
-AIC(fit1.exchangeable); AIC(fit1.ar1)
+AIC(fit1.exchangeable)
+AIC(fit1.ar1)
 ```
 
 We see the model using an exchangeable correlation structure has a smaller AIC, indicating a better fit. In this case, we would choose the exchangeable correlation structure over the autoregressive structure.
@@ -539,11 +538,11 @@ We see the model using an exchangeable correlation structure has a smaller AIC, 
 ### Final Note: Model Fitting Procedure {#mem-linear-final}
 When fitting models, it is usually recommended to
 
-1. focus on the time trend of the response (ask: Should we have a continuous or discrete time variable? Do we need higher-order terms?), then
+- focus on the time trend of the response (ask: Should we have a continuous or discrete time variable? Do we need higher-order terms?), then
 
-2. look for the appropriate covariance structure, and
+- look for the appropriate covariance structure, and
 
-3. consider variable selection. 
+- consider variable selection. 
 
 This process can be done iteratively until a final model is chosen based on the appropriate statistical tests.
 
@@ -557,27 +556,27 @@ As linear mixed effect models model subject-specific trends, not only can we des
 
 ### Notation and Model Specification {#mem-linearmixed-notation}
 
-Formally, we consider the model:
+Formally, we consider the model
 
 $$
-Y_{ij} = \bm{x}_{ij}^T\bm{\beta} + \bm{z}_{ij}^T\bm{b}_{i} + \epsilon_{ij}
+Y_{ij} = \bm{x}_{ij}^T\bm{\beta} + \bm{z}_{ij}^T\bm{b}_{i} + \epsilon_{ij},
 $$
 
 where
 
-* $Y_{ij}$ is the response of individual $i$ at time $j$,
-* $\bm{x}_{ij}$ is a $p \times 1$ covariate vector for the fixed effects,
-* $\bm{\beta}$ is the vector of parameters for the fixed effects,
-* $\bm{z}_{ij}$ is a $q \times 1$ covariate vector for the random effects,
-* $\bm{b}_{ij}$ is a vector of parameters for the random effects, and
-* $\epsilon_{ij}$ is the random error associated with individual $i$ at time $j$.
+- $Y_{ij}$ is the response of individual $i$ at time $j$,
+- $\bm{x}_{ij}$ is a $p \times 1$ covariate vector for the fixed effects,
+- $\bm{\beta}$ is the vector of parameters for the fixed effects,
+- $\bm{z}_{ij}$ is a $q \times 1$ covariate vector for the random effects,
+- $\bm{b}_{ij}$ is a vector of parameters for the random effects, and
+- $\epsilon_{ij}$ is the random error associated with individual $i$ at time $j$.
 
 Typically we assume the covariate vector for the random effects is a subset of the fixed effects.
 
 We can write this in matrix form as
 
 $$
-\bm{Y}_i = \bm{X}_i \bm{\beta} + \bm{Z}_i\bm{b}_i + \bm{\epsilon}_i
+\bm{Y}_i = \bm{X}_i \bm{\beta} + \bm{Z}_i\bm{b}_i + \bm{\epsilon}_i,
 $$
 
 where 
@@ -603,13 +602,13 @@ Y_{i,k_i}\\
 \epsilon_{i2}^T\\
 \vdots\\
 \epsilon_{i,k_i}^T
-\end{bmatrix}
+\end{bmatrix},
 $$
 
 where $k_i$ is the number of observations for unit $i$, which may differ between study units. Under this model, we have a number of distributional assumptions. First, we assume the random effects, $\bm{b}_i$ are distributed with a multivariate normal distribution, as
 
 $$
-\bm{b}_i \sim \N(\bm{0}, \bm{D})
+\bm{b}_i \sim \N(\bm{0}, \bm{D}),
 $$
 
 where $\bm{D}$ is a $q \times q$ covariance matrix for the random effects $\bm{b}_i$, which are common for subjects. We assume $\bm{D}$ is [symmetric](https://en.wikipedia.org/wiki/Symmetric_matrix), [positive-definite](https://en.wikipedia.org/wiki/Definite_matrix), and is unstructured.
@@ -617,34 +616,35 @@ where $\bm{D}$ is a $q \times q$ covariance matrix for the random effects $\bm{b
 We also make assumptions on the random errors, $\bm{\epsilon}_i$, such that
 
 $$
-\bm{\epsilon}_i \sim \N(\bm{0}, \bm{V}_i)
+\bm{\epsilon}_i \sim \N(\bm{0}, \bm{V}_i),
 $$
 
 where $\bm{V}_i$ is a $k_i \times k_i$ covariance matrix for the error terms, which we typically assume to be $\bm{V}_i =\sigma^2\bm{I}$ where $\bm{I}$ is the [identity matrix](https://en.wikipedia.org/wiki/Identity_matrix). We finally assume that the random effects and random errors are all mutually independent. 
 
 Under these assumptions, we can obtain estimates of the mean on the population and subject-specific levels. We can show that:
 
-* The conditional, subject-specific mean of our outcome is $E(\YY_i | \bm{b}_i) = \XX_i\bm{\beta} + \bm{Z}_i\bm{b}_i$, and
-* The conditional, subject-specific covariance is $Var(\YY_i | \bm{b}_i) = Var(\bm{\epsilon}_i) = \bm(V)_i$.
+- the conditional, subject-specific mean of our outcome is $E(\YY_i | \bm{b}_i) = \XX_i\bm{\beta} + \bm{Z}_i\bm{b}_i$;
 
-* Due to the normality of the error term, we have $\YY_i | \bm{b}_i \sim \N(\XX_i\bm{\beta}_i + \bm{Z}_i \bm{b}_i, \bm{V}_i)$.
+- the conditional, subject-specific covariance is $Var(\YY_i | \bm{b}_i) = Var(\bm{\epsilon}_i) = \bm(V)_i$; and
+
+- due to the normality of the error term, we have $\YY_i | \bm{b}_i \sim \N(\XX_i\bm{\beta}_i + \bm{Z}_i \bm{b}_i, \bm{V}_i)$.
 
 We can also derive marginal properties of our outcome. That is, we can show that:
 
-* The marginal (unconditional), population-level mean of our outcome is $E(\YY_i) = \XX_i\bm{\beta}$, and
+- the marginal (unconditional), population-level mean of our outcome is $E(\YY_i) = \XX_i\bm{\beta}$;
 
-* The marginal (unconditional), population-level covariance is $Var(\YY_i) = \bm{Z}_i\bm{D}\bm{Z}_i^T + \bm{V}_i$.
+- the marginal (unconditional), population-level covariance is $Var(\YY_i) = \bm{Z}_i\bm{D}\bm{Z}_i^T + \bm{V}_i$;
 
-* Due to the normality of our random effects $\bm{b}_i$ and error term $\epsilon_i$, we have $\YY_i \sim \N(\XX_i\bm{\beta}_i, \bm{Z}_i\bm{D}\bm{Z}_i + \bm{V}_i)$. From this formulation, we see that the the population variance of our outcome comprises of different sources of variation; the between-subject (inter-subject) variation from $Var(\bm{b}_i) = \bm{D}$, and the within-subject (intra-subject) variation from $Var(\epsilon_i) = \bm{V}_i =\sigma^2\bm{I}$.
+- due to the normality of our random effects $\bm{b}_i$ and error term $\epsilon_i$, we have $\YY_i \sim \N(\XX_i\bm{\beta}_i, \bm{Z}_i\bm{D}\bm{Z}_i + \bm{V}_i)$. From this formulation, we see that the the population variance of our outcome comprises of different sources of variation; the between-subject (inter-subject) variation from $Var(\bm{b}_i) = \bm{D}$, and the within-subject (intra-subject) variation from $Var(\epsilon_i) = \bm{V}_i =\sigma^2\bm{I}$.
 
 We note that in general, $\bm{Z}_i\bm{D}\bm{Z}_i^T + \bm{V}_i$ is not a diagonal matrix and we do not assume that the outcomes are independent. This is unsurprising as we expect responses/outcomes from the same unit to be correlated. This expression for the variance variance also varies between units (note the subscript $i$), making it suitable for unbalanced data. 
 
 ### Random Intercept Models {#mem-linearmixed-randomintercept}
 
-One of the simplest linear mixed effects models is the random intercept model. In this model, we have a linear model with a randomly varying subject effect; that is, we assume that each unit in our study has an underlying level of response that persists overtime [@fitzmaurice11]. We consider the following model:
+One of the simplest linear mixed effects models is the random intercept model. In this model, we have a linear model with a randomly varying subject effect; that is, we assume that each unit in our study has an underlying level of response that persists overtime [@fitzmaurice11]. We consider the following model
 
 $$
-Y_{ij} = X_{ij}^T\beta + b_i + \epsilon_{ij}
+Y_{ij} = X_{ij}^T\beta + b_i + \epsilon_{ij},
 $$
 
 where $b_i$ is the random subject effect (the random intercept) and we consider $\epsilon_{ij}$ to be the measurement or sampling errors [@fitzmaurice11]. Recall the random intercept and error term are assumed to be random. In this formulation, we can denote $Var(b_i) = \sigma_{b,0}^2$ and recall $Var(\epsilon_{ij}) = \sigma^2$ (this comes from the matrix form $Var(\epsilon_i) = \bm{V}_i =\sigma^2\bm{I}$). Additionally, we assume that $b_i$ and $\epsilon_{ij}$ are independent of each other. 
@@ -652,7 +652,7 @@ where $b_i$ is the random subject effect (the random intercept) and we consider 
 Under this model, the mean response trajectory over time for any unit is
 
 $$
-E(Y_{ij}|b_i) = X_{ij}^T\beta +b_i
+E(Y_{ij}|b_i) = X_{ij}^T\beta +b_i,
 $$
 
 and the mean outcome at the population level (When averaging over all study units) is
@@ -668,19 +668,19 @@ Another feature of the random intercept model is the *intra-class correlation* (
 $$
 \begin{aligned}
 \text{Corr}(Y_{ij}, Y_{il}) &= \frac{\text{Cov}(Y_{ij}, Y_{il})}{\sqrt{\text{Var}(Y_{ij})\text{Var}{Y_{il}}}}\\
-&= \frac{\sigma_{b,0}^2}{\sigma_{b,0}^2 + \sigma^2}.
+&= \frac{\sigma_{b,0}^2}{\sigma_{b,0}^2 + \sigma^2},
 \end{aligned}
 $$
 
 which is the ratio of the between-subject and total variability. This formulation shows that the correlation between any two responses within the same individual is the same.
 
 
-As an applied example, let's go back to the dataset on orthodontic measurements. We shall consider a simple LME model of the form 
+As an applied example, let's go back to the data set on orthodontic measurements. We shall consider a simple LME model of the form 
 
 $$
 \begin{aligned}
 Y_{ij} &= \bm{x}_{ij}^T\bm{\beta} + \bm{b}_{0,i} + \epsilon_{ij} \\
-&= \beta_0 + \beta_1z_{i} + \beta_2t_{ij} + b_{0,i} + \epsilon_{ij}
+&= \beta_0 + \beta_1z_{i} + \beta_2t_{ij} + b_{0,i} + \epsilon_{ij},
 \end{aligned}
 $$
 
@@ -692,10 +692,10 @@ where $Y_{ij}$ is the orthodontic measurement of subject $i$ at occasion $j$, $z
 We can also consider random slopes along with the random intercepts in LME models. In this model, we assume that the response (or outcome) of interest varies not only at baseline (the intercept), but also in terms of the rate of increase or decrease over time (the slope). That is, we not consider a collection of covariates for the random effects, $Z$, that are typically a subset of our fixed effects $X$. 
 
 
-For the orthodontic measurement data, we can consider the following model:
+For the orthodontic measurement data, we can consider the following model
 
 $$
-Y_{ij} = \beta_0 + \beta_1z_i + \beta_2t_{ij} + b_{0,i} + b_{1,i}t_{ij} + \epsilon_{ij}
+Y_{ij} = \beta_0 + \beta_1z_i + \beta_2t_{ij} + b_{0,i} + b_{1,i}t_{ij} + \epsilon_{ij},
 $$
 
 where, again, $Y_{ij}$ is the orthodontic measurement of subject $i$ at occasion $j$, $z_{i}$ is the indicator for if subject $i$ is male or not and $t_{ij}$ is a continuous time variable representing the age of subject $i$ at occasion $j$. Note: we assume that the variable for `sex` is not time-varying, and hence can drop the $j$ subscript in this setting and consider it a non-time-varying covariate. 
@@ -705,7 +705,7 @@ In this model, the population average subject-specific profiles are assumed to b
 We can rewrite this model in matrix form as
 
 $$
-\YY_{i} = \XX_i \bm{\beta} + \bm{Z}_i\bm{b}_i + \bm{\epsilon}_i 
+\YY_{i} = \XX_i \bm{\beta} + \bm{Z}_i\bm{b}_i + \bm{\epsilon}_i,
 $$
 
 where in this case, 
@@ -743,11 +743,11 @@ $$
 
 Each of the components of our correlation matrix $D$ have meaningful interpretations:
 
-* $\sqrt{d_{11}}$ is the subject-to-subject deviation in the overall response at baseline (variation of random intercept),
+- $\sqrt{d_{11}}$ is the subject-to-subject deviation in the overall response at baseline (variation of random intercept),
 
-* $\sqrt{d_{22}}$ is the subject-to-subject deviation in the change (time slope) of the response (variation of random slope for the time), and
+- $\sqrt{d_{22}}$ is the subject-to-subject deviation in the change (time slope) of the response (variation of random slope for the time), and
 
-* $d_{12}$ is the covariance between the individual, subject-specific intercepts and slopes.
+- $d_{12}$ is the covariance between the individual, subject-specific intercepts and slopes.
 
 We note that LME models are not limited to having only one random effect for the time variable. One can choose to have random effects for multiple variables of interest.
 
@@ -757,13 +757,13 @@ Under LME models, the correlation structure is more flexible than in the regular
 
 ### Estimation {#mem-linearmixed-estimation}
 
-The goal of estimation is to estimate the fixed effects $\bm{\beta}$ and the components of our correlation structure $\bm{D}$ along with  $\bm{V}_i = \sigma^2\bm{I}$. We will let thecolumn vector $\bm{\theta}$ denote the collection of correlation components of $\bm{D}$ and the variance component $\sigma^2$, which we intend to estimate. We also may want to predict our random effects, $\bm{b}_i$. 
+The goal of estimation is to estimate the fixed effects $\bm{\beta}$ and the components of our correlation structure $\bm{D}$ along with  $\bm{V}_i = \sigma^2\bm{I}$. We will let the column vector $\bm{\theta}$ denote the collection of correlation components of $\bm{D}$ and the variance component $\sigma^2$, which we intend to estimate. We also may want to predict our random effects, $\bm{b}_i$. 
 
 
 We have unconditional (marginal) normality of our outcome $\bm{Y}_i$, that is
 
 $$
-\bm{Y}_i \sim \N(\bm{X}_i\bm{\beta}, \bm{Z}_i\bm{D}\bm{Z}_i^T + \sigma^2\bm{I})
+\bm{Y}_i \sim \N(\bm{X}_i\bm{\beta}, \bm{Z}_i\bm{D}\bm{Z}_i^T + \sigma^2\bm{I}).
 $$
 
 To estimate our fixed effects, $\beta$, we use maximum likelihood estimation (ML) and to estimate our variance and covariance parameters $\bm{\theta}$, we use restricted maximum likelihood estimation (REML). 
@@ -771,7 +771,7 @@ To estimate our fixed effects, $\beta$, we use maximum likelihood estimation (ML
 To conduct inference on our fixed effects, based on asymptotic normality we have
 
 $$
-\widehat{\bm{\beta}} \sim \N(\bm{\beta}, \left[\sum_{i=1}^n \bm{X}_i^T \bm{\Sigma}_i^{-1}(\bm{\theta})\bm{X}_i \right]^{-1})
+\widehat{\bm{\beta}} \sim \N(\bm{\beta}, \left[\sum_{i=1}^n \bm{X}_i^T \bm{\Sigma}_i^{-1}(\bm{\theta})\bm{X}_i \right]^{-1}),
 $$
 where $\bm{\Sigma}_i(\bm{\theta}) = \bm{Z}_i\bm{D}\bm{Z}_i^T + \sigma^2\bm{I}$. This means that we can use a Wald test for investigating certain fixed effects and calculating confidence intervals. That is,
 
@@ -801,15 +801,15 @@ We can use both ML and REML to perform LRT comparing nested random effects struc
 
 Linear mixed effects models can fit in R by using the `lme()` function from the `r cran_link("nlme")` library. This function has a number of parameters, including:
 
-* `fixed`: a two-sided linear formula for the fixed effects of the form `response ~ fixedeffect1 + ... + fixedeffectp` where fixedeffect1, ..., fixedeffectp are the names of the desired covariates for the fixed effects in the model
+- `fixed`: a two-sided linear formula for the fixed effects of the form `response ~ fixedeffect1 + ... + fixedeffectp` where fixedeffect1, ..., fixedeffectp are the names of the desired covariates for the fixed effects in the model;
 
-* `random`: a one-sided linear formula for the random effects of the form ` ~ randeffect1 + ... + randeffectp` where randeffect1, ..., randeffectp are the names of the desired covariates for the random effects in the models
+- `random`: a one-sided linear formula for the random effects of the form ` ~ randeffect1 + ... + randeffectp` where randeffect1, ..., randeffectp are the names of the desired covariates for the random effects in the models;
 
-* `pdMat`: the specification of the correlation structure for the random effects ($D$). Options for this argument include `pdSymm` (the default, unstructured correlation structure), `pdDiag` (independent), and `pdCompSymm` (exchangeable).  
+- `pdMat`: the specification of the correlation structure for the random effects ($D$). Options for this argument include `pdSymm` (the default, unstructured correlation structure), `pdDiag` (independent), and `pdCompSymm` (exchangeable);  
 
-* `correlation`: the specification of the within-subject correlation structure ($V$). The default is an independent structure, and the specifications are the same as for the `gls()` function shown in Section \@ref(mem-linear-R)
+- `correlation`: the specification of the within-subject correlation structure ($V$). The default is an independent structure, and the specifications are the same as for the `gls()` function shown in Section \@ref(mem-linear-R); and
 
-* `method`: the specification of the method used to fit the model ("ML" for maximum likelihood and "REML" (default) for restricted maximum likelihood estimation)
+- `method`: the specification of the method used to fit the model ("ML" for maximum likelihood and "REML" (default) for restricted maximum likelihood estimation).
 
 
 
@@ -818,7 +818,7 @@ As an example, we will fit the models described in Sections \@ref(mem-linearmixe
 $$
 \begin{aligned}
 Y_{ij} &= \bm{x}_{ij}^T\bm{\beta} + \bm{b}_{0,i} + \epsilon_{ij} \\
-&= \beta_0 + \beta_1z_{i} + \beta_2t_{ij} + b_{0,i} + \epsilon_{ij}
+&= \beta_0 + \beta_1z_{i} + \beta_2t_{ij} + b_{0,i} + \epsilon_{ij},
 \end{aligned}
 $$
 
@@ -828,15 +828,17 @@ where $Y_{ij}$ is the orthodontic measurement of subject $i$ at occasion $j$, $z
 To fit this, we do the following:
 
 ```{r}
-#load required package for fitting mixed effects model
+# load required package for fitting mixed effects model
 library(nlme)
 
-#fit the random intercept only model 
-fitLME.intercept <- lme(fixed = distance ~ age + sex, #specify fixed effects
-                        random = ~1 | subject, #random intercept only
-                        data = dental.long) #default unstructured correlation
+# fit the random intercept only model
+fitLME.intercept <- lme(
+  fixed = distance ~ age + sex, # specify fixed effects
+  random = ~ 1 | subject, # random intercept only
+  data = dental.long
+) # default unstructured correlation
 
-summary(fitLME.intercept) #look at the output
+summary(fitLME.intercept) # look at the output
 ```
 
 We reiterate that by not specifying the structures for our correlation of the random effects and within-subject correlation, we use the default settings (unstructured and independent, respectively). We also did not specify the `method`, which defaults to using REML. When estimating the correlation structures, we prefer to use REML. 
@@ -848,22 +850,24 @@ We also have our typical estimates for our fixed effects, along with their stand
 We can also fit a random slope and intercept model. To do this, we perform the following:
 
 ```{r}
-#library of nlme already loaded
+# library of nlme already loaded
 
-#fit the random intercept and slope model
-fitLME.slope <- lme(fixed = distance ~ age + sex, #specify fixed effects
-                        random = ~ age | subject, #random slope on time variable,
-                        #Intercept is included by default
-                        data = dental.long) #default unstructured correlation for
-                        #random effects and independence for within-subj correlation
+# fit the random intercept and slope model
+fitLME.slope <- lme(
+  fixed = distance ~ age + sex, # specify fixed effects
+  random = ~ age | subject, # random slope on time variable,
+  # Intercept is included by default
+  data = dental.long
+) # default unstructured correlation for
+# random effects and independence for within-subj correlation
 
-summary(fitLME.slope) #look at the output
+summary(fitLME.slope) # look at the output
 ```
 
 Without specifying the `method` parameter, we fit this model using REML. Again, from the output we see a number of fit statistics including AIC and BIC, which are slightly larger than the random intercept model. Under the "Random effects:" header, we can obtain estimates for the standard deviation of our random slop and intercept, along with the standard deviations of our error term and the estimated correlation between our random slope and intercept. We can calculate: 
 
 * the estimated variance of our random intercept as $\widehat{\sigma}_{b,0}^2 = 2.797^2 =$ `r paste(round(2.797^2,4))`, 
-* the estimated variance of our random slope as $\widehat{\sigma}_{b,1}^2 = 0.1609^2 =$ `r paste(round(0.1609^2,4))`
+* the estimated variance of our random slope as $\widehat{\sigma}_{b,1}^2 = 0.1609^2 =$ `r paste(round(0.1609^2,4))`,
 * the estimated variance of our error term as $\widehat{\sigma}^2 = 0.6683^2 =$  `r paste(round(0.6683^2,4))`, and
 * the estimated correlation between the random slope and intercept as $\widehat{\text{Corr}}(b_{0,i}, b_{1,i}) = -0.354$.
 
@@ -881,14 +885,13 @@ As such, we will draw conclusions from the linear mixed effects model with a ran
 
 
 ```{r}
-library(ggplot2) #load required graphical package
+library(ggplot2) # load required graphical package
 
-ggplot(data = dental.long, aes(x = age, y = distance, group = subject))+
-  geom_line() + facet_grid(. ~ sex) +
-  scale_color_manual() + 
+ggplot(data = dental.long, aes(x = age, y = distance, group = subject)) +
+  geom_line() +
+  facet_grid(. ~ sex) +
+  scale_color_manual() +
   ggtitle("Spaghetti Plot for Orthodontic Data Observations (Stratified by Sex)")
-
-
 ```
 
 In this plot, each line is one subject's observations over time (age). The groups are stratified by sex to account for differences in trajectory by sex, which was a statistically significant factor in our model. We see that subjects within each strata have very different baseline measurements, but see similar trajectories (slopes) over time. This is particularly evident in the subset of females enrolled in the study. Our random intercept model thus makes sense for this setting. 
