@@ -735,13 +735,13 @@ To fit this, we do the following:
 library(nlme)
 
 # fit the random intercept only model
-fitLME.intercept <- lme(
+fitLME_intercept <- lme(
   fixed = distance ~ age + sex, # specify fixed effects
   random = ~ 1 | subject, # random intercept only
   data = dental_long
 ) # default unstructured correlation
 
-summary(fitLME.intercept) # look at the output
+summary(fitLME_intercept) # look at the output
 ```
 
 We reiterate that by not specifying the structures for our correlation of the random effects and within-subject correlation, we use the default settings (unstructured and independent, respectively). We also did not specify the `method`, which defaults to using REML. When estimating the correlation structures, we prefer to use REML. 
@@ -755,7 +755,7 @@ We can also fit a random slope and intercept model. To do this, we perform the f
 # library of nlme already loaded
 
 # fit the random intercept and slope model
-fitLME.slope <- lme(
+fitLME_slope <- lme(
   fixed = distance ~ age + sex, # specify fixed effects
   random = ~ age | subject, # random slope on time variable,
   # Intercept is included by default
@@ -763,7 +763,7 @@ fitLME.slope <- lme(
 ) # default unstructured correlation for
 # random effects and independence for within-subj correlation
 
-summary(fitLME.slope) # look at the output
+summary(fitLME_slope) # look at the output
 ```
 
 Without specifying the `method` parameter, we fit this model using REML. Again, from the output we see a number of fit statistics including AIC and BIC, which are slightly larger than in the random intercept model. Under the `Random effects:` header, we can obtain estimates for the standard deviations of our random slope and intercept, along with the standard deviations of our error term and the estimated correlation between our random slope and intercept. We can then calculate: 
@@ -778,12 +778,12 @@ We also have our usual summary of the fixed effect regression coefficients, incl
 Now that we have fit two models, one with and one without a random slope term, we can perform a LRT to see which model fit is most appropriate for this data. We do this through the `anova()` function, however **we cannot use the given $p$-value and must use the table or R function to calculate the thresholds with respect to 50:50 mixtures of chi-squared distributions**. 
 
 ```{r}
-anova(fitLME.slope, fitLME.intercept)
+anova(fitLME_slope, fitLME_intercept)
 ```
 
 From this output, we compare our test statistic value of 2.2787 to the critical value of a 50:50 chi-squared mixture with $q = 1$ degrees of freedom. From the table, we see at a significance level of 0.05 and $q = 1$ degrees of freedom the threshold is 5.14. As our calculated test statistic value of 2.2787 is smaller than 5.14, we do not have evidence to reject the hypothesis that the simpler, random intercept only model is better. That is, the hypothesis test tells us that we do not have evidence to include a random slope term. We thus conclude that the linear trend of growth is quite homogeneous among children in the study. Note that the AIC value also is smaller for the intercept-only model, providing us with the same conclusion. 
 
-As such, we will draw our conclusions from the linear mixed-effects model with a random intercept. Although statistical tests have lead us to this model selection, we can assess the choice of the random-intercept model by plotting a [spaghetti plot](https://en.wikipedia.org/wiki/Spaghetti_plot#:~:text=A%20spaghetti%20plot%20(also%20known,visualize%20possible%20flows%20through%20systems.&text=Visualizing%20flow%20in%20this%20manner,the%20flow%20of%20a%20system.) of observations under varying baseline measurements. The similar trajectories over time for individuals in the study will indicate the relevance of the random-intercept model. 
+As such, we will draw our conclusions from the linear mixed-effects model with a random intercept. Although statistical tests have lead us to this model selection, we can assess the choice of the random-intercept model by plotting a [spaghetti plot](https://en.wikipedia.org/wiki/Spaghetti_plot) of observations under varying baseline measurements. The similar trajectories over time for individuals in the study will indicate the relevance of the random-intercept model. 
 
 We can do this in R by the following commands using **ggplot2** package:
 ```{r}
