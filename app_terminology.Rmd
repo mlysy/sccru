@@ -14,10 +14,9 @@ A list of terminology commonly used throughout this book:
 - Explanatory variable: See independent variable.
 - Independent variable: They are factors which may influence the dependent variable, usually denoted as $X$ in linear models. These variables can be of different data types, *continuous* or *categorical*. 
 - Multivariate: Multiple variables.
-- Nominal variable: Categorical variable that has no clear ordering. Examples are sex, race, hair color etc. 
+- Nominal variable: Categorical variable that has no clear ordering. Examples are sex, race, hair color, etc. 
 - Ordinal variable: Categorical variable that has a clear ordering. Such as grades or highest level of education achieved, etc. 
 - Predicted Variable: See dependent variable.
 - Predictor: See independent variable.
 - Response variable: See dependent variable. 
 - Univariate: One variable.
-

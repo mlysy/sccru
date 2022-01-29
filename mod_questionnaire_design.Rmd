@@ -8,14 +8,14 @@
 
 Surveys or questionnaires play an important role in many research and studies. A well-designed questionnaire will help researchers collect the data required for their research questions with strong *validity* and *reliability*. This section aims to provide some guidelines to create such questionnaires.
 
-The most important thing to keep in mind when designing a questionnaire is that, we are asking the respondents a favor. Therefore, the questionnaire needs to be as easy and less time-consuming as possible, while gathering enough information for the research questions. The goal is to create a **short**, **easy**, **inviting** but still **sound** and **logical** questionnaire.
+The most important thing to keep in mind when designing a questionnaire is that we are asking the respondents a favor. Therefore, the questionnaire needs to be as easy and less time-consuming as possible, while gathering enough information for the research questions. The goal is to create a **short**, **easy**, **inviting** but still **sound** and **logical** questionnaire.
 
 There are four main steps to achieve our goal:
 
 - [plan the study](#questdes-plan),
 - [prepare the questions](#questdes-prepare),
 - [put together the questionnaire](#questdes-put), and
-- [pretest the questionnaire](#questdes-pretest). 
+- [pretest the questionnaire](#questdes-pretest).
 
 ## Plan the Study {#questdes-plan}
 
@@ -45,7 +45,7 @@ Examining as many aspects of the study as possible will paint a picture of what 
 
 ## Prepare the Questions {#questdes-prepare}
 
-In this step, we design the questions based on the research plan laid out. The many aspects of a question that need to be considered includes, but are not limited to, the type of question, the wording of the questions, the answer options for the questions, the order of the questions, etc. All of these will affect the difficulty of the questionnaire, the respondents’ willingness to answer, or to answer correctly and truthfully, and also the analysis that will be carried out.
+In this step, we design the questions based on the research plan laid out. The many aspects of a question that need to be considered include, but are not limited to, the type of question, the wording of the questions, the answer options for the questions, the order of the questions, etc. All of these will affect the difficulty of the questionnaire, the respondents’ willingness to answer or to answer correctly and truthfully, and also the analysis that will be carried out.
 
 When creating a question, think about the thought process that the survey respondents have to go through to answer. We also need to find ways to help them provide responses that are in line with the research goals. Here are a few questions to consider when creating each question:
 
@@ -55,7 +55,7 @@ When creating a question, think about the thought process that the survey respon
     
     The term "depression" may not be familiar to the respondents. Can everyone in the target population differentiate between depression and sadness? To avoid misunderstanding, the symptoms of depression can be listed before asking the question.
 
-- How long ago since the event of interest occurred<!--until the respondents read the question in the survey-->? Is it easy for the respondents to recall and retrieve these information? Is there any cue in the survey or record the respondents can refer to?
+- How long ago since the event of interest occurred<!--until the respondents read the question in the survey-->? Is it easy for the respondents to recall and retrieve this information? Is there any cue in the survey or record the respondents can refer to?
 
     > *"When was the last time that you met a psychiatrist?"*.
     
@@ -63,11 +63,11 @@ When creating a question, think about the thought process that the survey respon
 
 - Do the respondents need to estimate or judge to obtain the answer? What can be some references for these estimates or judgments?
 
-    > *"How many hours do you spend on self care per week?"*.
+    > *"How many hours do you spend on self-care per week?"*.
     
-    Suppose a person spends three hours a day, the estimate would be 21 hours a week. However, it can be difficult for the person to recall the actual time length. To assist the respondents, provide some time point reference in the question. For example, time spent on self care when they wake up or before going to bed. Both morning and bedtime routines are time points that respondents can remember easily. 
+    Suppose a person spends three hours a day, the estimate would be 21 hours a week. However, it can be difficult for the person to recall the actual time length. To assist the respondents, provide some time point reference in the question. For example, time spent on self-care when they wake up or before going to bed. Both morning and bedtime routines are time points that respondents can remember easily. 
 
-- Can the respondents easily map their answers to the options provided? Are all the possible answers included in the question's answer categories? How can we help the respondents express their answer precisely?
+- Can the respondents easily map their answers to the options provided? Are all the possible answers included in the question's answer categories? How can we help the respondents express their answers precisely?
 
     > *"What do you think are the reasons for your sadness? (Select all that apply.)"*
     
@@ -75,7 +75,7 @@ When creating a question, think about the thought process that the survey respon
     
     > *"How do you rate your happiness?"* 
     
-    We can use a scale of 1-10, where 1 indicates "very unhappy" and 10 indicates "very happy". A better choice could be a scale that ranges from -5 to 5, where -5 implies "very unhappy", 0 corresponds to "indifferent", and 5 as "very happy". This scale will be easier to relate to.    
+    We can use a scale of 1-10, where 1 indicates "very unhappy" and 10 indicates "very happy". A better choice could be a scale that ranges from -5 to 5, where -5 implies "very unhappy", 0 corresponds to "indifferent", and 5 as "very happy". This scale will be easier to relate to.     
 
 The context of the question can affect the respondents’ thought process and hence, their answers. It is important to make sure that the context is expressed or explained clearly. This can be achieved by
 
@@ -88,15 +88,15 @@ The context of the question can affect the respondents’ thought process and he
     When we asked about how the respondents feel about their performance at school first, they may associate happiness with performance at school, and ignore their happiness that is not associated with school performance when answering Q2. If the order of the questions were flipped, the respondents would be more likely to rate their happiness level based on all aspects of their life instead of focusing on school performance.
     
     
-- Grouping related questions in modules. <!--- We can have a block of questions asking about the their symptoms of mental conditions, and another block of questions asking about their attempts to get better, etc. --->
+- Grouping related questions in modules. <!--- We can have a block of questions asking about their symptoms of mental conditions, and another block of questions asking about their attempts to get better, etc. --->
     
 
 The order of the answer options can also affect the validity of the answers. Respondents tend to choose the first or last few options when there are many options. Consider using the natural order of the answer options such as alphabetical order. If the natural order is not available, and the list of options is long, randomize the order of the options.
 <!---
-    > Consider the questions *"Choose three of the biggest reasons why you are unhappy"*, and there is then a long list of options, the respondents will be likely to choose the first or the last few options, since they are not patient to go through the long list and choose their best three. 
+    > Consider the questions *"Choose three of the biggest reasons why you are unhappy"*, and there is then a long list of options, the respondents will be likely to choose the first or the last few options since they are not patient to go through the long list and choose their best three. 
 ---> 
 
-It is challenging to create sensitive questions that respondents are willing to answer and to answer truthfully. Respondents usually are hesitated to answer because of privacy and (or) shame. 
+It is challenging to create sensitive questions that respondents are willing to answer and to answer truthfully. Respondents usually are hesitant to answer because of privacy and (or) shame. 
 
 - If the concern is privacy, we can create questions that do not require exact information, but an estimate.
     
@@ -108,11 +108,11 @@ It is challenging to create sensitive questions that respondents are willing to 
 
     > Do you take anti-depressant?
     
-    To help respondents feel more comfortable to provide a truthful answer to the question, we can add a sentence or two about teh benefits of anti-depressant on improving moods, sleep quality, etc. <!-- If you want to ask about alcohol consumption, you can add a few sentences about the benefits of wine to health, which will make it more relaxing for respondents to answer truthfully about their alcohol consumption. -->
-
+    To help respondents feel more comfortable to provide a truthful answer to the question, we can add a sentence or two about the benefits of anti-depressant on improving moods, sleep quality, etc. <!-- If you want to ask about alcohol consumption, you can add a few sentences about the benefits of wine to health, which will make it more relaxing for respondents to answer truthfully about their alcohol consumption. -->
+    
 ## Put Together the Questionnaire {#questdes-put}
 
-- In the beginning, provide an introduction about the research topic and its importance to motivate the respondents to answer the questionnaire. Mention the research organizations, investigators or sponsors and an estimate of the completion time of the questionnaire. Do not forget to include statements about privacy and confidentiality from the [Office of Research Ethics](https://uwaterloo.ca/research/office-research-ethics). Including relevant graphics may appeal to the respondents that this is an easy-to-answer survey.
+- In the beginning, provide an introduction about the research topic and its importance to motivate the respondents to answer the questionnaire. Mention the research organizations, investigators, or sponsors and an estimate of the completion time of the questionnaire. Do not forget to include statements about privacy and confidentiality from the [Office of Research Ethics](https://uwaterloo.ca/research/office-research-ethics). Including relevant graphics may appeal to the respondents that this is an easy-to-answer survey.
 
     > *The information obtained from this survey will help the university better understand students' mental well-being and take reasonable measures to help the students.* 
 
@@ -120,28 +120,28 @@ It is challenging to create sensitive questions that respondents are willing to 
 
 - Group the questions into modules or sections to create a logical flow that is easy for respondents to follow. In between these modules, a short description of the module can be added to make the transitions smoother. 
 
-- Ask sensitive questions near the end of the survey when the respondents are comfortable to provide their answers or opinions. We also recommend to ask only the demographic questions required for the research questions at the end of the questionnaire. It may be worthy to mention that the personal information will only be used for statistical purpose.
+- Ask sensitive questions near the end of the survey when the respondents are comfortable to provide their answers or opinions. We also recommend asking only the demographic questions required for the research questions at the end of the questionnaire. It may be worthy to mention that personal information will only be used for statistical purposes.
 
-- Finally, give the respondents a big thank you. If there is any incentives for completing the survey, collect the required information and, again strongly stress the privacy of the gathered information. It is also a good place to leave the researchers' contact information in the event that the respondents have any concerns or want to give additional feedback.
+- Finally, give the respondents a big thank you. If there are any incentives for completing the survey, collect the required information. Additionally, again strongly stress the privacy of the gathered information. It is also a good place to leave the researchers' contact information in the event that the respondents have any concerns or want to give additional feedback.
 
 ## Pretest the Questionnaire {#questdes-pretest}
 
-It is recommended to pretest the questionnaire before conducting data collection. This will help identify problems in the questionnaire, and allow for revision and improvement.
+It is recommended to pretest the questionnaire before conducting data collection. This will help identify problems in the questionnaire and allow for revision and improvement.
 
 Consider pretesting the questionnaire by:
 
-- obtaining expert review from colleagues who have same or similar research topics, or statistical consultants who have expertise on data collection and analysis;
+- obtaining expert review from colleagues who have the same or similar research topics, or statistical consultants who have expertise in data collection and analysis;
 
 - conducting interviews with focus groups, i.e. a small group in the target population. This method allows us to know whether the prospective respondents have any difficulty in understanding and answering the questions. Their feedback or advice can be used to revise the questionnaire. <!-- For example, conduct the survey in a small class first and ask for their opinions. -->
 
-Designing questionnaire is an iterative process. The four steps mentioned above can be revisited and revised as needed. If you have any further questions about questionnaires design, please consult a consultant at the [Statistical Consulting and Collaborative Research](https://uwaterloo.ca/statistical-consulting-and-collaborative-research-unit/), or the [Survey Research Centre](https://uwaterloo.ca/survey-research-centre/).
+Designing questionnaires is an iterative process. The four steps mentioned above can be revisited and revised as needed. If you have any further questions about questionnaires design, please consult a consultant at the [Statistical Consulting and Collaborative Research](https://uwaterloo.ca/statistical-consulting-and-collaborative-research-unit/), or the [Survey Research Centre](https://uwaterloo.ca/survey-research-centre/).
 
 ## A Checklist for Questionnaire Designs
 
 1. Planning
     - What is the topic of interest?
     - What is the target population?
-    - To whom or to which groups do you want to report to?
+    - To whom or to which groups do you want to report?
     - What are the research questions?
     - What analysis tools will be used for data analysis?
 2. Preparing the questions
@@ -149,13 +149,13 @@ Designing questionnaire is an iterative process. The four steps mentioned above 
     - Can the respondents easily recall the information required to answer the question?
     - How will the respondents estimate or judge to answer this question?
     - Can the respondents easily map their answers to the options provided?
-    - Will the context of the question affect the respondents' thought process?
+    - Will the context of the question affect the respondents' thought processes?
     - If there is a long list of options, is there a natural ordering? Is randomization of order needed?
     - Is the question sensitive? How do we ease the respondents into answering the question?
 3. Putting together the questions
     - Preamble:
-        - Provide an introduction of the research and highlight its importance.
-        - List the name of the research organizations, investigators or sponsors.
+        - Provide an introduction to the research and highlight its importance.
+        - List the name of the research organizations, investigators, or sponsors.
         - Estimate the completion time of the questionnaire.
         - Include privacy and confidentiality statements.
         <!-- 
@@ -163,9 +163,9 @@ Designing questionnaire is an iterative process. The four steps mentioned above 
         -->
     - Main body:
         - Start with easy Yes-No questions.
-        - Group the questions into module and create a logical flow.
+        - Group the questions into modules and create a logical flow.
         - Ask sensitive questions near the end.
-        - Ask demographic questions for statistical purpose.
+        - Ask demographic questions for statistical purposes.
     - Ending:
         - Thank the respondents.
         - Ask for contact information if a reward is promised.
@@ -173,3 +173,4 @@ Designing questionnaire is an iterative process. The four steps mentioned above 
 4. Pretesting 
     - Use expert review and (or) focus groups.
     - Iterate the steps above until the questionnaire is satisfactory.
+    
