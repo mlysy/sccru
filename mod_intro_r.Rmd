@@ -18,10 +18,10 @@ knitr::include_graphics("data/images/rintro-rstudio.png")
 
 The interface of RStudio shown in Figure \@ref(fig:rintro-rstudio) contains four panes:
 
-- [Source Editor], <!-- contains the R code files, where codes are written and edited. We can also run the R code from the Code Editor by selecting the code chunk and click <kbd>Run</kbd>. -->  
-- Console, <!-- To run a single line of code, write the code in the R Console and press <kbd>Enter</kbd>. The printed results of the code is also shown in the R Console.  --> 
+- [Source Editor], <!-- contains the R code files, where codes are written and edited. We can also run the R code from the Code Editor by selecting the code chunk and clicking <kbd>Run</kbd>. -->  
+- Console, <!-- To run a single line of code, write the code in the R Console and press <kbd>Enter</kbd>. The printed results of the code are also shown in the R Console.  --> 
 - Workspace Browser, and <!-- consists of (1) the Environment pane that shows the objects we are working with, and (2) the History pane that shows codes that were executed previously.-->
-- Files (and Plots, Packages, Help and Viewer). <!-- pane shows outputs such as plots or files created with the R code. It also helps with the management of packages or files required for the codes.-->
+- Files (and Plots, Packages, Help, and Viewer). <!-- pane shows outputs such as plots or files created with the R code. It also helps with the management of packages or files required for the codes.-->
 
 The four panes can be positioned differently based on personal preference. Figure \@ref(fig:rintro-rstudio) shows the default position. In this section, we will mainly be using the Source Editor and Console panes. Readers are encouraged to refer to other [resources](https://robwschlegel.github.io/Intro_R_Workshop/rstudio.html#the-panes-of-rstudio) on the use of other panes.
 
@@ -33,17 +33,17 @@ In its simplest form, R can be used as a calculator. In the R Console area, type
 ```{r rintro-basic-sum, echo = TRUE, eval = FALSE}
 1 + 2
 ```
-The following will being printed in the R Console area
+The following will be printed in the R Console area:
 ```{r rintro-basic-sum-result, echo = FALSE, eval = TRUE, comment = NA}
 1 + 2
 ```
 
-Subtraction can be done in a similar way
+Subtraction can be done in a similar way:
 ```{r rintro-basic-subtract, echo = TRUE, eval = TRUE, comment = NA}
 5 - 10
 ```
 
-Other basic operations such as multiplication, division and powers are also included.
+Other basic operations such as multiplication, division, and powers are also included.
 ```{r rintro-basic-operations, echo = TRUE, comment = NA}
 9 * 26
 
@@ -52,17 +52,17 @@ Other basic operations such as multiplication, division and powers are also incl
 2^3
 ```
 
-Some basic operations involves built-in functions in R. For example,
+Some basic operations involve built-in functions in R. For example,
 
-- Square root
+- Square root:
     ```{r rintro-basic-squareroot, echo = TRUE, eval = TRUE, comment = NA}
 sqrt(25)
     ```
-- Logarithm
+- Logarithm:
 ```{r rintro-basic-log10, echo = TRUE, eval = TRUE, comment = NA}
 log(10, base = 10)
     ```
-- Natural logarithm
+- Natural logarithm:
     ```{r rintro-basic-log, echo = TRUE, eval = TRUE, comment = NA}
 log(10)
     ```
@@ -117,9 +117,9 @@ We can create a vector for our record as below.
 ```{r rintro-basic-vector, echo = TRUE, eval = FALSE, comment = NA}
 age <- c(18, 21, 19, 20, 21)
 ```
-In the Workspace Browser pane, we can see the variable `age` with the values that we have given. And if we type `age` in the Console pane, we get these values printed in the Console.  
+In the Workspace Browser pane, we can see the variable `age` with the values that we have given. And if we type `age` in the Console pane, we get these values printed in the Console.
 
-Vectors may not appear to be be useful for many since most of the popular functions are ready for use. But for those intending to create their own R functions, it is important to understand how to create and manipulate vectors. Many [comparators and logical operators](https://www.statmethods.net/management/operators.html) such as those discussed in Section [1.2.1](#rintro-calculate) work on both vectors and scalars. These calculations will be element-wise. <!--- For example, 
+Vectors may not appear to be useful for many since most of the popular functions are ready for use. But for those intending to create their own R functions, it is important to understand how to create and manipulate vectors. Many [comparators and logical operators](https://www.statmethods.net/management/operators.html) such as those discussed in Section [1.2.1](#rintro-calculate) work on both vectors and scalars. These calculations will be element-wise. <!--- For example, 
 ```{r rintro-basic-vector-calculate, echo = TRUE, eval = FALSE, comment = NA}
 age * 2
 log(age)
@@ -144,7 +144,7 @@ will set the working directory to "D:/".
 
 #### Importing the Data
 
-In the real world, data are recorded in different formats such as Excel spreadsheet (`xls`), Comma Separated Values (`csv`) or Text (`txt`). Each row of a data files is an observation while each column is a variable or a feature. 
+In the real world, data are recorded in different formats such as Excel spreadsheet (`xls`), Comma Separated Values (`csv`) or Text (`txt`). Each row of a data file is an observation while each column is a variable or a feature. 
 
 Data are imported into the R Environment using functions such as `read.csv()` and `read.table()`. Imported data are stored as a data frame object. In this section, we will look at two data sets: [`caliRain.csv`](data/caliRain.csv) and [`drinks.csv`](data/drinks.csv).
 
@@ -167,14 +167,14 @@ The function `head()` can also show the first few rows of the data set.
 head(rain_df)
 ```
 
-The `caliRain.csv` file contains daily rainfall recorded at numerous meteorological stations monitored  by the state of California. The variables recorded are:
+The `caliRain.csv` file contains daily rainfall recorded at numerous meteorological stations monitored by the state of California. The variables recorded are:
   
-- STATION: Name of the station,
-- PRECIP: precipitation (inches),
-- ALTITUDE: altitude (feet),
-- LATITUDE: latitude (feet),
-- DISTANCE: distance to the Pacific Ocean (miles), and
-- SHADOW: slope face (1: Westward, 2:Leeward).
+- `STATION`: Name of the station,
+- `PRECIP`: precipitation (inches),
+- `ALTITUDE`: altitude (feet),
+- `LATITUDE`: latitude (feet),
+- `DISTANCE`: distance to the Pacific Ocean (miles), and
+- `SHADOW`: slope face (1: Westward, 2:Leeward).
 
 The variables `STATION` and `SHADOW` are categorical variables, whereas the remaining are continuous variables. 
 
@@ -191,7 +191,7 @@ rain_df$PRECIP
 rain_df[, 2]
     ```
 
-Similarly, there are times we want to investigate a particular row (or observation). Suppose we are interested in the 10th observation, type: 
+Similarly, there are times we want to investigate a particular row (or observation). Suppose we are interested in the 10th observation, type
 ```{r rintro-data-row, echo=TRUE, eval=TRUE, comment = NA}
 rain_df[10, ]
 ```
@@ -202,7 +202,7 @@ rain_df$PRECIP[5]
 rain_df[5, 2]
 ```
 
-Accessing a random variable, an observation or a specific value coming from an observation are all useful for data management and manipulation purpose. 
+Accessing a random variable, an observation or a specific value coming from observation are all useful for data management and manipulation purpose. 
 
 #### Modifying the Data Frame
 
@@ -236,7 +236,7 @@ rain_df$DISTANCE_M <- rain_df$DISTANCE * 0.3048
 
 To modify a specific observation, we need to
 
-- identify how to access variable in the data frame,
+- identify how to access the variable in the data frame,
 - decide on the modification, and 
 - decide on how to store the new variable. 
 
@@ -265,14 +265,18 @@ The structure that R stores the data can be viewed using the function `str()`.
 ```{r rintro-data-str, echo=TRUE, eval=TRUE, comment = NA}
 str(rain_df)
 ```
-Here, the variable `SHADOW` is recorded as a numeric value. This is not an accurate depiction of the data set. To ensure the analysis can be done properly, we need to convert the values in `SHADOW` into categorical values in the data set. To do so, we use the function `factor()`.
+Here, the variable `SHADOW` is recorded as a numeric value. This is not an accurate depiction of the data set. 
+
+To ensure the analysis can be done properly, we need to convert the values in `SHADOW` into categorical values in the data set. To do so, we use the function `factor()`.
 ```{r rintro-data-factor, echo=TRUE, eval=TRUE, comment = NA}
 rain_df$SHADOW <- factor(rain_df$SHADOW,
   levels = c("1", "2"),
   labels = c("Westward", "Leeward")
 )
 ```
-Here, the numerical values 1 and 2 are set to “Westward” and “Leeward”, respectively. When we check the structure of the data set after the transformation, the variable `SHADOW` is now stored as a categorical variable (or factor).
+Here, the numerical values 1 and 2 are set to “Westward” and “Leeward”, respectively. 
+
+Now, when we check the structure of the data set after the transformation, the variable `SHADOW` is now stored as a categorical variable (or factor).
 ```{r rintro-data-factor-str, echo=TRUE, eval=TRUE, comment = NA}
 str(rain_df)
 ```
@@ -285,7 +289,7 @@ We will use the `PRECIP` variable to demonstrate how common statistics are compu
     ```{r rintro-data-mean, echo=TRUE, eval=TRUE, comment=NA}
 mean(rain_df$PRECIP)
     ```
-- [Median](https://en.wikipedia.org/wiki/Median) of a sequence of  numbers can be obtained using the function `median()`.
+- [Median](https://en.wikipedia.org/wiki/Median) of a sequence of numbers can be obtained using the function `median()`.
     ```{r rintro-data-median, echo=TRUE, eval=TRUE, comment=NA}
 median(rain_df$PRECIP)
     ```
@@ -313,15 +317,16 @@ There are a wide variety of plots that can be created using R, but we will focus
 - histograms: show the distribution of continuous variables.
 
 #### Categorical Variables
-In order to create bar graphs, we need to summarize data using table.
 
-The numerical summary of a categorical variable are usually summarized in a table
+In order to create bar graphs, we need to summarize data using tables.
+
+The numerical summary of a categorical variable are usually summarized in a table:
 ```{r rintro-data-table-shadow, echo=TRUE, eval=TRUE, comment=NA}
 count_of_shadow <- table(rain_df$SHADOW)
 count_of_shadow
 ```
 
-A cross-tabulation table (or contingency table) can also be done. Suppose we are interested to create cross-tab for the variables `hasMilk` and `temp` in the `drinks_df`, we can do the following:
+A cross-tabulation table (or [contingency table](https://en.wikipedia.org/wiki/Contingency_table)) can also be done. Suppose we are interested to create cross-tab for the variables `hasMilk` and `temp` in the `drinks_df`, we can do the following:
 ```{r rintro-data-table-milk, echo=TRUE, eval=TRUE, comment=NA}
 table_of_milk_by_temp <- table(
   drinks_df$hasMilk,
@@ -341,12 +346,12 @@ round(100 * prop.table(count_of_shadow), 2)
 ```
 --->
 
-For contingency table, the default `prop.table()` function will output the proportions based on the entire data set
+For a contingency table, the default `prop.table()` function will output the proportions based on the entire data set.
 ```{r rintro-data-table-milk-prop, echo=TRUE, eval=TRUE, comment=NA}
 prop.table(table_of_milk_by_temp)
 ```
 
-Suppose we are interested in the percentages of the hot drinks that contain milk, we will want to report the proportion by column (`Temperature`):
+Suppose we are interested in the percentages of the hot drinks that contain milk, we will want to report the proportion by column (`Temperature`).
 ```{r rintro-data-table-milk-prop-col, echo=TRUE, eval=TRUE, comment=NA}
 prop.table(table_of_milk_by_temp, 2)
 ```
@@ -376,6 +381,7 @@ The [boxplot](https://en.wikipedia.org/wiki/Box_plot) is a visual representation
 Potential outliers are shown as dots outside the boxplots.
 
 The boxplot of `PRECIP` shows some potential outliers.
+
 ```{r rintro-data-boxplot, echo=TRUE, eval=TRUE, fig.height=5}
 boxplot(rain_df$PRECIP,
   main = "Precipitation",
@@ -383,7 +389,7 @@ boxplot(rain_df$PRECIP,
 )
 ```
 
-Side-by-side boxplots are commonly used to visualize relationship between a continuous variable and a categorical variable. The following is the boxplot of the precipitation by shadow. 
+Side-by-side boxplots are commonly used to visualize the relationship between a continuous variable and a categorical variable. The following is the boxplot of the precipitation by shadow. 
 
 ```{r rintro-data-boxplot-side, echo=TRUE, eval=TRUE, fig.height=5}
 boxplot(rain_df$PRECIP ~ rain_df$SHADOW,
@@ -410,11 +416,11 @@ hist(rain_df$PRECIP,
 )
 ```
 
-Notice that there is no space in between the bars like in the bar graph. This is because the graph is for continuous variable instead of categorical variable.
+Notice that there is no space in between the bars like in the bar graph. This is because the graph is for continuous variables instead of categorical variables.
 
 #### Scatterplots
 
-Scatterplots are used to visualize relationship between two continuous variables.
+Scatterplots are used to visualize the relationship between two continuous variables.
 
 ```{r rintro-data-scatter, echo=TRUE, eval=TRUE, fig.height=6}
 plot(rain_df$DISTANCE, rain_df$PRECIP,
@@ -440,7 +446,7 @@ There are many ways the codes in the Code Editor can be executed:
 - For Windows users, run the selected codes by pressing <kbd>Ctrl</kbd> + <kbd>Enter</kbd>. For Mac users, use <kbd>Command</kbd> + <kbd>Enter</kbd>.
 - If we only want to run one line of code, place the cursor at the line of code, and use either one of the two ways mentioned above.
 
-We recommend typing the codes in the Source Editor and then execute the codes. This way, there is a copy of what was done for future references.
+We recommend typing the codes in the Source Editor and then executing the codes. This way, there is a copy of what was done for future references.
 
 ### Commenting
 
@@ -466,7 +472,7 @@ a triangle button will appear next to the line numbers at the beginning and end 
 When quitting R or RStudio, we can choose to save the Environment and History that we were working with in the files called `.RData` and `.RHistory` respectively. When we open the R code file next time, the two files will be automatically loaded. 
 However, it is recommended not to save the Environment in the default way. Instead, start in a clean environment so that older objects do not remain in the environment any longer than they need to. If that happens, it can lead to unexpected results.
 
-For those who want to save the Environment for future use, we recommend to save the Environment using the function `save.image()` rather than using the default files `.RData`. If we only want to save certain values, we can use the function `save()` and then load the saved Environment later using the `load()` function. 
+For those who want to save the Environment for future use, we recommend saving the Environment using the function `save.image()` rather than using the default files `.RData`. If we only want to save certain values, we can use the function `save()` and then load the saved Environment later using the `load()` function. 
 
 ### Installing Libraries
 
@@ -498,7 +504,7 @@ Before getting others for help, it is generally a good idea for you to try to he
 
 ### R Documentation
 
-R has an extensive documentation and resources for help. To read the documentation of a function, add a question mark before the name of a function. 
+R has extensive documentation and resources for help. To read the documentation of a function, add a question mark before the name of a function. 
 
 For example, to find out how to use the function `round()`, try
 ```{r rintro-basic-help, echo = TRUE, eval = FALSE, comment = NA}
@@ -508,4 +514,4 @@ The description of the function and examples of how to use it will appear in the
 
 ### Online Resources
 
-There are a lot of basic functions or default variables that have not been mentioned so far. When analyzing data, we often encounter situations in which we need to use unknown or unfamiliar functions. In this case, we often rely on online search engines to find those functions. It is common practice to use online resources in real world data analysis. Hence, readers are encouraged to explore the online resources.
+There are a lot of basic functions or default variables that have not been mentioned so far. When analyzing data, we often encounter situations in which we need to use unknown or unfamiliar functions. In this case, we often rely on online search engines to find those functions. It is common practice to use online resources in real-world data analysis. Hence, readers are encouraged to explore the online resources.

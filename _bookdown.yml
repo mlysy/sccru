@@ -1,3 +1,4 @@
+
 new_session: no
 delete_merged_file: true
 book_filename: "topics_in_consulting.Rmd"
@@ -15,4 +16,3 @@ rmd_files:
   - "app_bookdown_tests.Rmd"
   - "app_terminology.Rmd"
   - "Z_references.Rmd"
-
