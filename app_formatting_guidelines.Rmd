@@ -22,9 +22,9 @@
 
 - Refer to `common_functions.R` for commonly used functions across modules before writing your own. 
 
-- To make cross-referencing consistent in **bookdown**, for all labels, including code chunks, figures, tables, sections, equations, etc., use the prefix of the corresponding file as the prefix of any label. So please choose and use a module-specific prefix for each cross-reference. For example, use label `#formatguide` for this section. Refer to `prefixes.txt` for the list of the used prefixes and add yours there. Try to use the prefix that is distinctive to other words in the text such that you can find and replace all without mistakes.
+- To make cross-referencing consistent in **bookdown**, for all labels -- code chunks, figures, tables, sections, equations, etc. -- use the prefix of the corresponding file as the prefix of any label. So please choose and use a module-specific prefix for each cross-reference. For example, use label `#formatguide` for this section. Refer to `prefixes.txt` for the list of the used prefixes and add yours there. Try to use the prefix that is distinctive to other words in the text such that you can find and replace all without mistakes.
 
-- Give names to all code chunks.  It's best for these to be only letters and numbers -- no dashes, underscores, etc.^[Dashes etc. are technically allowed, but won't work for cross-referencing Figures and Tables as explained [here](https://bookdown.org/yihui/bookdown/figures.html).  So, it's best to get in the habit of avoiding non-alphanumeric characters entirely.].
+- Give names to all code chunks, even e.g., pure code and figures you don't refer to.  **Note:** Chunk labels must consist of only letters, numbers, dashes (`-`), and slashes (`/`) -- no underscores!  Otherwise, cross-referencing [won't work properly](https://bookdown.org/yihui/bookdown/figures.html).
 
 - Paragraph breaks are simply indicated by one or more empty lines.  No need for `\newline` or anything else.  This applies to elements other than text such as figures, math blocks etc.  If the figure/math block/etc is part of the paragraph, don't leave blank spaces before or after^[An exception to this is possibly within an indented region.  There you may need to leave a blank space before/after math block...I'm not 100% sure...].
 

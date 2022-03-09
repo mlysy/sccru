@@ -474,15 +474,19 @@ However, it is recommended not to save the Environment in the default way. Inste
 
 For those who want to save the Environment for future use, we recommend saving the Environment using the function `save.image()` rather than using the default files `.RData`. If we only want to save certain values, we can use the function `save()` and then load the saved Environment later using the `load()` function. 
 
-### Installing Libraries
+### Installing and Loading Libraries
 
 The R user community creates functions and data sets to share. They are called packages or libraries. The packages are free and can be installed as long as there is access to the Internet.
 
-To install a library, say `r cran_link("ggplot2")`, include the following code at the beginning of the file:
-```{r rintro-basic-require, echo=TRUE, eval=FALSE, comment=NA}
-require("ggplot2")
+To install a library, say `r cran_link("ggplot2")`, you can either use the RStudio interface, or you can do it from the command line as follows:
+```{r rintro-basic-install, echo=TRUE, eval=FALSE, comment=NA}
+install.packages("ggplot2", dependencies=TRUE)
 ```
-This line of code install the package if it is not installed already, and load the package to the Environment. This can be achieved by using two separate functions `install.packages()` and `library()` in R, respectively.
+You only need to do this once in a while, e.g., when you install a new version of R.  Then, to use the package, include the following code at the beginning of the file:
+```{r rintro-basic-require, echo=TRUE, eval=TRUE, comment=NA}
+require(ggplot2)
+```
+This command needs to be run every time you want to use the package in a new R session.
 
 ### Good Coding Practices
 
