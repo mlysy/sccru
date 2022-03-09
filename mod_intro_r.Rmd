@@ -59,7 +59,7 @@ Some basic operations involve built-in functions in R. For example,
 sqrt(25)
     ```
 - Logarithm:
-```{r rintro-basic-log10, echo = TRUE, eval = TRUE, comment = NA}
+    ```{r rintro-basic-log10, echo = TRUE, eval = TRUE, comment = NA}
 log(10, base = 10)
     ```
 - Natural logarithm:
