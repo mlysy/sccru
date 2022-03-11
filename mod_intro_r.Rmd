@@ -180,7 +180,7 @@ The variables `STATION` and `SHADOW` are categorical variables, whereas the rema
 
 #### Accessing the Data Frame 
 
-Oftentimes, we are interested to access an individual column (or variable) within the data frame. For example, if we are interested in the `PRECIP` variable in the data set `caliRain.csv` (which is now stored as `rain_df`). There are two ways to access the column:
+Oftentimes, we are interested in accessing an individual column (or variable) within the data frame. For example, if we are interested in the `PRECIP` variable in the data set `caliRain.csv` (which is now stored as `rain_df`). There are two ways to access the column:
 
 - Use the dollar sign followed by the name of the variable.
     ```{r rintro-data-dollar, echo=TRUE, eval=TRUE, comment = NA}
@@ -202,15 +202,15 @@ rain_df$PRECIP[5]
 rain_df[5, 2]
 ```
 
-Accessing a random variable, an observation or a specific value coming from observation are all useful for data management and manipulation purpose. 
+Accessing a random variable, an observation or a specific value coming from an observation are all useful for data management and manipulation purpose. 
 
 #### Modifying the Data Frame
 
 Sometimes, we want to make changes to the data frame such as
 
-- make changes to existing records,
-- add new observations or variables, or
-- remove outliers from the data set.
+- making changes to existing records,
+- adding new observations or variables, or
+- removing outliers from the data set.
 
 If we want to change the existing records, we need to identify which records we are interested to change.
 
@@ -240,7 +240,7 @@ To modify a specific observation, we need to
 - decide on the modification, and 
 - decide on how to store the new variable. 
 
-Suppose the distance for \texttt{Eureka} station is entered incorrectly and is supposed to be 1.5 feet instead. To replace this value, type
+Suppose the distance for Eureka station is entered incorrectly and is supposed to be 1.5 feet instead. To replace this value, type
 ```{r rintro-data-modcell, echo=TRUE, eval=TRUE,comment=NA}
 rain_df$DISTANCE[1] <- 1.5
 ```
@@ -310,7 +310,7 @@ range(rain_df$PRECIP)
     
 ### Data Visualization
 
-There are a wide variety of plots that can be created using R, but we will focus on some of our favorites:
+There is a wide variety of plots that can be created using R, but we will focus on some of our favorites:
 
 - bar graphs: show the distribution of categorical variables,
 - boxplots: show the five-number summaries of continuous variables, and
@@ -402,7 +402,7 @@ In the side-by-side boxplots, notice that there are no potential outliers. Compa
 
 #### Histograms
 
-[Histograms](https://en.wikipedia.org/wiki/Histogram) are commonly used to visualize the distribution of continuous variables. When looking at histograms, pay attention to
+[Histograms](https://en.wikipedia.org/wiki/Histogram) are commonly used to visualize the distributions of continuous variables. When looking at histograms, pay attention to
 
 - the shape: symmetric vs asymmetric,
 - the center, and
@@ -432,7 +432,7 @@ plot(rain_df$DISTANCE, rain_df$PRECIP,
 
 #### A Fancy Visualization Library
 
-The `r cran_link("ggplot2")` library is a package created by Hadley Wickham. It offers a powerful language to create elegant graphs. A basic introduction of this package can be found in later [section][Introduction to ggplot2].
+The `r cran_link("ggplot2")` library is a package created by Hadley Wickham. It offers a powerful language to create elegant graphs. A basic introduction of this package can be found in the next [section][Introduction to ggplot2].
 
 ## Some Coding Tips
 
