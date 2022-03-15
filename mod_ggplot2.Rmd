@@ -45,8 +45,8 @@ The first step to graphing is to specify the data set and decide what goes on th
 
 Suppose we want to investigate how the price of a diamond behaves with respect to its carat. Then, the two variables (or columns) involved are `price` and `carat`. The x-axis is usually the explanatory variable and the y-axis is the dependent variable. In this scenario, `price` should be on the y-axis and `carat` on the x-axis. 
 
-To initiate this graph in **ggplot2**, 
-```{r visgg-plot-blank, echo = TRUE, eval = TRUE, comment = NA}
+To initiate this graph in `r cran_link("ggplot2")`, 
+```{r visgg-plot-blank, echo = TRUE, eval = TRUE, fig.cap="Testing", comment = NA}
 ggplot(my.diamonds, aes(x = carat, y = price))
 ```
 
@@ -90,6 +90,7 @@ For example, suppose we want the colour of the points on the graph to change bas
 ```{r visgg-aes-col-cut, echo = TRUE, eval = TRUE, comment = NA}
 p + geom_point(aes(col = cut))
 ```
+
 This is called **mapping**.
 
 #### Changing the Colour Palette
@@ -122,7 +123,7 @@ knitr::include_graphics("data/images/visgg-cbPalette-grey.png")
 knitr::include_graphics("data/images/visgg-cbPalette.png")
 ```
 
-Both palettes are not part of `RColorBrewer` and are extracted from [Cookbook for R](http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/). They are coded as follow: 
+Both palettes are not part of `RColorBrewer` and are extracted from [Cookbook for R](http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/). They are coded as follows: 
 ```{r visgg-colblind-extract, echo = TRUE, eval = TRUE, comment = NA}
 # colour blind friendly palette with grey
 cbgPalette <- c(
@@ -177,7 +178,7 @@ Similar to mapping the colour component, the sizes of the points can be mapped t
 p1 + geom_point(aes(size = cut))
 ```
 
-Notice in the previous graph that the points are in black colour but the legend still includes `cut`. This is because the mapping contradicts `p1` that was stored in such a way earlier:
+Notice in the previous graph that the points are black in colour but the legend still includes `cut`. This is because the mapping contradicts `p1` that was stored in such a way earlier:
 ```{r visgg-aes-size-exp2, echo = TRUE, eval = FALSE, comment = NA}
 p1 <- p + geom_point(aes(col = cut))
 ```
@@ -259,6 +260,7 @@ We can adjust the colour by the `group`.
 ggplot(my.diamonds, aes(x = carat, y = price, group = cut)) +
   geom_line(aes(col = cut))
 ```
+
 To map the colours of the lines to `cut`, there are two options:
 
 - Option 1:
@@ -283,6 +285,7 @@ It is no surprise that we can add points in a line graph:
 ```{r visgg-geo-line-points, echo = TRUE, eval = TRUE, comment = NA}
 p + geom_line() + geom_point()
 ```
+
 The appearance of the lines and points can be changed as discussed previously.
 
 ### Bar Plots
@@ -313,7 +316,7 @@ It may be of interest to change
 
 ### Axes Labels
 
-Similar to graphing in the `base` package, we can change the labels of the axes by adding the components as follow:
+Similar to graphing in the `base` package, we can change the labels of the axes by adding the components as follows:
 
 - x-axis: `xlab("name")`
 - y-axis: `ylab("name")`
