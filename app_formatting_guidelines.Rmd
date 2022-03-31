@@ -12,7 +12,7 @@
 
 - For headers, place a space between the last sharp symbol $\#$ and the name of the header.  
 
-- Let's agree to use regular font for programming languages (e.g., R, Python, C++) and bold font for packages and libraries (e.g., **TMB**, **rstan**, **NumPy**, **Tensorflow**). Use `data` format for files, data sets, codes and arguments. For functions, use parentheses at the end, for example, `data()`. Use curly brackets `\bm{}` for LaTeX functions. Use `<kbd>Key</kbd>` for key strokes or buttons.
+- Let's agree to use regular font for programming languages (e.g., R, Python, C++) and bold font for packages and libraries (e.g., **TMB**, **rstan**, **NumPy**, **Tensorflow**). Use `code` font for files, data sets, codes and arguments. For functions, use parentheses at the end, for example, `my_func()`. Use curly brackets `\bm{}` for LaTeX functions. Use `<kbd>Key</kbd>` for key strokes or buttons.
 
 - Paste a link to packages which are mentioned for the first time. For R packages, you can use the `cran_link()` function to do this. For example, `r cran_link("rstan")`.
 
@@ -20,9 +20,11 @@
 
 - To refer to figures/tables/sections, use the standard academic style is e.g., "Figure 2", "Section 2.5", etc.  In other words, the word is non-bold and non-italic, with the first letter capitalized, and the number following the word should have hyperlink. See relevant **bookdown** [chapter](https://bookdown.org/yihui/bookdown/figures.html) for how to do this. To refer to modules, use the text name, details can be found [here](https://stackoverflow.com/questions/57469501/cross-referencing-bookdownhtml-document2-not-working).
 
-- Refer to `common_functions.R` for commonly used functions across modules before writing your own. Please give names to all code chunks. 
+- Refer to `common_functions.R` for commonly used functions across modules before writing your own. 
 
-- To make cross-referencing consistent in bookdown, for all labels, including R chunks, figures, tables, sections, equations, etc., use the prefix of the corresponding file as the prefix of any label. So please choose and use a module-specific prefix for each cross-reference. For example, use label `#formatguide` for this section. Refer to `prefixes.txt` for the list of the used prefixes and add yours there. Try to use the prefix that is distinctive to other words in the text such that you can find and replace all without mistakes.
+- To make cross-referencing consistent in **bookdown**, for all labels -- code chunks, figures, tables, sections, equations, etc. -- use the prefix of the corresponding file as the prefix of any label. So please choose and use a module-specific prefix for each cross-reference. For example, use label `#formatguide` for this section. Refer to `prefixes.txt` for the list of the used prefixes and add yours there. Try to use the prefix that is distinctive to other words in the text such that you can find and replace all without mistakes.
+
+- Give names to all code chunks, even e.g., pure code and figures you don't refer to.  **Note:** Chunk labels must consist of only letters, numbers, dashes (`-`), and slashes (`/`) -- no underscores!  Otherwise, cross-referencing [won't work properly](https://bookdown.org/yihui/bookdown/figures.html).
 
 - Paragraph breaks are simply indicated by one or more empty lines.  No need for `\newline` or anything else.  This applies to elements other than text such as figures, math blocks etc.  If the figure/math block/etc is part of the paragraph, don't leave blank spaces before or after^[An exception to this is possibly within an indented region.  There you may need to leave a blank space before/after math block...I'm not 100% sure...].
 

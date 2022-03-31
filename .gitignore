@@ -19,6 +19,7 @@ vignettes/.build.timestamp
 # bookdown
 _book
 _bookdown_files
+search_index.json
 
 # Python
 __pycache__

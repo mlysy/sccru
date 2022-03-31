@@ -20,6 +20,14 @@
 
 [**bookdown**](https://bookdown.org/yihui/bookdown/) is an R package which allows us to integrate scientific writing (including math, figures, etc.) with executable programming blocks.  While **bookdown** is interfaced through R, very little R knowledge is required to operate it.  The scientific writing is done in Markdown and LaTeX, whereas the programming blocks can be written in R, Python, Julia, C++, etc.
 
+In terms of content, please focus on the following:
+
+i.  Creating a clear organization of topics within your module using section/subsection/subsubsection headers.
+
+ii.  Setting up the code, for example, in a clear and well-organized manner, i.e., what to include directly in the `.Rmd` file and what goes into external scripts, using lots of code comments, informative variable names, and consistent naming conventions, etc.
+
+In terms of formatting the content with R Markdown, please refer to the [Formatting Guidelines](#appformattingguidelines).
+
 <!-- The content of each module can roughly be divided into three components: -->
 
 <!-- 1.  Text explaining the concepts, models, etc. -->
@@ -40,14 +48,6 @@
 
 <!-- A skeleton for the full set of notes (including all modules) is to be downloaded from GitHub.  Each module should consist of an `Rmd` file containing the Markdown/LaTeX text, and external `.R`, `.py`, `.jl`, `.cpp`, etc. files for the software.  I strongly recommend that you never try to write in multiple programming languages at once (e.g., R + Markdown). -->
 
-### Style
-
-Don't worry about formatting details regarding the appearance of the e-book as these will be set later at the global level. Instead, please focus on:
-
-i.  Creating a clear organization of topics within your module using section/subsection/subsubsection headers
-
-ii.  Setting up the code, for example, in a clear and well-organized manner, i.e., what to include directly in the `.Rmd` file and what goes into external scripts, using lots of code comments, informative variable names, and consistent naming conventions, etc.
-
 ### Typesetting Math
 
 Please do take a look at the [LaTeX guides](#genguide-res:latex) above, as it is easy to do this right and very annoying to redo if you do it wrong.
@@ -67,3 +67,21 @@ For external websites, it's sufficient to provide a link as I've done in this do
 Add your citations to the bibliography file `references.bib`. To separate the citations for each module, add the name of your module using the comment sign $\%$ when you start to add citations. 
 
 For citation labels, please use the standardized format with the author label followed by the last two digits of the year. The rules for the author labels are, if there is only one author, use `@firstauthorlastname`, if there are two authors, use `@firstauthorlastname.secondauthorlastname`, if there are more than 2 authors, use `@firstauthorlastname.etal`. Here's some examples [@gelman13], [@friedman.etal09]. 
+
+## Rendering the Book
+
+For this you will need to install the following packages:
+
+```{r app-gen-pkgs, eval = FALSE}
+install.packages(c("bookdown", "tidyverse", "wooldridge", "corrplot", "lmtest",
+                   "caret", "PMCMRplus", "dunn.test", "geesmv"),
+                 dependencies = TRUE)
+```
+
+Once this is done, quit + restart R for safe measure.  Then, from within the project folder, run
+
+```{r app-gen-render, eval = FALSE}
+bookdown::render_book()
+```
+
+To make sure everything is working as expected, you may wish to delete the `_book` and `_bookdown_files` folders before rendering.  These don't get cleaned up between runs, so there might be very old files hanging around in there if you don't periodially perform a manual cleanup.
