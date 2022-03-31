@@ -175,7 +175,7 @@ In practice, for longitudinal data, we model the mean of our outcome $Y$. We ass
 $$
 \bm{Y}_i | \bm{X}_i \sim \N(\mu_i, \bm{\Sigma_i}),
 $$
-where $\bm{\Sigma}_i = \tx{Cov}(\YY_i | \XX_i)$ is a [covariance matrix](https://en.wikipedia.org/wiki/Covariance_matrix), whose form must be specified. The covariance matrix describes the relationship between pairs of observations within an individual. Specification of the correlation structure is discussed in the following section, Section \@ref(long-linear-corr). 
+where $\bm{\Sigma}_i = \cov(\YY_i | \XX_i)$ is a [covariance matrix](https://en.wikipedia.org/wiki/Covariance_matrix), whose form must be specified. The covariance matrix describes the relationship between pairs of observations within an individual. Specification of the correlation structure is discussed in the following section, Section \@ref(long-linear-corr). 
 
 With this notation, we can specify the corresponding linear model for $\mu_i$, the mean of the outcome $Y_i$ conditional on $X_i$:
 $$
@@ -612,7 +612,7 @@ panel = function(x,y){
 panel.xyplot(x, y, type = "p") # plots individual values 
 panel.linejoin(x,y, fun = mean, horizontal = F, lwd = 2, col = 1)}) # plots mean
 ```
-From the plot in \@ref(fig:long-linear-ex3plot), there does not appear to be a linear time trend, particularly for the succimer group. There also appears to be a difference in trend between the succimer and placebo groups. As such, we should consider transformations or higher-order terms for time (such as quadratic (squared) time effects for the non-linear trend) and also interaction terms between the group and time variables (to account for differences in trend by group). 
+From the plot in Figure \@ref(fig:long-linear-ex3plot), there does not appear to be a linear time trend, particularly for the succimer group. There also appears to be a difference in trend between the succimer and placebo groups. As such, we should consider transformations or higher-order terms for time (such as quadratic (squared) time effects for the non-linear trend) and also interaction terms between the group and time variables (to account for differences in trend by group). 
 
 In this example, we will not categorize the time trend and treat it as a continuous covariate. This allows us to quantify the effect of a one unit change of time on the outcome. This is a different way of looking at time, as opposed to the working example in the module that categorized time. Whether or not to treat time as continuous or categorical will depend on the research goal and the data. 
 
@@ -973,7 +973,7 @@ Note that both of these quantities are technically conditional on the covariates
 Another feature of the random intercept model is the *intra-class correlation* (ICC),  which is the correlation between any two responses of the same individual. We can calculate this as 
 $$
 \begin{aligned}
-\text{Corr}(Y_{ij}, Y_{il}) &= \frac{\text{Cov}(Y_{ij}, Y_{il})}{\sqrt{\text{Var}(Y_{ij})\text{Var}{Y_{il}}}}\\
+\cor(Y_{ij}, Y_{il}) &= \frac{\cov(Y_{ij}, Y_{il})}{\sqrt{\var(Y_{ij})\var{Y_{il}}}}\\
 &= \frac{\sigma_{b,0}^2}{\sigma_{b,0}^2 + \sigma^2},
 \end{aligned}
 $$
@@ -1069,7 +1069,7 @@ Similar to what we saw in Section \@ref(long-linear-estimation), we can estimate
 
 For inference on the variance and correlation parameters $\bm{\theta}$, we have some asymptotic results yet again. However, the form of the variance of $\hat{\bm{\theta}}$ is complicated and the parameter space is constrained which can make our typical distributional approximations inadequate. 
 
-For example, we **cannot** use a simple Wald test to test something like $H_0: \text{Var}(b_{1,i}) = 0$ as the test statistic does not follow a standard normal distribution under $H_0$. However, testing if the variance of the random intercept is zero is equivalent to performing a likelihood ratio test on whether the random slope $b_{1,i}$ is needed in the model. Thus, we could perform a LRT comparing two nested models: one including a random slope term and one that does not, all else being equal. 
+For example, we **cannot** use a simple Wald test to test something like $H_0: \var(b_{1,i}) = 0$ as the test statistic does not follow a standard normal distribution under $H_0$. However, testing if the variance of the random intercept is zero is equivalent to performing a likelihood ratio test on whether the random slope $b_{1,i}$ is needed in the model. Thus, we could perform a LRT comparing two nested models: one including a random slope term and one that does not, all else being equal. 
 
 In general, to compare a model with $q$ random effects versus one with $q+1$ random effects, we can use LRT but **must not use the given $p$-value** because the test is based on a mixture distribution. To obtain the correct $p$-value, we can use the `pchibarsq()` function in the `r cran_link("emdbook")` package to obtain the $p$-value. An example is given in the following section.
 
@@ -1117,7 +1117,7 @@ summary(fitLME_intercept) # look at the output
 
 We reiterate that by not specifying the structures for our correlation of the random effects and within-subject correlation, we use the default settings (unstructured and independent, respectively). We also did not specify the `method`, which defaults to using REML. When estimating the correlation structures, we prefer to use REML. 
 
-From the output, we have a number of fit statistics (AIC/BIC), and under the "Random effects:" section we can obtain estimates of $\sigma_{b,0} = \sqrt{\text{Var}(b_{0,i})}$  which is estimated to be 1.8074 and  $\sigma = \sqrt{\text{Var}(\epsilon_{ij})}$ which is estimated to be 1.4316.
+From the output, we have a number of fit statistics (AIC/BIC), and under the "Random effects:" section we can obtain estimates of $\sigma_{b,0} = \sqrt{\var(b_{0,i})}$  which is estimated to be 1.8074 and  $\sigma = \sqrt{\var(\epsilon_{ij})}$ which is estimated to be 1.4316.
 
 We also have our typical estimates for our fixed effects, along with their standard errors and $p$-values from the Wald test for the null hypothesis of $\beta_i = 0$. In this case, we see that there is a statistically significant time trend ($p$-value = 0.0000) and there are significant differences in growth between male and female children ($p$-value = 0.0054). 
 
@@ -1142,7 +1142,7 @@ Without specifying the `method` parameter, we fit this model using REML. Again, 
 - the estimated variance of our random intercept as $\widehat{\sigma}_{b,0}^2 = 2.797^2 =$ `r paste(round(2.797^2,4))`, 
 - the estimated variance of our random slope as $\widehat{\sigma}_{b,1}^2 = 0.1609^2 =$ `r paste(round(0.1609^2,4))`,
 - the estimated variance of our error term as $\widehat{\sigma}^2 = 0.6683^2 =$  `r paste(round(0.6683^2,4))`, and
-- the estimated correlation between the random slope and intercept as $\widehat{\text{Corr}}(b_{0,i}, b_{1,i}) = -0.3540$.
+- the estimated correlation between the random slope and intercept as $\widehat{\cor}(b_{0,i}, b_{1,i}) = -0.3540$.
 
 We also have our usual summary of the fixed effect regression coefficients, including with test statistics and $p$-values for the hypothesis test of $\beta_j = 0$. The correlations of the fixed effect regression coefficients (not the covariates themselves) is of little interest here. 
 
@@ -2163,7 +2163,7 @@ anova(fitaids6, fitaids6_combtreatments)
 We reject the null hypothesis that the model that combines treatments 1,2 and 3 is adequate compared to the original model. This indicates that there exists at least one dual-treatment therapy that has a different time effect on the log(1 + CD4 counts). Looking at the LOESS curves from Figure \@ref(fig:long-lme-ex3-ggplotloess), this is unsurprising as treatment 3 appears to have a different time trend than treatments 1 and 2, which are similar. 
 
 
-## Generalize Linear Mixed Effects Models
+<!-- ## Generalize Linear Mixed Effects Models -->
 
 
 
