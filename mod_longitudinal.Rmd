@@ -2154,13 +2154,13 @@ summary(fitaids6_combtreatments)
 ```
 Under this parameterization, we do see that the interaction terms are individually significant. This indicates that there is a difference in time trend by dual versus triple therapy, controlling for age. 
 
-We can see if this model is more adequate, indicating that treatments 1,2 and 3 have the same treatment effect over time. 
+We can see if this model is more adequate, indicating that treatments 1, 2, and 3 have the same treatment effect over time. 
 
 ```{r long-lme-ex3-combanova}
 anova(fitaids6, fitaids6_combtreatments)
 ```
 
-We reject the null hypothesis that the model that combines treatments 1,2 and 3 is adequate compared to the original model. This indicates that there exists at least one dual-treatment therapy that has a different time effect on the log(1 + CD4 counts). Looking at the LOESS curves from Figure \@ref(fig:long-lme-ex3-ggplotloess), this is unsurprising as treatment 3 appears to have a different time trend than treatments 1 and 2, which are similar. 
+We reject the null hypothesis that the model that combines treatments 1, 2 and 3 is adequate compared to the original model. This indicates that there exists at least one dual-treatment therapy that has a different time effect on the log(1 + CD4 counts). Looking at the LOESS curves from Figure \@ref(fig:long-lme-ex3-ggplotloess), this is unsurprising as treatment 3 appears to have a different time trend than treatments 1 and 2, which are similar. 
 
 
 <!-- ## Generalize Linear Mixed Effects Models -->
