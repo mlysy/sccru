@@ -497,7 +497,7 @@ anova(fit1_unstructured, fit1_exchangeable)
 
 We have a large $p$-value and thus fail to reject the null hypothesis. That is, we will use the exchangeable correlation structure as it is simpler and fits as well. 
 
-For non-nested correlation structures like AR(1) and exchangeable, we can use [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion) or [BIC](https://en.wikipedia.org/wiki/Bayesian_information_criterion) to assess the fit, where a smaller AIC/BIC indicates a better fit. AIC and BIC are similar, but acheive different goals in model selection and one is not strictly preferred over the other. In fact, they are often used for model selection together. More information on AIC and BIC can be found [here](https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_BIC).
+For non-nested correlation structures like AR(1) and exchangeable, we can use [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion) or [BIC](https://en.wikipedia.org/wiki/Bayesian_information_criterion) to assess the fit, where a smaller AIC/BIC indicates a better fit. AIC and BIC are similar, but achieve different goals in model selection and one is not strictly preferred over the other. In fact, they are often used for model selection together. For the purposes of this analysis, we choose to only show the results for AIC, as using BIC will yield similar results. More information on AIC and BIC can be found [here](https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_BIC).
 
 ```{r long-linear-corrstruct2}
 fit1_ar1 <- gls(distance ~ factor(sex)*factor(age),
@@ -512,7 +512,7 @@ AIC(fit1_ar1)
 ```
 We see that the model using an exchangeable correlation structure has a smaller AIC, which indicates a better fit. In this case, we would choose the exchangeable correlation structure over the auto-regressive structure. We note that similar tests can be performed for other correlation structures, but are omitted for the purposes of this example. 
 
-### Model Fitting Procedure Summary {#long-linear-procedure}
+### Model Fitting Procedure  {#long-linear-procedure}
 
 We start the model fitting procedure by
 
@@ -534,16 +534,17 @@ If the above conditions are satisfied, we can start fitting/building a model. It
 
 (5) consider variable selection. 
 
-This process can be done iteratively on steps 3 - 5 until a final model is chosen based on the appropriate statistical tests and the scientific question of interest. The following section provides fully-worked an example of this process.
+This process can be done iteratively on steps 3 - 5 until a final model is chosen based on the appropriate statistical tests and the scientific question of interest. 
 
+We note that the model building process can be done with the consultation of expert opinions, if available, to include "a priori" variables in the model that should be included regardless of statistical significance. 
 
 ### Example {#long-linear-example2}
 
-We follow the model fitting procedure presented in \@ref(long-linear-procedure) to answer a different research question on a new data set. The data set `tlc`, which is stored in the "tlc.txt" text file in the "data" folder, consists of 100 children who were randomly assigned to chelation treatment with the addition of either succimer or placebo. Four repeated measurements of blood lead levels were obtained at baseline (week 0), week 1, week 4, and week 6. We note this data set has the same observation pattern for all individuals in the study, and no missing observations, which is a requirement for the linear model.  
+We follow the model fitting procedure presented in \@ref(long-linear-procedure) to answer a different research question on a new data set. The data set [`tlc`](data/tlc.txt), which is stored in a text file in the "data" folder, consists of 100 children who were randomly assigned to chelation treatment with the addition of either succimer or placebo. Four repeated measurements of blood lead levels were obtained at baseline (week 0), week 1, week 4, and week 6. We note this data set has the same observation pattern for all individuals in the study, and no missing observations, which is a requirement for the linear model.  
 
 The research question of interest is whether there is a difference in the mean blood lead level over time between the succimer (which we we will refer to as the treatment group) or placebo group. 
 
-**Step 1: Data Read-in and Cleaning**
+**Step 1: Data Read in and Cleaning**
 
 We first read in the data and rename the columns. We also rename the `Group` variable values to be more clear, where group "A" corresponds to succimer treatment group and group "P" corresponds to the placebo.
 ```{r long-linear-ex3readin}
@@ -591,7 +592,7 @@ par(mfrow = c(1, 2)) # set graphs to be arranged in one row and two columns
 # histogram of outcome
 hist(tlc_long$bloodlev, xlab = "Blood lead level", main = "Histogram of Outcome")
 
-# qq plot and line
+# Q-Q plot and line
 qqnorm(tlc_long$bloodlev) # plot quantiles against normal distribution
 qqline(tlc_long$bloodlev) # add line
 ```
@@ -641,7 +642,7 @@ Then, we fit a model with the squared time variable, to see if the squared time 
 ```{r long-linear-ex3-gls2}
 fit2_tlc <- gls(bloodlev ~ Group*week + Group*weeksq , method = "ML", #no squared week term
                 data = tlc_long, corr = corSymm(form = ~1 | ID))
-                #u nstructured correlation again
+                #unstructured correlation again
 
 # perform hypothesis test to see if linear model (fit1) fits 
 # as well as new model with squared time terms (fit2)
@@ -854,7 +855,7 @@ We note that if a model includes time interactions, it should also include the i
 
 
 
-**Model Interpretation**
+**Answering the Research Question**
 
 The model fitting procedure is now done, and we use the model with cubic time term and all interaction terms, no individual group variable, and with an unstructured correlation structure, as our final model. We can now answer the research questions of interest. Recall the research question of whether there is a difference in the mean blood lead level over time between the succimer or placebo group. We present the model summary again for clarity:
 ```{r long-linear-ex3-summary}
@@ -1179,7 +1180,7 @@ After fitting our LME model, we need to assess the model fit to make sure it is 
 
 First, we can assess if there is [serial correlation](https://en.wikipedia.org/wiki/Autocorrelation) among the random error term in the model. This will provide insights on if the choice of correlation structure $\bm{V}_i$ (which is typically chosen to be an independent structure) was appropriate. 
 
-If the observations were taken such that subsequent observations were nearly equidistant to eachother (which is the case for our dental data set where we have observations at 8, 10, 12, and 14 years), then we can call the ACF() function from the `r cran_link("nlme")` package to assess serial correlation. This can be done in R as follows:
+If the observations were taken such that subsequent observations were nearly equidistant to each other (which is the case for our dental data set where we have observations at 8, 10, 12, and 14 years), then we can call the `ACF()` function from the `r cran_link("nlme")` package to assess serial correlation. This can be done in R as follows:
 ```{r long-lme-acfplot, message = FALSE, warning = FALSE, fig.cap = "ACF plot for assessing serial correlation in the fitted model."}
 plot(ACF(fitLME_intercept), alpha = 0.05, main = "Plot of Estimated Autocorrelation")
 ```
@@ -1265,7 +1266,7 @@ From this output, we can make inferences. For example, we see that the an increa
 
 We can also gain insights on the variability in the data. For example, we have an estimated standard error of the random intercept of 1.807 and an estimated within-group standard error of 1.4312. this tells us that we have stronger between subject variability in this model. 
 
-We can also use this model to make predictions. For example, we can predict the distance of a 13 year old male. We first create a dataset for this hypothetical individual, assigning it an id of 100, and then predict:
+We can also use this model to make predictions. For example, we can predict the distance of a 13 year old male. We first create a data set for this hypothetical individual, assigning it an id of 100, and then predict:
 ```{r long-lme-hypotheticalindividual}
 
 # create the new subject
@@ -1329,18 +1330,19 @@ If the normality assumption is satisfied, we may start with the model fitting pr
 
 4. determine the appropriate random effects structures (do we need random intercepts, slopes?), then
 
-5. perform variable selection on time-dependent and time-invariant covariates, and finally
+5. perform variable selection on time-dependent and time-invariant covariates (including looking at interactions, non-linear terms), and finally
 
 6. assess model diagnostics, and iterate through above steps (if needed) until a final model is selected for the research question of interest. 
 
 Once an adequate model is found, we can interpret the model and answer the research question(s). 
 
+We note that the model building process can be done with the consultation of expert opinions, if available, to include "a priori" variables in the model that should be included regardless of statistical significance. 
 
 ### Example - Milk Protein and Diet {#long-lme-ex2}
 
 We follow the model fitting procedure presented in \@ref(long-lme-modelfitting) to answer a different research question on a new data set. We will be using the `Milk` data set from the `r cran_link("nlme")` package. In this data set, 79 cows on different diets had measurements taken of the protein content of their milk on a weekly basis. In this data set, some measurements were missed causing an unbalanced data set. We will examine whether there was a difference in milk protein content between diets, and whether or not protein content varied over time. 
 
-**1. Data Read in and Cleaning**
+**Step 1: Data Read in and Cleaning**
 
 We first read in our data set using the following R commands:
 ```{r long-lme-ex2-readin}
@@ -1348,9 +1350,9 @@ data(Milk)
 head(Milk)
 ```
 
-We see that our data is already in long form where we have one row per observation, and multiple rows for each subject. 
+We see that our data is already in long form where we have one row per observation, and multiple rows for each subject, so we do not need to further process the data. 
 
-**2. Assessing Normality**
+**Step 2: Assessing Normality**
 
 We can begin to explore the data. We first need to assess the normality of the outcome of interest, `protein`. We can do this by looking at the distribution of the outcome by generating a histogram and also a Q-Q plot. 
 ```{r long-lme-ex2-normality, fig.cap = "Plots used to assess normality."}
@@ -1368,9 +1370,9 @@ qqline(Milk$protein)
 
 From these plots in Figure \@ref(fig:long-lme-ex2-normality), it appears that we have satisfied the normality assumption. 
 
-**3. Assessing Time Trend**
+**Step 3: Assessing Time Trend**
 
-The next step in our analysis is to assess the time trend. We first visualize the individual cow's protein content over time using a spagetti plot.
+The next step in our analysis is to assess the time trend. We first visualize the individual cow's protein content over time using a spaghetti plot.
 
 ```{r long-lme-ex2-spaghetti, fig.cap = "Spaghetti plot of individual cows, stratifiet by diet group."}
 ggplot(data = Milk, aes(x = Time, y = protein, group = Cow)) +
@@ -1380,7 +1382,7 @@ ggplot(data = Milk, aes(x = Time, y = protein, group = Cow)) +
 
 ```
 
-Due to the large number of subjects in the data set, we can use a different technique to visualize the time trend by looking at a smoothed estimate of the average time trend within each diet group using [LOESS](https://en.wikipedia.org/wiki/Local_regression). 
+Due to the large number of subjects in the data set, it is quite difficult to look at the time trends and see patterns within each group from the individual. We note that for data with irregular observation timings, it is not appropriate to look at the mean protein level at each observation (as we did in previous examples with balanced longitudinal data). As such, we can use a technique to visualize the time trend by looking at a smoothed estimate of the average time trend within each diet group using [LOESS](https://en.wikipedia.org/wiki/Local_regression). 
 
 To do so, we can plot the following:
 ```{r long-lme-ex2-loess, warning = F, message = F, fig.cap = "LOESS curves used to assess time trend by group."}
@@ -1393,7 +1395,7 @@ ggplot(data = Milk, aes(x = Time, y = protein)) +
 
 On average, we see non-linear time trends and different trends by group, particularly for the lupins only diet group. We thus want to consider including higher order time variables to account for the non-linear trend, and also consider interactions to allow for the time trend to differ by diet group. With a large number of observations per subject, we treat `Time` (in weeks) as a continuous time variable.
 
-When assessing the form of the time trend, we include integral variables like the treatment assignment (in our case, diet) and assume an unstructured correlation structure in our model. From the spagetti plot in Figure \@ref(fig:long-lme-ex2-spaghetti), we see cows have varying baseline measurements (intercepts) and time trends (slopes) and thus we should consider starting with a random intercept and slope model. As such, we start with the following model:
+When assessing the form of the time trend, we include integral variables like the treatment assignment (in our case, diet) and assume an unstructured correlation structure in our model. From the spaghetti plot in Figure \@ref(fig:long-lme-ex2-spaghetti), we see cows have varying baseline measurements (intercepts) and time trends (slopes) and thus we should consider starting with a random intercept and slope model. As such, we start with the following model:
 
 $$
 \mu_{ij} = \beta_0 +  \beta_1D1_{i} + \beta_2D2_i + \beta_3t_{ij} + b_{0,i}  + b_{1, i}
@@ -1443,7 +1445,7 @@ We then can see which model fit is better using an LRT. The null hypothesis is t
 anova(fitcows1, fitcows2)
 ```
 
-We reject the null hypothesis and conclude that the more complex model provides a better fit due to the small p-value. As such, we continue looking at our time trend from this model. We may want to consider cubic time terms. As such, we fit a model including `Time^3` as a covariate, and perform another LRT.
+We reject the null hypothesis and conclude that the more complex model provides a better fit due to the small $p$-value. As such, we continue looking at our time trend from this model. We may want to consider cubic time terms. As such, we fit a model including `Time^3` as a covariate, and perform another LRT.
 ```{r long-lme-ex2-mod3anova}
 
 # First create a squared time term
@@ -1464,7 +1466,7 @@ anova(fitcows2, fitcows3)
 
 ```
 
-The small p-value tells us that we should infact include the cubic time-term in our model. We continue model building from `fitcows3`. 
+The small $p$-value tells us that we should in fact include the cubic time term in our model. We continue model building from `fitcows3`. 
 
 
 The next step is to see if we need to include interaction terms for the diet groups. We first consider interactions on the linear time term. We create this variable in R and then fit the model and perform another LRT:
@@ -1492,14 +1494,14 @@ anova(fitcows3, fitcows4)
 ```
 
 
-We fail to reject the null hypothesis with this large p-value, and conclude that we can use the model without linear interactions. We continue with `fitcows3` for our analysis. 
+We fail to reject the null hypothesis with this large $p$-value, and conclude that we can use the model without linear interactions. We continue with `fitcows3` for our analysis. 
 
 
-**4. Consider Appropriate Random Effects Structure**
+**Step 4: Consider Appropriate Random Effects Structure**
 
 Now that the time trend has been assessed, we can focus on choosing the random effects. In the previous model, we assumed that we had a random intercept and a random slope on the linear time covariate. We can first investigate whether or not the random slope was needed by comparing the model to one that does not include a random slope for time. 
 
-We first need to fit/refit these models in R using the `REML` method (default) as we are interested in inference on the random effects structure and then perform an LRT (with caution that we cannot use the given p-value). The degrees of freedom is 1 because the models differ by one random effect.
+We first need to fit/refit these models in R using the `REML` method (default) as we are interested in inference on the random effects structure and then perform an LRT (with caution that we cannot use the given $p$-value). The degrees of freedom is 1 because the models differ by one random effect.
 ```{r long-lme-ex2-randeffects1}
 
 
@@ -1533,7 +1535,7 @@ teststat_mix_cows35 <- LRT_mix_cows35$L.Ratio[2]
 pchibarsq(teststat_mix_cows35, df = 1, mix = 0.5) # degree of freedom is 1
 ```
 
-The p-value is large, indicating that we do not have evidence to reject the null hypothesis that the simpler model is better. As such, we can continue analysis without the random effect on the linear time term (`fitcows5`). We can still check whether we should have a random effect on higher-order time trends by comparing the intercept only model (`fitcows5`) to a new model including random effects on `timesq` and `timecb`:
+The $p$-value is large, indicating that we do not have evidence to reject the null hypothesis that the simpler model is better. As such, we can continue analysis without the random effect on the linear time term (`fitcows5`). We can still check whether we should have a random effect on higher-order time trends by comparing the intercept only model (`fitcows5`) to a new model including random effects on `timesq` and `timecb`:
 ```{r long-lme-ex2-randeffects2}
 
 
@@ -1556,7 +1558,7 @@ pchibarsq(teststat_mix_cows56, df = 1, mix = 0.5) # degree of freedom is 1
 It is unsurprising that we also fail to reject this null hypothesis. We confirm that we should continue analysis with the random intercept only model (`fitcows5`). 
 
 
-**5. Variable Selection**
+**Step 5: Variable Selection**
 Using our current model, `fitcows5`, we consider other fixed effect variables at our disposal. If we had more variables to add into our model, we could add them and fit the model using the `ML` method and perform a LRT to see if the model fit is better with those variables included. 
 
 Although we do not have more variables to consider at our data set, we can still look at our current model and see if all variables we included at the beginning are necessary. We first must re-fit the model using the `ML` method as we are interested again with the fixed effects.
@@ -1616,7 +1618,7 @@ We reject the null hypothesis and conclude at least one of the terms is non-zero
 Note: for individual covariates, we could look at the $p$-value given in the model summary for the hypothesis test of $H_0: \beta_j = 0$ or do an LRT for nested models. 
 
 
-**6. Model Diagnostics**
+**Step 6: Model Diagnostics**
 
 Now that we have fit a model, we need to perform model diagnostics to assess the fit. If the fit appears to be inadequate, we can iterate through the above procedure again until the fit is adequate. More details on diagnostics can be found in Section \@ref(long-linearmixed-diagnostics). 
 
@@ -1645,7 +1647,7 @@ qqnorm(fitcows5,
 
 ```
 
-From the plot in \@ref(fig:long-lme-ex2-normerrors), we appear to satisfy the normality of errors assumption. 
+From the plot in Figure \@ref(fig:long-lme-ex2-normerrors), we appear to satisfy the normality of errors assumption. 
 
 Next, we look at the normality of the random intercept:
 
@@ -1679,7 +1681,7 @@ summary(fitcows5)
 ```    
 We conclude that protein content does vary over time, in a non-linear fashion. We also can conclude that protein content varied by the type of diet that the cow was given. A barley-only diet was associated with a 0.204 unit increase in protein content compared to a lupins-only diet (controlling for time) ($p$ = 0.0001). A barley and lupins diet was associated with a 0.108 unit increase in protein consumption compared to a lupins-only diet (controlling for time) ($p$ = 0.0274). 
 
-We could further test if theres a difference between the barley-only and barely and lupins diets by testing the hypothesis that $\beta_1 = \beta_2$. We can do this in R by the following:
+We could further test if there is a difference between the barley-only and barely and lupins diets by testing the hypothesis that $\beta_1 = \beta_2$. We can do this in R by the following:
 ```{r long-lme-ex2-comparetreats}
 Cmat <- rbind(c(0,1,0,0,0,0),
               c(0,0,-1,0,0,0))
@@ -1687,13 +1689,13 @@ Cmat <- rbind(c(0,1,0,0,0,0),
 waldTestFunction(Cmat, fitcows5)
 
 ```
-We reject the null hypothesis and conclude that the barley-only and the barley and lupins diets are significantly different from eachother. That is, we conclude that all three diets are significantly different from each other, where the barley-only diet is associated with the highest protein content followed by the barely and lupins diet. 
+We reject the null hypothesis and conclude that the barley-only and the barley and lupins diets are significantly different from each other. That is, we conclude that all three diets are significantly different from each other, where the barley-only diet is associated with the highest protein content followed by the barely and lupins diet. 
 
 
 ### Example - AIDS Clinical Trial Group
 
 
-We follow the model fitting procedure presented in \@ref(long-lme-modelfitting) to answer a different research question on a new data set. We will be using data from the AIDS Clinical Trial Group (ACTG), which can be downloaded [here](https://content.sph.harvard.edu/fitzmaur/ala2e/cd4.txt). In this data set, 1309 AIDS patients with advanced immune suppression were randomized fo one of four daily treatment regimens. Three of the regimens (Treatments 1-3) involve a dual combination of HIV-1 transcriptase inhibitors, and the fourth involves a triple combination of HIV-1 transcriptase inhibitors.
+We follow the model fitting procedure presented in \@ref(long-lme-modelfitting) to answer a different research question on a new data set. We will be using data from the AIDS Clinical Trial Group (ACTG), which can be downloaded [here](https://content.sph.harvard.edu/fitzmaur/ala2e/cd4.txt). In this data set, 1309 AIDS patients with advanced immune suppression were randomized to one of four daily treatment regimens. Three of the regimens (Treatments 1-3) involve a dual combination of HIV-1 transcriptase inhibitors, and the fourth involves a triple combination of HIV-1 transcriptase inhibitors.
 
 Measures of CD4 counts were scheduled to be taken at every 8 week interval during follow-up, however the data set is considered unbalanced due to mistimed measurements, skipped visits, and drop-out. Lower CD4 counts represent lower immune function.
 
@@ -1701,7 +1703,7 @@ We are interested in seeing if the change in log-transformed CD4 counts (log(CD4
 
 
 
-**1. Data Read-in and Cleaning**
+**Step 1: Data Read in and Cleaning**
 
 We first read in the data, which is located in the "data" folder, and name the columns. Note: any preamble information, such as the description of the data set should be removed from the .txt file before reading into R.
 ```{r long-lme-ex3-readin}
@@ -1725,7 +1727,7 @@ aidsdat$T4 <- ifelse(aidsdat$treatment == 4, 1, 0)
 ```
 
 
-**2. Assessing Normality**
+**Step 2: Assessing Normality**
 
 Now that our data is the correct form, we can begin to explore the data. We first assess the normality assumption for the outcome of interest `logcount`. We do this by looking at the distribution of the outcome, and creating a Q-Q plot.
 
@@ -1733,7 +1735,7 @@ Now that our data is the correct form, we can begin to explore the data. We firs
 # set graphs to appear in one row and two columns
 par(mfrow = c(1,2))
 
-# hisogram of outcome
+# histogram of outcome
 hist(aidsdat$logcount, xlab = "Log(count + 1)", main = "Histogram of Outcome")
 
 # QQ plot and line
@@ -1745,7 +1747,7 @@ qqline(aidsdat$logcount)
 From the plots in Figure \@ref(fig:long-lme-ex3-normalityaids), we do not have evidence that the normality assumption is violated. We do see quite a few individuals with Log(1 + CD4 count) of 0. We may want to remove these from the analysis or because of the slight skewness use a Generalized Linear Mixed Effect Model. However, for the purpose of this analysis we will continue with the entire data set. See Section \@ref(long-linear-assumptions) for more information on tests of normality.
 
 
-**3. Assessing Time Trend**
+**Step 3: Assessing Time Trend**
 
 The next step is to assess the time trend. When looking for the proper form of the time trend, we include integral variables like the treatment and assume an unstructured correlation structure in our model. We have so many observations in our data set at irregular times that many data visualization techniques previously shown to look at the time trend will fail.
 
@@ -1772,7 +1774,7 @@ set.seed(100)
 # randomly select 50 ids
 randomids <- sample(aidsdat$id, 50)
 
-# make dataset of just those indiviudals that were randomly selected
+# make data set of just those individuals that were randomly selected
 aidsdat_rand <- aidsdat[which(aidsdat$id %in% randomids),]
 
 # plot response over time for this group, grouped by treatment
@@ -1852,7 +1854,7 @@ Our $p$-value is small, indicating that we reject the null hypothesis and conclu
 
 We continue the model building process from this model.
 
-**4. Consider Appropriate Random Effects Structure**
+**Step 4: Consider Appropriate Random Effects Structure**
 
 Now that our time trend has been assessed, we focus on choosing the random effects. Our model is currently fit with an random intercept and random slope on our linear time effect. We can consider including other random covariates in our model at this stage.
 
@@ -1893,7 +1895,7 @@ pchibarsq(teststat_mix_aids, df = 1, mix = 0.5) #degree of freedom is 1
 ```
 The large $p$-value indicates that we do not have evidence to reject the null hypothesis that the simpler model with only one random effect is better. As such, we can continue our analysis with the simpler model with a random intercept and random slope only on the linear time term (`fitaids2`).
 
-**5. Variable Selection**
+**Step 5: Variable Selection**
 
 Under the model above, we consider other fixed-effect variables at our disposal. In our model, we can consider age and gender as other covariates. We refit the model with these fixed effects and look at the model summary. We fit this model using the `ML` method as we are interested in the fixed effects.
 ```{r long-lme-ex3-varsel}
@@ -1992,10 +1994,62 @@ fitaids7 <- lme(
 anova(fitaids6, fitaids7)
 ```
 
-We reject the null hypothesis that the simpler model is adequate. As such, we should continue analysis with `fitaids6` that includes the higher-order interaction terms. 
+We reject the null hypothesis that the simpler model is adequate, and as such conclude that the model including the higher-order interaction terms is more appropriate. 
+
+We can also check to see if we should include higher-order terms of our `age` variable, or interactions between it and the treatment to see if there was a additional change in protein content of the milk produced by age within in each group. We first check if we should include `age^2` in our model:
+
+```{r long-lme-ex3-agesq}
+#create squared age variable
+aidsdat$agesq <- (aidsdat$age)^2
 
 
-**6. Model Diagnostics**
+fitaids8 <- lme(
+  fixed = logcount ~ week + weeksq + age + agesq +
+    inter_T1week + inter_T2week + inter_T3week +
+    inter_T1weeksq + inter_T2weeksq + inter_T3weeksq, # specify fixed effects
+  random = ~ week | id, # random slope on time variable,
+  # Intercept is included by default
+  data = aidsdat,
+  method = "ML"
+) # default unstructured correlation for
+# random effects and independence for within-subj correlation
+
+#compare to model 6 that does not include agesq variable
+anova(fitaids6, fitaids8)
+```
+
+We fail to reject the null hypothesis that the simpler model (model 6, without the squared age term) fits as well as the model that includes the squared term. As such, we conclude that that term is not needed and continue model building from model 6.
+
+Next, we check if we should have interactions between age and treatment. We first create the interaction term and see if they should be included in the model:
+```{r long-lme-ex3-ageinter}
+#create the interactions between age and treatment
+aidsdat$inter_T1age <- aidsdat$age*aidsdat$T1
+aidsdat$inter_T2age <- aidsdat$age*aidsdat$T2
+aidsdat$inter_T3age <- aidsdat$age*aidsdat$T3
+
+
+fitaids9 <- lme(
+  fixed = logcount ~ week + weeksq + age + agesq +
+    inter_T1week + inter_T2week + inter_T3week +
+    inter_T1weeksq + inter_T2weeksq + inter_T3weeksq +
+    inter_T1age + inter_T2age + inter_T3age, # specify fixed effects
+  random = ~ week | id, # random slope on time variable,
+  # Intercept is included by default
+  data = aidsdat,
+  method = "ML"
+) # default unstructured correlation for
+# random effects and independence for within-subj correlation
+
+#compare to model 6 that does not include agesq variable
+anova(fitaids6, fitaids9)
+
+
+```
+
+We again fail to reject the null hypothesis that the simpler model fits as well as the more complex model. As such, we should continue analysis with `fitaids6` that includes the higher-order interaction terms between time (week) and treatment group, and a linear term for age. 
+
+
+**Step 6: Model Diagnostics**
 
 As a final step, we assess the fit of this model. If the fit appears to be inadequate, we can iterate through the above procedure again. Detailed information on model diagnostics can be found in Section \@ref(long-linearmixed-diagnostics).
 
