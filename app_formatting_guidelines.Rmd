@@ -6,29 +6,33 @@
 
 --- 
 
-## General {#formatguide-general}
+## File Orgnization
 
-- For a module, name your file starting with `mod_` and for a appendix, name your file starting with `app_`. 
+For a module, name your file starting with `mod_`. For an appendix, name your file starting with `app_`. Refer to the file `common_functions.R` for commonly used R functions across modules before writing your own. 
 
-- For headers, place a space between the last sharp symbol $\#$ and the name of the header.  
+## Code Style
 
-- Let's agree to use regular font for programming languages (e.g., R, Python, C++) and bold font for packages and libraries (e.g., **TMB**, **rstan**, **NumPy**, **Tensorflow**). Use `code` font for files, data sets, codes and arguments. For functions, use parentheses at the end, for example, `my_func()`. Use curly brackets `\bm{}` for LaTeX functions. Use `<kbd>Key</kbd>` for key strokes or buttons.
+Use the package `r cran_link("styler")` to make the formatting of your code consistent. To do this, run the function `styler::style_file()` for your module's Rmarkdown file. Do not set the option `tidy = "styler"` to your chunk code to prevent caching issues. The details of the package can be found [here](https://styler.r-lib.org/).  
 
-- Paste a link to packages which are mentioned for the first time. For R packages, you can use the `cran_link()` function to do this. For example, `r cran_link("rstan")`.
-
-- Please see Appendix [B.2.3](#genguide-citations) for how to handle citations.
-
-- To refer to figures/tables/sections, use the standard academic style is e.g., "Figure 2", "Section 2.5", etc.  In other words, the word is non-bold and non-italic, with the first letter capitalized, and the number following the word should have hyperlink. See relevant **bookdown** [chapter](https://bookdown.org/yihui/bookdown/figures.html) for how to do this. To refer to modules, use the text name, details can be found [here](https://stackoverflow.com/questions/57469501/cross-referencing-bookdownhtml-document2-not-working).
-
-- Refer to `common_functions.R` for commonly used functions across modules before writing your own. 
+## Cross-Refrencing
 
 - To make cross-referencing consistent in **bookdown**, for all labels -- code chunks, figures, tables, sections, equations, etc. -- use the prefix of the corresponding file as the prefix of any label. So please choose and use a module-specific prefix for each cross-reference. For example, use label `#formatguide` for this section. Refer to `prefixes.txt` for the list of the used prefixes and add yours there. Try to use the prefix that is distinctive to other words in the text such that you can find and replace all without mistakes.
 
-- Give names to all code chunks, even e.g., pure code and figures you don't refer to.  **Note:** Chunk labels must consist of only letters, numbers, dashes (`-`), and slashes (`/`) -- no underscores!  Otherwise, cross-referencing [won't work properly](https://bookdown.org/yihui/bookdown/figures.html).
+- Give names to all code chunks, even e.g., pure code and figures you don't refer to.  **Note:** Chunk labels must consist of only letters, numbers, dashes (`-`), and slashes (`/`) -- no underscores!  Otherwise, cross-referencing [won't work properly](https://bookdown.org/yihui/bookdown/figures.html). For code chunks that take long time to run, use `cache=TRUE` to prevent the chunk to be executed again unless the code in the chunk has been altered. More detail can be found [here](https://bookdown.org/yihui/rmarkdown-cookbook/cache.html).
 
-- Paragraph breaks are simply indicated by one or more empty lines.  No need for `\newline` or anything else.  This applies to elements other than text such as figures, math blocks etc.  If the figure/math block/etc is part of the paragraph, don't leave blank spaces before or after^[An exception to this is possibly within an indented region.  There you may need to leave a blank space before/after math block...I'm not 100% sure...].
+- To refer to figures/tables/sections, use the standard academic style is e.g., "Figure 2", "Section 2.5", etc.  In other words, the word is non-bold and non-italic, with the first letter capitalized, and the number following the word should have hyperlink. See relevant **bookdown** [chapter](https://bookdown.org/yihui/bookdown/figures.html) for how to do this. To refer to modules, use the text name, details can be found [here](https://stackoverflow.com/questions/57469501/cross-referencing-bookdownhtml-document2-not-working).
 
-- Please use Capital Case for all section headings, for example, Plan the Study.
+- Paste a link to packages which are mentioned for the first time. For R CRAN packages, you can use the `cran_link()` function to do this. For example, `r cran_link("rstan")`.
+
+## Writing Format
+
+- For headers, place a space between the last sharp symbol $\#$ and the name of the header. Also, use Capital Case for all section headings, for example, Plan the Study.
+
+- Use regular font for programming languages (e.g., R, Python, C++) and bold font for packages and libraries (e.g., **TMB**, **rstan**, **NumPy**, **Tensorflow**). Use `code` font for files, data sets, codes and arguments. For functions, use parentheses at the end, for example, `my_func()`. Use curly brackets `\bm{}` for LaTeX functions. Use `<kbd>Key</kbd>` for key strokes or buttons.
+
+- Paragraph breaks are simply indicated by one or more empty lines.  No need for `\newline` or anything else.  This applies to elements other than text such as figures, math blocks etc.  If the figure/math block/etc is part of the paragraph, don't leave blank spaces before or after^[An exception to this is possibly within an indented region.  There you may need to leave a blank space before/after math block...].
+
+- For indentation, use four spaces before your paragraph, code chunk, or equation. This will be very helpful when you have an item in an itemized list which contains more than one paragraph, equation, or code chunk.
 
 - Our consensus for writing in a list is mentioned below. For details, visit [here](https://getitwriteonline.com/articles/vertical-lists/).
     - Use `-` to denote lists.
@@ -36,15 +40,7 @@
     - If the items are single words and phrases, begin the first word in each item with a lower-case letter and end with a comma. Use "and" (or "or", depending on the context of the list) after the next-to-last item, and use a period after the last item in the list.
     - If the items are phrases or clauses with punctuations in them, put a semicolon at the end of each item. Put "and" (or "or") after the next-to-last item in the list and period for the last item. The items are not capitalized. 
     
-- For indentation, use four spaces before your paragraph, code chunk, or equation. This will be very helpful when you have an item in an itemized list which contains more than one paragraph, equation, or code chunk.
-
-- Name all code chunks according to the above guideline about cross-references. For code chunks that take long time to run, use `cache=TRUE` to prevent the chunk to be executed again unless the code in the chunk has been altered. More detail can be found [here](https://bookdown.org/yihui/rmarkdown-cookbook/cache.html).
-
-- Use the package `r cran_link("styler")` to make the formatting of your code consistent. To do this, run the function `styler::style_file()` for your module's Rmarkdown file. Do not set the option `tidy = "styler"` to your chunk code to prevent caching issues. The details of the package can be found [here](https://styler.r-lib.org/).  
-
-- Use "" instead of '' for quotes.
-
-- Use underscore `_` instead of dot `.` to name variables.
+- Use double quotation marks ("") instead of single quotation marks ('') for quotes.
 
 ## Embedding Files
 
@@ -60,13 +56,33 @@ In order to let users download the file, you can simply provide the link using r
 
 <!-- - To embed a file in your module, use function `embed_data_file()`. For example, `r embed_data_file("data/caliRain.csv", text = "caliRain.csv")`. -->
 
-## Math
+## Citations {#formatguide-citations}
 
-- Always use bold font like $\XX$^[LaTeX purists might prefer to use `\mathbf{}` for roman letters instead of `\boldsymbol{}` as I have defined via the `\bm{}` macro in `preamble.html`.  Observe the difference: $\mathbf{x}$ vs $\boldsymbol{x}$ and $\mathbf{X}$ vs $\boldsymbol{X}$.  For pure LaTeX, the `\bm{}` command in the [**bm**](https://ctan.org/pkg/bm?lang=en) package automatically picks the right one for you.  Eventually, I'll figure out how to use this package for the e-book, in which case if you consistently use `\bm{}` for bold there will be very little for me to change!] or $\aal$ for anything that isn't a scalar.  In particular, please use `\bm{}` command in math mode to make things bold, and note that bold letters and symbols have standard macros as explained in `index.Rmd`.  Please use them!
+For external websites, it's sufficient to provide a link as I've done in this document.  For journal articles, textbooks, conference proceedings, etc. it's good practice to provide the complete citation information (in addition to a link to the resource if it can be obtained legally for free).  For such references please use [BibTeX](https://en.wikibooks.org/wiki/LaTeX/Bibliography_Management).
 
-- If applicable distinguish between vectors and matrices (or collections of vectors) with lower and upper case, like $\yy$ and $\YY$ or $\tth$ and $\TTh$.  
+Add your citations to the bibliography file `references.bib`. To separate the citations for each module, add the name of your module using the comment sign $\%$ when you start to add citations. 
 
-- If the math equations are part of sentences, end them with suitable punctuation. If the formula is a derivation with multiple steps, only put punctuation at the final step. 
+For citation labels, please use the standardized format with the author label followed by the last two digits of the year. The rules for the author labels are, if there is only one author, use `@firstauthorlastname`, if there are two authors, use `@firstauthorlastname.secondauthorlastname`, if there are more than 2 authors, use `@firstauthorlastname.etal`. Here's some examples [@gelman13], [@friedman.etal09]. 
+
+## Typesetting Math
+
+While typeset math, please do take a look at the [LaTeX guides](#genguide-res:latex) as it is easy to do this right and very annoying to redo if you do it wrong.
+
+### LaTeX Macros
+
+One extremely useful LaTeX feature is the ability to define macros for commonly used commands.  It is strongly encouraged to use macros whenever possible.  Not only does this save a considerable amount of typing, but also often an enormous amount of search-replacing.  For example, suppose we have a canonical transformation function which we will be using throughout the document, but we are not quite sure how to typeset it yet.  So we define the LaTeX macro `\ctran{}` and use it for the time being.  If later we want to redefine how `\ctran{}` is typeset that's an extremely easy fix.
+
+Another useful LaTeX trick is to use simple patterns to define macros for common things.  For example, bold letter names are defined as `\xx` `\YY`, etc., and bold symbol names as `\aal` for $\boldsymbol{\alpha}$, `\TTh` for $\boldsymbol{\Theta}$, etc. As a rule-of-thumb, **avoid** defining one-letter macros^[The worst LaTeX mistake I've ever made is to define $\beta$ as`\b` in everything LaTeX document I wrote before 2015.  Now suppose I want to replace $\beta$ with $\gamma$ as a symbol for the quantity of interest.  Then either I have an extremely confusing macro `\newcommand{\b}{\gamma}`, or the most annoying search-replace ever (`\begin{xyz}` anyone?).  Sometimes I do use one letter capital macros, e.g., `\newcommand{\N}{\mathcal{N}}` for the normal distribution, but these are much easier to search-replace.].
+
+For this project, LaTeX is rendered to HTML via [Mathjax](https://www.mathjax.org/), and thus the macros must be defined a bit differently than in regular LaTeX.  You will find many LaTeX macros defined in [`preamble.html`](preamble.html). All new macros that you defined must be included and consistent within the file. 
+
+### Math Conventions
+
+We agree on the following conventions on typesetting maths to keep the modules consistent throughout the book.
+
+- Always use bold font like $\XX$^[LaTeX purists might prefer to use `\mathbf{}` for roman letters instead of `\boldsymbol{}` as defined via the `\bm{}` macro in `preamble.html`.  Observe the difference: $\mathbf{x}$ vs $\boldsymbol{x}$ and $\mathbf{X}$ vs $\boldsymbol{X}$.  For pure LaTeX, the `\bm{}` command in the [**bm**](https://ctan.org/pkg/bm?lang=en) package automatically picks the right one for you.  Eventually, we'll figure out how to use this package for the e-book, in which case if you consistently use `\bm{}` for bold there will be very little for us to change!] or $\aal$ for anything that isn't a scalar.  In particular, please use `\bm{}` command in math mode to make things bold, and note that bold letters and symbols have standard macros as explained in `index.Rmd`.  Please use them!
+
+- If the math equations are parts of sentences, end them with suitable punctuation. If the formula is a derivation with multiple steps, only put punctuation at the final step. 
 
 - If an equation is to be written in a new line, use two dollar signs to start and finish the equation. For example, consider observations $\XX = (\rv X N)$ such that
     $$
@@ -79,11 +95,11 @@ In order to let users download the file, you can simply provide the link using r
 
 - Generally, a colon should not be used to set off an equation, even when it is a displayed equation. Typically an equation is the object in a sentence. Use a colon on occasion for emphasis, but make sure it fits grammatically. Examples can be found [here](http://persweb.wabash.edu/facstaff/footer/courses/Expectations/WritingTips2.pdf). The same rules apply for code chunks.
 
-- Use $j^{th}$ and $(i,j)^{th}$.
+- Conventionally, type $j^{th}$ and $(i,j)^{th}$ instead of $j$th or $(i,j)$th.
 
 ### Commonly-Used Math and Stats Expressions
 
-- Sequences of random variables: $X_1, \ldots, X_N$.  In fact since these are so common, I've created a macro for it: $\rv Y 5$ and $\rv [m,0] Z {m,N_m}$.
+- Sequences of random variables: $X_1, \ldots, X_N$.  Since these are so common, a macro was created for it in the `preamble.html` file: $\rv Y 5$ and $\rv [m,0] Z {m,N_m}$.
 
 - For multi-line equations with alignment, use `aligned` environment as in \@ref(eq:formatguide-mathex).
 
