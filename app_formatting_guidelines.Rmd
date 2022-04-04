@@ -6,15 +6,15 @@
 
 --- 
 
-## File orgnization
+## File Orgnization
 
 For a module, name your file starting with `mod_`. For an appendix, name your file starting with `app_`. Refer to the file `common_functions.R` for commonly used R functions across modules before writing your own. 
 
-## Code style
+## Code Style
 
 Use the package `r cran_link("styler")` to make the formatting of your code consistent. To do this, run the function `styler::style_file()` for your module's Rmarkdown file. Do not set the option `tidy = "styler"` to your chunk code to prevent caching issues. The details of the package can be found [here](https://styler.r-lib.org/).  
 
-## Cross-refrencing
+## Cross-Refrencing
 
 - To make cross-referencing consistent in **bookdown**, for all labels -- code chunks, figures, tables, sections, equations, etc. -- use the prefix of the corresponding file as the prefix of any label. So please choose and use a module-specific prefix for each cross-reference. For example, use label `#formatguide` for this section. Refer to `prefixes.txt` for the list of the used prefixes and add yours there. Try to use the prefix that is distinctive to other words in the text such that you can find and replace all without mistakes.
 
@@ -24,7 +24,7 @@ Use the package `r cran_link("styler")` to make the formatting of your code cons
 
 - Paste a link to packages which are mentioned for the first time. For R CRAN packages, you can use the `cran_link()` function to do this. For example, `r cran_link("rstan")`.
 
-## Writing format
+## Writing Format
 
 - For headers, place a space between the last sharp symbol $\#$ and the name of the header. Also, use Capital Case for all section headings, for example, Plan the Study.
 
@@ -56,7 +56,7 @@ In order to let users download the file, you can simply provide the link using r
 
 <!-- - To embed a file in your module, use function `embed_data_file()`. For example, `r embed_data_file("data/caliRain.csv", text = "caliRain.csv")`. -->
 
-## Citations {#genguide-citations}
+## Citations {#formatguide-citations}
 
 For external websites, it's sufficient to provide a link as I've done in this document.  For journal articles, textbooks, conference proceedings, etc. it's good practice to provide the complete citation information (in addition to a link to the resource if it can be obtained legally for free).  For such references please use [BibTeX](https://en.wikibooks.org/wiki/LaTeX/Bibliography_Management).
 
@@ -68,7 +68,7 @@ For citation labels, please use the standardized format with the author label fo
 
 While typeset math, please do take a look at the [LaTeX guides](#genguide-res:latex) as it is easy to do this right and very annoying to redo if you do it wrong.
 
-### LaTeX macros
+### LaTeX Macros
 
 One extremely useful LaTeX feature is the ability to define macros for commonly used commands.  It is strongly encouraged to use macros whenever possible.  Not only does this save a considerable amount of typing, but also often an enormous amount of search-replacing.  For example, suppose we have a canonical transformation function which we will be using throughout the document, but we are not quite sure how to typeset it yet.  So we define the LaTeX macro `\ctran{}` and use it for the time being.  If later we want to redefine how `\ctran{}` is typeset that's an extremely easy fix.
 
@@ -76,7 +76,7 @@ Another useful LaTeX trick is to use simple patterns to define macros for common
 
 For this project, LaTeX is rendered to HTML via [Mathjax](https://www.mathjax.org/), and thus the macros must be defined a bit differently than in regular LaTeX.  You will find many LaTeX macros defined in [`preamble.html`](preamble.html). All new macros that you defined must be included and consistent within the file. 
 
-### Math conventions
+### Math Conventions
 
 We agree on the following conventions on typesetting maths to keep the modules consistent throughout the book.
 
