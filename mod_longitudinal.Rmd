@@ -855,7 +855,7 @@ We note that if a model includes time interactions, it should also include the i
 
 
 
-**Answering the Research Question**
+**Answering the Research Questions**
 
 The model fitting procedure is now done, and we use the model with cubic time term and all interaction terms, no individual group variable, and with an unstructured correlation structure, as our final model. We can now answer the research questions of interest. Recall the research question of whether there is a difference in the mean blood lead level over time between the succimer or placebo group. We present the model summary again for clarity:
 ```{r long-linear-ex3-summary}
@@ -1672,7 +1672,7 @@ plot(fitcows5, protein ~ fitted(.)|Diet, abline = c(0,1),
 ```
 Linearity appears to be satisfied again. 
 
-**Answering the Research Question**
+**Answering the Research Questions**
 
 We have satisfied all of the model assumptions based on our diagnostics, and can move onto interpreting the model and answering the research question of interest. Let's look again at the model summary:
 
@@ -1699,7 +1699,7 @@ We follow the model fitting procedure presented in \@ref(long-lme-modelfitting) 
 
 Measures of CD4 counts were scheduled to be taken at every 8 week interval during follow-up, however the data set is considered unbalanced due to mistimed measurements, skipped visits, and drop-out. Lower CD4 counts represent lower immune function.
 
-We are interested in seeing if the change in log-transformed CD4 counts (log(CD4 counts + 1)) from baseline varied between treatment groups, with increased interest in the effect of the dual vs triple combination treatments. We assume any missingness and drop-out is at [completely at random](https://en.wikipedia.org/wiki/Missing_data#Missing_completely_at_random) and does not need to be accounted for in the analysis, although this may not be true in practice.
+Researchers are interested in seeing if the change in log-transformed CD4 counts (log(CD4 counts + 1)) from baseline varied between treatment groups, with increased interest in the effect of the dual vs triple combination treatments. Such transformation on the CD4 counts was proposed by experts in the field and exists as a variable in the data set.  We assume any missingness and drop-out is at [completely at random](https://en.wikipedia.org/wiki/Missing_data#Missing_completely_at_random) and does not need to be accounted for in the analysis, although this may not be true in practice.
 
 
 
@@ -1744,7 +1744,7 @@ qqline(aidsdat$logcount)
 
 ```
 
-From the plots in Figure \@ref(fig:long-lme-ex3-normalityaids), we do not have evidence that the normality assumption is violated. We do see quite a few individuals with Log(1 + CD4 count) of 0. We may want to remove these from the analysis or because of the slight skewness use a Generalized Linear Mixed Effect Model. However, for the purpose of this analysis we will continue with the entire data set. See Section \@ref(long-linear-assumptions) for more information on tests of normality.
+From the plots in Figure \@ref(fig:long-lme-ex3-normalityaids), we do not have strong evidence that the normality assumption is violated as most observations are close to the theoretical quantiles in the Q-Q plot. We do see quite a few individuals with Log(1 + CD4 count) of 0. We may want to look into these observations further to determine if we should remove these from the analysis. we note that we could consider using a Generalized Linear Mixed Effect Model (GLMM) as we do have slight skewness in the distribution of our outcome. A  GLMM would allow us to assign a different distribution to the outcome and is suitable for data that is not normally distributed. However, for the purpose of this analysis we will continue with the entire data set. See Section \@ref(long-linear-assumptions) for more information on tests of normality.
 
 
 **Step 3: Assessing Time Trend**
@@ -2102,7 +2102,7 @@ plot(fitaids6, logcount ~ fitted(.)|treatment, abline = c(0,1),
 Again, most observations appear to be linear. There are too many subjects to look at it on an individual level for the entire population.
 
 
-**Answering the Research Question**
+**Answering the Research Questions**
 
 Now that the assumptions have been satisfied, we can look at answering the research questions of interest. Let's look at the model summary again:
 
@@ -2152,7 +2152,7 @@ fitaids6_combtreatments <- lme(
 summary(fitaids6_combtreatments)
 
 ```
-Under this parameterization, we do see that the interaction terms are individually significant. This indicates that there is a difference in time trend by dual versus triple therapy, controlling for age. 
+Under this parameterization, we do see that the interaction terms are individually significant. This indicates that there is a difference in time trend by dual versus triple therapy, controlling for age. For example, we see that the effect of time on the triple action treatment on log(CD4 counts + 1) is greater by 0.035 units compared to dual action therapy, controlling for age. We also see that the squared time effect interaction is significant but the effect size is small (-0.001). We can interpret this that the effect of the squared time term on log(CD4 counts + 1) is smaller by 0.001 units for the triple action therapy compared to dual action therapy. 
 
 We can see if this model is more adequate, indicating that treatments 1, 2, and 3 have the same treatment effect over time. 
 
