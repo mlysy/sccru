@@ -100,11 +100,6 @@ The choice of colours used in `aes()` is determined by the choice of the colour 
 require(RColorBrewer)
 display.brewer.all()
 ```
-<!--- For example, this is the "Set 1" colours from `RColorBrewer`.
-```{r visgg-colbrew-set1, fig.cap="Set 1 from ColorBrewer", echo=FALSE, fig.align='center'}
-knitr::include_graphics("data/images/visgg-colours-set1.png")
-```
---->
 
 Suppose we want to use the `Set1` colour palette from `RColorBrewer` on the scatterplot created earlier, we can use the function `scale_colour_brewer()`:
 ```{r visgg-colbrew-set1-plot, echo = TRUE, eval = TRUE, comment = NA}

@@ -494,7 +494,7 @@ This command needs to be run every time you want to use the package in a new R s
 
 ## Getting Help
 
-Before getting others for help, it is generally a good idea for you to try to help yourself.
+Before asking others for help, it is generally a good idea for you to try to help yourself.
 
 ### R Documentation
 
