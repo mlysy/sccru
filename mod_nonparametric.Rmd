@@ -103,8 +103,8 @@ The test checks to see if one group has an abnormally large amount of high-ranke
 
 #### An example using R
 
-We use the `iris` data as an example. Below shows a boxplot for the sepal lengths of the two species.
-```{r nonpram-data-boxplot}
+We use the `iris` data as an example, in  which our focus is the two species `setosa` and `versicolor`
+```{r nonpram-data-boxplot, fig.cap="Boxplots of sepal length by species."}
 # first two iris species
 iris2 <- iris[1:100, ]
 # for clean graph, can be ignored
@@ -151,15 +151,13 @@ The idea is that if there is a difference between the two groups then the absolu
 
 We will simulate a set of paired data set to demonstrate how to conduct the Wilcoxon Rank-Sum Test.
 
-```{r nonpram-wilcox-fake}
+```{r nonpram-wilcox-fake, fig.cap="Boxplot of simulated paired data."}
 # Create a fake paired data set, this code simply creates an example of a data set where the observations are associated.
 before <- rnorm(100, 2)
 after <- before * .2 + rnorm(100, 1)
 test_data <- data.frame(before, after)
-```
 
-We can plot the data. 
-```{r nonpram-wilcox-fake-boxplot}
+# Boxplot of simulated data
 boxplot(test_data)
 ```
 
@@ -205,14 +203,16 @@ The test checks to see if one group has a large number of extreme observations.
 #### An Example Using R 
 
 We can use the `siegelTukeyTest()` function in the **PMCMRplus** package to perform the Siegel-Tukey test. The function `siegelTukeyTest()` takes the first sample and second sample as its two arguments. In this example, we will use simulated data to demonstrate the use of the function.
-```{r nonpram-tst-test, cache=TRUE}
+```{r nonpram-tst-test-save-var, fig.cap="Boxplots of data from distributions with the same variance.", cache=TRUE}
 # s1 and s2 have the same variance and mean
 s1 <- rnorm(100, sd = 2)
 s2 <- rnorm(100, sd = 2)
 boxplot(s1, s2)
 # We expect to fail to reject here
 PMCMRplus::siegelTukeyTest(x = s1, y = s2)
+```
 
+```{r nonpram-tst-test-diff-var, fig.cap="Boxplots of data from distributions with different variances.", cache=TRUE}
 # s1 and s2 are random samples with different variances but the same mean
 s1 <- rnorm(100, sd = 3)
 s2 <- rnorm(100, sd = 2)
@@ -231,7 +231,7 @@ PMCMRplus::siegelTukeyTest(
   y = s2 - median(s2)
 )
 ```
-The test statistic and $p$-value are reported. 
+The reported test statistic and $p$-value agrees with our expectations in both examples.
 
 ## ANOVA-type Methods {#nonpram-anova}
 
@@ -271,12 +271,18 @@ Therefore, the hypothesis is rejected if one or more groups have a disproportion
 #### An Example Using R 
 
 We again use the `iris` data as an example. 
-```{r nonpram-kw-data}
+```{r nonpram-kw-data-boxplot, fig.cap="Boxplots of petal length by species."}
 boxplot(Sepal.Length ~ Species, xlab = "Species", data = iris)
+```
+
+```{r nonpram-kw-data-hist-hist, fig.cap="Histograms of sepal length for each species."}
 par(mfrow = c(1, 3))
-hist(iris[1:50, ]$Sepal.Length, xlim = c(3, 9), breaks = 15)
-hist(iris[51:100, ]$Sepal.Length, xlim = c(3, 9), breaks = 15)
-hist(iris[101:150, ]$Sepal.Length, xlim = c(3, 9), breaks = 15)
+hist(iris[1:50, ]$Sepal.Length, xlim = c(3, 9), breaks = 15, xlab="setosa", main="")
+hist(iris[51:100, ]$Sepal.Length, xlim = c(3, 9), breaks = 15, xlab="versicolor", main="")
+hist(iris[101:150, ]$Sepal.Length, xlim = c(3, 9), breaks = 15, xlab="virginica", main="")
+```
+
+```{r nonpram-kw-data-reset-frame, echo=FALSE}
 par(mfrow = c(1, 1))
 ```
 
@@ -396,7 +402,7 @@ The difference between the Friedman test and the KW test is that ranks are now c
 We create some sample repeated measures data below. 
 
 It appears that the medians at each treatment are different from each other. According to the boxplots, the shape and scale of the distributions are similar, and so we can interpret a Friedman test as testing for a difference in medians. 
-```{r nonpram-fried-data}
+```{r nonpram-fried-data, fig.cap="Boxplots of simulated responses from three different groups."}
 set.seed(440)
 # Create a fake repeated measures data set
 # Note it is not necessary to understand how to simulate a data set in order to apply Friedman ANOVA, so this code block is optional.
@@ -566,7 +572,7 @@ Now that we know how to compute bootstrap confidence intervals in R, we perform 
 When creating multiple confidence intervals at once with bootstrap, we need to set the `index` argument of `boot.ci`. 
 
 We will consider a regression model using the `catsM` data, which contains the weights of the body (`Bwt`) and heart (`Hwt`) of cats. Suppose we would like to build a regression model to predict the weight of the heart from the weight of the body:
-```{r nonpram-bootstrap-regression-1, cache=TRUE}
+```{r nonpram-bootstrap-regression-1, fig.cap="Relationship between cats' body and heart weights.", cache=TRUE}
 # load in cats data
 catsM <- boot::catsM
 head(catsM)
@@ -584,7 +590,7 @@ We would like to assess the variability of our model and its coefficients.
 
 If we had a different sample from the same population, how much would our estimated line move? What about confidence intervals for the intercept and slope? This is where the bootstrap procedure comes in. 
 
-```{r nonpram-bootstrap-regression-2, cache=TRUE}
+```{r nonpram-bootstrap-regression-2, fig.cap="Estimated lines created through bootstrap.", cache=TRUE}
 # How can we make a confidence interval for these parameters? Use the bootstrap
 # This function returns the coefficients of a regression model fitted to a bootstrap sample.
 # The ind parameter gives the indices of the bootstrap sample; orig_data[ind,] is the bootstrap sample values.
@@ -630,7 +636,7 @@ To apply random forest, we assume that the observations are independent and ther
 
 To show how random forests differ from regression, we will simulate a set of data.
 
-```{r nonpram-rf-test-data, cache=TRUE}
+```{r nonpram-rf-test-data, fig.cap="Scatterplot of simulated data showing no linear relationship.", cache=TRUE}
 set.seed(440)
 # invent nonlinear data
 x <- rnorm(500)
@@ -643,9 +649,10 @@ trim <- as.logical(trim + trim2)
 example_data <- cbind(x[!trim], y[!trim])
 plot(example_data, ylab = "y", xlab = "x")
 ```
+
 Notice how this data clearly does not have a linear relationship. We will explain how to build a random forest for this data. 
 
-The **caret** package will be used to build random forest predictive models.  This package includes many different types of predictive models. To train a random forest model, we set the `method` argument to `"rf"`. This function is based on code from the **randomForest** package. 
+The `r cran_link("caret")` package will be used to build random forest predictive models.  This package includes many different types of predictive models. To train a random forest model, we set the `method` argument to `"rf"`. This function is based on code from the `r cran_link("randomForest")` package. 
 
 Random forests have a number of parameters, we will cover the two most important ones: 
 
@@ -656,7 +663,7 @@ Building a random forest involves training or building a bunch of random forests
 
 The predictive capacity metric depends on whether or not your outcome is continuous or categorical. For continuous predictions, the metric is mean squared error, just like in regression. 
 
-```{r nonpram-rf-nl,cache=TRUE}
+```{r nonpram-rf-nl, fig.cap="The red line shows the prediction obtained through random forest.", cache=TRUE}
 # the predictors must be a matrix subjxcolumn
 x <- matrix(x, ncol = 1)
 colnames(x) <- "x"
@@ -677,7 +684,8 @@ preds <- predict(model, newdata = nd)
 plot(example_data)
 lines(c(nd), preds, col = 2)
 ```
-The **caret** package will be used to build random forest predictive models.  This package includes many different types of predictive models. To train a random forest model, we set the `method` argument to `"rf"`. This function is based on code from the **randomForest** package. 
+
+The `r cran_link("caret")` package will be used to build random forest predictive models.  This package includes many different types of predictive models. To train a random forest model, we set the `method` argument to `"rf"`. This function is based on code from the `r cran_link("randomForest")` package. 
 
 Random forests have a number of parameters, we will cover the two most important ones: 
 
@@ -722,6 +730,6 @@ cars[1:6, 1]
 
 ### Additional Resources {#nonpram-arrf}
 
-- [**Caret** package Information](http://topepo.github.io/caret/train-models-by-tag.html#random-forest),
+- [`r cran_link("caret")` package Information](http://topepo.github.io/caret/train-models-by-tag.html#random-forest),
 - [Introduction to Decision Trees](https://www.youtube.com/watch?v=7VeUPuFGJHk), and 
 - [Introduction to Random Forests](https://www.youtube.com/watch?v=J4Wdy0Wc_xQ).
