@@ -245,7 +245,7 @@ The KW test does not require a distributional assumption on the data; the data n
 The null and alternate hypotheses are:
 
 $$
-H_0\colon \tx{All groups have the same distribution. vs. } H_1\colon\ \tx{At least one group stochastically dominates another.}
+H_0\colon \tx{All groups have the same distribution. vs. } \\ H_1\colon\ \tx{At least one group stochastically dominates another.}
 $$
 Assumptions:
 
@@ -375,7 +375,8 @@ Repeated measures data are data such that the response is measured multiple time
 #### Hypotheses 
 
 $$
-H_0\colon \tx{All treatment groups have the same distribution. vs. } H_1\colon\ \tx{At least one treatment group does not have the same distribution.}
+H_0\colon \tx{All treatment groups have the same distribution.vs. } \\
+H_1\colon\ \tx{At least one treatment group does not have the same distribution.}
 $$
 
 Assumptions:
@@ -402,6 +403,7 @@ The difference between the Friedman test and the KW test is that ranks are now c
 We create some sample repeated measures data below. 
 
 It appears that the medians at each treatment are different from each other. According to the boxplots, the shape and scale of the distributions are similar, and so we can interpret a Friedman test as testing for a difference in medians. 
+
 ```{r nonpram-fried-data, fig.cap="Boxplots of simulated responses from three different groups."}
 set.seed(440)
 # Create a fake repeated measures data set
