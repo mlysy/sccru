@@ -30,7 +30,7 @@ A working example of a dentistry data set with a continuous outcome will be carr
 
 ### List of R packages Used {#long-rpackages}
 
-In this chapter, we will be using the packages `r cran_link("geesmv")`, `r cran_link("nmle")`, `r cran_link("ggplot2")`, `r cran_link("emdbook")`, `r cran_link("lattice")`.
+In this chapter, we will be using the packages `r cran_link("geesmv")`, `r cran_link("nmle")`, `r cran_link("ggplot2")`, `r cran_link("emdbook")`, and `r cran_link("lattice")`.
 
 
 ```{r long-library, warning=FALSE, message=FALSE}
@@ -1102,9 +1102,6 @@ where $Y_{ij}$ is the orthodontic measurement of subject $i$ at occasion $j$, $z
 
 To fit this, we do the following:
 ```{r long-lme-randominterceptdent}
-# load required package for fitting mixed effects model
-library(nlme)
-
 # fit the random intercept only model
 fitLME_intercept <- lme(
   fixed = distance ~ age + sex, # specify fixed effects

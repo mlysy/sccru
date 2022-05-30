@@ -21,19 +21,19 @@ source("common_functions.R")
 
 Researchers are often interested in describing the association between a [binary](https://www.statisticshowto.com/binary-variable-2/) outcome (an outcome that can only take on two values such as true of false, yes or no) and other factors of interest. For example, we may be interested in seeing if the presence of a disease (whether an individual has the disease or not) is related to age, lifestyle habits such as smoking or drinking, measures of socio-economic status, and whether there exists a family history of the disease. We could also quantify the association between the presence of certain species of frogs in ponds and the water temperature, pond depth, and vegetation present. We can also predict the probability of the outcome of interest occurring given the factors we've measured. We can answer these, and many other research questions involving binary responses/outcomes, by employing [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression). 
 
-Logistic regression allows us to quantify the relationship between an outcome and other factors similar to traditional linear regression. However,  traditional linear regression is limited to continuous outcomes and is thus not suitable for modelling binary outcomes This is because the normality assumption of the outcome will be violated. 
+Logistic regression allows us to quantify the relationship between an outcome and other factors similar to traditional linear regression. However,  traditional linear regression is limited to continuous outcomes and is thus not suitable for modelling binary outcomes. This is because the normality assumption of the outcome will be violated. 
 
 In this section, we will focus on analyzing data involving binary outcomes using logistic regression models in R. 
 
 ## List of R Packages {#logreg-rpackages}
 
-In this chapter, we will be using the packages `r cran_link("catdata")`, `r cran_link("LogisticDx")`, `cran_link("performance")`...
+In this chapter, we will be using the packages `r cran_link("catdata")`, `r cran_link("LogisticDx")`, and `cran_link("car")`.
 
 
 ```{r long-library, warning=FALSE, message=FALSE}
 library(catdata) # load the required packages
 library(LogisticDx)
-library(performance)
+library(car)
 ```
 
 
@@ -80,7 +80,7 @@ There are three main assumptions that are required when employing logistic regre
 
 Multicollinearity (sometimes referred to as collinearity) occurs when two or more explanatory variables are highly correlated, such that they do not provide unique or independent information in the regression model. If the degree of correlation is high enough between variables, it can cause problems when fitting and interpreting the model. One way to detect multicollinearity is to calculate the [variation inflation factor (VIF)](https://en.wikipedia.org/wiki/Variance_inflation_factor) for each covariate in a model.  The general guideline is that a VIF larger than 5 or 10 indicates that the model has problems estimating the coefficient possibly due to multicollinearity. We will show in Section \@ref(logreg-diagnostics) how to use R functions to calculate the VIF after model building. 
 
-We note that our methodology will be particularly sensitive to these assumptions when small sample sizes are present. When collecting data, we also want to ensure that the sample is representative of the population of interest to answer the research question(s).
+We note that our methodology will be particularly sensitive to these assumptions when sample sizes are small. When collecting data, we also want to ensure that the sample is representative of the population of interest to answer the research question(s).
 
 ## Notation and Model Specification {#logreg-notation}
 
@@ -101,14 +101,9 @@ We emphasize that the odds are **not** equal to the probability of an event happ
 
 Notice that in our model that there is no random error term. This may be surprising as we typically see a random error term in linear regression models, however because we are modelling the mean of the outcome a random error term is not needed. 
 
-Our primary interest is in estimating the coefficients $\bm{\beta}$ in our model. These coefficients can be interpreted as log odds ratio of the outcome for a one unit change in the corresponding covariate.  For example, if we consider a discrete covariate $x_1$ representing disease presence, we would interpret $\beta_1$ as the estimated log odds ratio of the outcome $Y$ for those with the disease versus without, controlling for other covariates in the model. For continuous covariates such as age, we would interpret the coefficient as the estimated log odds ratio associated with a one year increase in age, controlling for other covariates. We will show examples of the model interpretation for real data examples in the following sections. 
+Our primary interest is in estimating the coefficients $\bm{\beta}$ in our model. These coefficients can be interpreted as log odds ratio of the outcome for a one unit change in the corresponding covariate.  For example, if we consider a discrete covariate $x_1$ representing disease presence, we would interpret $\beta_1$ as the estimated log odds ratio of the outcome $Y$ for those with the disease versus without, controlling for other covariates in the model. For continuous covariates such as age, we would interpret the coefficient as the estimated log odds ratio associated with a one year increase in age, controlling for other covariates. We will show examples of the model interpretation for real data examples in the following sections, with a focus on building, evaluating, and interpreting models in R. 
 
-
-
-## Modelling in R {#logreg-R}
-
-
-### Data Pre-processing {#logreg-R-prepocessing}
+## Data Pre-processing {#logreg-R-prepocessing}
 
 Before building logistic regression models in R, we need to pre-process or "clean" the data. The first thing we can do is ensure the covariates in our data set are the correct type (continuous, categorical, etc) so that the model will be appropriately fit. 
 
@@ -124,7 +119,7 @@ heart$age_f <- as.factor(heart$age_f)
 
 Other things we may need to deal with in the data cleaning stage include missing data and duplicated responses. In our case, we do not have to deal with any of these issues and will continue with our analysis. 
 
-### Fitting Logistic Regression Models {#logreg-R-modelfit}
+## Fitting Logistic Regression Models {#logreg-R-modelfit}
 
 To fit a logistic regression model in R, we fit a generalized linear model using the `glm()` function and specify a logistic link function by using the `family=binomial(link = "logit")"` argument. For example, we can build the main-effects only logistic regression model considering all covariates previously described by:
 ```{r logistic-R-firstfit, warning=FALSE, cache=TRUE}
@@ -145,18 +140,17 @@ While we could interpret this model and perform hypothesis tests, we must consid
 
 We aim to find a [parsimonious model](https://www.statisticshowto.com/parsimonious-model/#:~:text=Parsimonious%20models%20are%20simple%20models,called%20lex%20parsimoniae%20in%20Latin)) that addresses our research questions. That is, we aim to find the simplest model that explains the relationship between the outcome (whether the subject has CHD) and covariate(s) of interest.
 
-One of the most common ways to compare models against each other is through the [likelihood ratio test](https://en.wikipedia.org/wiki/Likelihood-ratio_test) (LRT). For the likelihood ratio test, we can compare [nested](https://www.statology.org/nested-model/#:~:text=A%20nested%20model%20is%20simply,variables%20in%20another%20regression%20model.) models. That is, we can compare a full model to a nested model that contains a subset of variables that appear in the full model (and no other variables or transformations). 
 
- 
-We typically start model selection with a full main-effects only model and look at the least significant covariates in the full model. For example, `alcohol`, `adiposity` and `sbp` have large p-values for the Wald test that $\beta_{sbp} = 0$ and $\beta_{adiposity} = 0$ and $\beta_{alcohol} = 0$. We can see if these covariates are necessary in the model by testing the full model against one that does not contain those two covariates by a LRT. We do so in R by first fitting the new model, obtaining the residual deviance from both models we are comparing, and performing the LRT using the degrees of freedom (df) equal to the difference in the number of covariates between the two models (here, we removed 3 covariates and thus we have 3 degrees of freedom). The null hypothesis here is that `heart_model2` is adequate compared to `heart_modelfull`. 
+### Likelihood Ratio Tests {#logreg-R-modelselection-LRT}
+One of the most common ways to compare models against each other is through the [likelihood ratio test](https://en.wikipedia.org/wiki/Likelihood-ratio_test) (LRT). For the likelihood ratio test, we can compare [nested](https://www.statology.org/nested-model/#:~:text=A%20nested%20model%20is%20simply,variables%20in%20another%20regression%20model.) models. That is, we can compare a full model to a nested model that contains a subset of variables that appear in the full model (and no other variables or transformations). Likelihood ratio tests tend to be the preferred method for building logistic regression models where we want to draw claims and perform hypothesis tests. 
+
+We typically start model selection with a full main-effects only model and look at the least significant covariates in the full model. For example, `alcohol`, `adiposity` and `sbp` have large $p$-values for the Wald test that $\beta_{sbp} = 0$ and $\beta_{adiposity} = 0$ and $\beta_{alcohol} = 0$. We can see if these covariates are necessary in the model by testing the full model against one that does not contain those two covariates by a LRT. We do so in R by first fitting the new model, obtaining the residual deviance from both models we are comparing, and performing the LRT using the degrees of freedom (df) equal to the difference in the number of covariates between the two models (here, we removed 3 covariates and thus we have 3 degrees of freedom). The null hypothesis here is that `heart_model2` is adequate compared to `heart_modelfull`. 
 
 ```{r logistic-R-lrt1, warning=FALSE, message=FALSE}
 # fit the nested model without sbp, alcohol, or adiposity
 heart_model2 <- glm(y ~ tobacco + ldl + famhist_f + typea + 
                       obesity + age_f, 
                     family=binomial(link = "logit"), data=heart)
-
-#show the output
 
 # perform the LRT 
 anova(heart_model2, heart_modelmaineffects, test = "LRT")
@@ -172,8 +166,6 @@ We notice that as we add and remove covariates, the estimates of our coefficient
 heart_model3 <- glm(y ~ tobacco + ldl + famhist_f + typea + age_f, 
                     family=binomial(link = "logit"), data=heart)
 
-#show the output
-
 # perform the LRT 
 anova(heart_model3, heart_model2, test = "LRT")
 
@@ -184,7 +176,7 @@ summary(heart_model3)
 ```
 All of the remaining covariates in our model are significantly significant. While we could stop the model selection procedure here, we should also consider interactions and higher-order terms in our model selection. 
 
-It is possible that those with a family history of heart disease may have different cholesterol levels than those who do not. We can consider adding in this interaction term to account for the potential difference in cholesterol levels by family history, and its impact on chronic heart disease diagnosis. We further fit another model with the interaction and perform an LRT agains the model without the interaction by:
+It is possible that those with a family history of heart disease may have different cholesterol levels than those who do not. We can consider adding in this interaction term to account for the potential difference in cholesterol levels by family history, and its impact on chronic heart disease diagnosis. We further fit another model with the interaction and perform an LRT against the model without the interaction by:
 ```{r logistic-R-lrt3, warning=FALSE, message=FALSE}
 # fit the nested model with an interaction term
 heart_model4 <- glm(y ~ tobacco + ldl + famhist_f + typea + age_f + ldl*famhist_f, 
@@ -202,8 +194,7 @@ We have a small $p$-value here, indicating that we reject the null hypothesis th
 summary(heart_model4)
 
 ```
-We notice that the main effects of `ldl` and `famhist_f` are now insignificant. However, as we have the interaction term in the model, we tend to want to keep the main effects in the model as well to interpret. 
-
+We notice that the main effects of `ldl` and `famhist_f` are now insignificant. However, as we have the interaction term in the model, we tend to want to keep the main effects in the model as well to interpret. We note that there is a higher chance that the interaction will be significant if the main effects are as well. 
 
 
 We also note that for categorical variables, we do not test if individual levels of the covariate should be included. That is, if one level of `age_f` was not significant, we do not remove that one level. We would need to do an LRT to see if the entire covariate of `age_f` was necessary. We can do so by the following:
@@ -215,10 +206,14 @@ heart_model5 <- glm(y ~ tobacco + ldl + famhist_f + typea + ldl*famhist_f,
 # perform the LRT 
 anova(heart_model4, heart_model5, test = "LRT")
 ```
-We have a very small p-value, indicating that we reject the null hypothesis that the simpler model is better. That is, `age_f` is necessary in our model and we should use `heart_model4` as our final model!
+We have a very small $p$-value, indicating that we reject the null hypothesis that the simpler model is better. That is, `age_f` is necessary in our model and we should use `heart_model4` as our final model!
 
 
-We will compare our findings to a built-in stepwise model selection procedure in R using the [`step()`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/step) function. The `step()` function evaluates the model on the [Akaike information criterion (AIC)](https://en.wikipedia.org/wiki/Akaike_information_criterion), where a smaller value represents a better fit. To do so in R, we use this function on the full model and perform a backward selection procedure by:
+### AIC and BIC
+
+For nested or non-nested models, we can perform model selection by either [Akaike information criterion (AIC)](https://en.wikipedia.org/wiki/Akaike_information_criterion) or [Bayesian information criterion (BIC)](https://en.wikipedia.org/wiki/Bayesian_information_criterion) where a smaller value represents a better fit. Although both AIC and BIC are similar, research has shown that each are appropriate for different tasks, as discussed [here](https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_BIC). For this problem, AIC and BIC are comparable and either are appropriate for use. 
+
+We will compare the final model selected by LRTs to a built-in stepwise model selection procedure in R using the [`step()`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/step) function. The `step()` function evaluates the model on the [Akaike information criterion (AIC)](https://en.wikipedia.org/wiki/Akaike_information_criterion), where a smaller value represents a better fit. To do so in R, we use this function on the full model and perform a backward selection procedure by:
 ```{R logistic-R-step, warning = F, message = F}
 #fit a full model, including the interaction
 heart_full <- glm(y ~ sbp + tobacco + ldl + adiposity + famhist_f + 
@@ -230,9 +225,8 @@ step(heart_full, direction = c("backward"))
 ```
 The final model contains `tobacco`, `ldl`, `famhist_f`, `typea`, `age_f`, and the interaction between `ldl` and `famhist_f` as covariates. The model chosen by the `step()` function in this case is exactly the same as the one we obtained by the LRT. However, depending on the order we perform the likelihood ratio tests, or the direction of the stepwise algorithm, we can obtain different model results. Likelihood ratio tests tend to be preferred over AIC based algorithms for building logistic regression models where we want to draw claims and perform hypothesis tests while AIC based algorithms tend to be preferred for forecasting problems. As such, we will continue our analysis with the model chosen by our LRTs. 
 
-For non-nested models, we can perform model selection by either [Akaike information criterion (AIC)](https://en.wikipedia.org/wiki/Akaike_information_criterion) or Bayesian information criterion (BIC) where a smaller value represents a better fit. Although both AIC and BIC are similar, research has shown that each are appropriate for different tasks, as discussed [here](https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_BIC). For this problem, AIC and BIC are comparable and either are appropriate for use. 
 
-For illustrative purposes, lets compare a model that contains `tobacco`, `famhist_f`, `typea`, and `age_f` to one that contains `tobacco`, `ldl`, `typea`, and `age_f`. We note that these models are not nested, because neither model contains variables that are a subset of each other (the first model has `fam_hist` while the second does not, and the second model has `ldl` while the first does not.) Let's compare the fits of these models:
+We can also call the `AIC()` function on models and compare them manually. For illustrative purposes, lets compare a model that contains `tobacco`, `famhist_f`, `typea`, and `age_f` to one that contains `tobacco`, `ldl`, `typea`, and `age_f`. We note that these models are not nested, because neither model contains variables that are a subset of each other (the first model has `fam_hist` while the second does not, and the second model has `ldl` while the first does not.) Let's compare the fits of these models:
 ```{r logistic-R-aicbic}
 heart_modelA <- glm(y ~ tobacco +  famhist_f + typea + age_f, 
                     family=binomial(link = "logit"), data=heart)
@@ -260,9 +254,9 @@ We notice that there are two subjects with high residual values. To identify the
 sort(residuals(heart_model4, type = "pearson"), decreasing = T)[1:2]
 ```
 
-Subjects 261 and 21 have high deviance residuals. To see if these are influential observations, we can refit the logistic regression model without these observations. If the estimates of our model change greatly, then we should remove these two observations as they may affect inference and predictions made with the logistic regression model.
+Subjects 261 and 21 have high deviance residuals. To see if these are [influential observations](https://en.wikipedia.org/wiki/Influential_observation#:~:text=In%20statistics%2C%20an%20influential%20observation,effect%20on%20the%20parameter%20estimates.), we can refit the logistic regression model without these observations. If the estimates of our model change greatly, then we should remove these two observations as they may affect inference and predictions made with the logistic regression model.
 
-Let's make a second data set without the subject 261 and see if the results of the model change. 
+Let's make a second data set without the 261st observation and see if the results of the model change. 
 ```{r logistic-md-remove261}
 heart2 <- heart[-261,] # removing the 261st observation
 
@@ -273,7 +267,7 @@ heart_model4_2 <- glm(y ~ tobacco + ldl + famhist_f + typea + age_f + ldl*famhis
 summary(heart_model4_2) #model summary excluding id 261
 summary(heart_model4) #original model summary
 ```
-We do see that the estimated coefficients and standard errors. In particular, the estimated regression coefficients and standard errors of the `age_f` variable changed greatly. This shows that observation 261 is an influential observation, and should be removed. 
+We do see that the estimated coefficients and standard errors change after removing the observation. In particular, the estimated regression coefficients and standard errors of the `age_f` variable changed greatly. This shows that observation 261 is an influential observation, and should be removed. 
 
 We can do the same procedure for removing observation 21:
 ```{r logistic-md-remove21}
@@ -326,7 +320,7 @@ heart_model7 <- glm(y ~ tobacco + ldl + famhist_f +
                             family=binomial(link = "logit"), data=heart3)
 summary(heart_model7)
 ```
-and see more stable estimates. When we plot the residuals:
+and see estimates with less extreme values and variances. When we plot the residuals:
 
 ```{r logistic-md-plots3, fig.cap="Plot of Residuals for Second \\Logistic Regression Modelwith Influential Observation Removed"}
 # Plot the residuals
@@ -335,12 +329,12 @@ plot(residuals(heart_model7, type = "pearson"), ylab = "Pearson Residuals")
 
 We see that the residuals are behaving as expected with no extreme values. 
 
-We should also check for multicollinearity in our model. We can do so by using the `check_collinearity()` function from the `r cran_link("performance")` package. We can do so by the following R code:
+We should also check for multicollinearity in our model. We can do so by using the `vif()` function from the `r cran_link("car")` package. We can do so by the following R code:
 ```{r logistic-md-collinearity}
-check_collinearity(heart_model7)
+vif(heart_model7)
 ```
 
-We see that we only have low-moderate variance inflation factors, indicating that multicollinearity is not an issue in this model. 
+We see that we only have low-moderate variance inflation factors (VIFs), indicating that multicollinearity is not an issue in this model. We typically are concerned about multicollinearity when VIF values are above 10. 
 
 ## Model Interpretation and Hypothesis Testing {#logreg-ht}
 
@@ -361,7 +355,7 @@ $$
 $$
 where $pi_i$ is the probability of having CHD, $x_1$ is the measurement of cumulative tobacco use, $x_2$ is the ldl cholesterol measurement, $x_3$ is an indicator for family history, and $x_4$ is the type a measurement.
 
-We are provided with the estimates and standard errors of the log odds ratios, but typically want to interpret and communicate our findings on the scale of odd ratios. To obtain an estimate of the odds ratio for a given covariate, we simply exponentiate the coefficient. For example, the `tobacco` covariate's estimated coefficient ($\widehat{\beta_1}$) is  0.138, meaning we estimate that a one unit increase in `tobacco` is associate with a **log odds ratio** of chronic heart disease equal to  0.138, controlling for the other factors in the model. Alternatively, we can say that a one unit increase in `tobacco` is associate with an **odds ratio** of chronic heart disease equal to $exp( 0.138)$ = `r round(exp( 0.138),3)`, controlling for other factors. 
+We are provided with the estimates and standard errors of the log odds ratios, but typically want to interpret and communicate our findings on the scale of odd ratios. To obtain an estimate of the odds ratio for a given covariate, we simply exponentiate the coefficient. For example, the `tobacco` covariate's estimated coefficient ($\widehat{\beta_1}$) is `r paste(round(summary(heart_model7)$coef[2,1],3))`, meaning we estimate that a one unit increase in `tobacco` is associate with a **log odds ratio** of chronic heart disease equal to `r paste(round(summary(heart_model7)$coef[2,1],3))`, controlling for the other factors in the model. Alternatively, we can say that a one unit increase in `tobacco` is associate with an **odds ratio** of chronic heart disease equal to $exp($ `r paste(round(summary(heart_model7)$coef[2,1],3))` $)$ = `r paste(round(exp(summary(heart_model7)$coef[2,1]),3))``, controlling for other factors. 
 
 [Confidence intervals](https://en.wikipedia.org/wiki/Confidence_interval) (CIs) are useful in communicating the uncertainty in our estimates and are typically presented along with our estimate. Confidence intervals are calculated on the log odds ratio scale, and then exponentiated to find the confidence interval for the odds ratio. We calculate a 95% confidence interval for a log odds ratio as:
 
@@ -370,13 +364,13 @@ $$
 $$
 where $\widehat{se}(\widehat{\beta})$ is the estimated standard error of the regression coefficient. For example, a 95% confidence interval for the log odds ratio of `tobacco` is
 $$
- 0.138 \pm 1.960 \times 0.025 = (0.089, 0.187).
+0.138 \pm 1.960 \times 0.025 = (0.089, 0.187).
 $$
 Then, to find the 95% CI for the odds ratio, we exponentiate both sides of the CI as:
 $$
 (\exp(0.089), \exp(0.187)) = (1.093, 1.206)
 $$
-So, we estimate the odds ratio to be 1.148 (95% CI: (1.093, 1.206)) controlling for the other factors in the model. As this 95% CI does not contain the value of 1 in it, we say that we are 95% confident that higher tobacco use is associated with an increased odds of developing CHD. 
+So, we estimate the odds ratio to be `r paste(round(exp(summary(heart_model7)$coef[2,1]),3))` (95% CI: (1.093, 1.206)) controlling for the other factors in the model. As this 95% CI does not contain the value of 1 in it, we say that we are 95% confident that higher tobacco use is associated with an increased odds of developing CHD. 
 
 For the odds ratios and confidence intervals of the regression coefficients individually, one can also call the `confint.default()` function
 
@@ -394,7 +388,7 @@ ORs
 ```
 
 
-For another example, let's look at estimating the odds ratio of CHD for a one unit increase in `ldl` among those with a family history of CHD, controlling for the other factors. For more complex estimates, it can be useful to create a table to determine what regression coefficients we want to use.  
+For another example, let's look at estimating the odds ratio of CHD for a one unit increase in `ldl` among those with a family history of CHD, controlling for the other factors. For more complex estimates where we may be interested in combinations of covariates, it can be useful to create a table to determine what regression coefficients we want to use.  
 
 
 Recall the model 
@@ -424,7 +418,7 @@ $$
 & \beta_0 + \beta_1x_1 + \beta_2(1) + \beta_3(1) + \beta_4x_4 + \beta_5(1)(1)\\
 &-\beta_0 + \beta_1x_1 + \beta_2(0) + \beta_3(1) + \beta_4x_4 + \beta_5(0)(1)\\
 \hline
-& \qquad \qquad  \qquad \quad \beta_2 \qquad \quad \quad \quad  \qquad  \quad+\beta_55
+& \qquad \qquad  \qquad \quad \beta_2 \qquad \quad \quad \quad  \qquad  \quad+\beta_5
 \end{aligned}
 $$
 which shows that we should estimate and interpret $\beta_2 + \beta_5$ to answer this question. From the model output, we estimate the log odds ratio as $\widehat{\beta_2} + \widehat{\beta_5} = 0.099 + 0.301 = 0.400$. Then, the estimated odds ratio is $\exp(0.400) = 1.492$. So, we estimate that a one unit increase in low density lipoprotein cholesterol is associated with an odds ratio of CHD equal to 1.492, controlling for other factors. 
