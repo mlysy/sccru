@@ -1,0 +1,57 @@
+
+# Introduction to Generalized Linear Models 
+
+*Author: Grace Tompkins*
+
+*Last Updated: June 2, 2022*
+
+--- 
+```{r cache-chunk, include = F}
+knitr::opts_chunk$set(cache = T)
+```
+
+```{r functions-chunk, echo = F, warning = F, message = F}
+source("common_functions.R")
+# require("styler")
+# styler::style_file()
+```
+
+
+## Introduction {#glm-intro}
+
+Although linear models have the potential to answer many research questions, we may be interested in finding the association between an outcome and a set of covariates where the outcome is not necessarily continuous or normally distributed. For example, a researcher may be interested in the relationship between the number of cavities and oral hygiene habits in adolescent patients, or perhaps a researcher is interested in identifying covariates that are related to food insecurity in rural populations. In these settings where we do not have a normally distributed outcome, linear regression model assumptions do not hold, and we cannot use them to analyze such data. Generalized linear models (GLMs) are an extension of linear regression models that allow us to use a variety of distributions for the outcome. In fact, linear regression is a special case of a GLM.
+
+
+In this section, we will introduce the generalized linear model framework with an emphasis for model fitting in R. 
+
+## Generalized Linear Model Framework {#glm-framework}
+
+The generalized linear model is comprised of three components:
+
+1. The Random Component: The distribution of the independently and identically distributed (i.i.d.) response variables are assumed to come from a parametric distribution that is a member of the [exponential family](https://en.wikipedia.org/wiki/Exponential_family). These include (but are not limited to) the binomial, Poisson, normal, exponential, and gamma distributions,
+
+2. The Systematic Component: The linear combination of explanatory variables  and regression parameters, and
+
+3. The Link Function: The function that relates the mean of the distribution of $Y_i$ to the linear predictor through 
+
+$$
+g(\mu_i) = \beta_0 + \beta_1x_{i1} + \beta_2x_{i2} + ...+ \beta_px_{ip}
+$$
+where $\mu_i = E[Y_i]$ is the mean of outcome and $x_{i1}, ..., x_{ip}$ are the $p$ covariates for individual/subject $i$.
+
+
+### Assumptions {#glm-assumptions}
+
+We need to satisfy a number of assumptions to use the GLM framework:
+
+1. The outcome $Y_i$ is independent between subjects and comes from a distribution that belongs to the exponential family,
+2. There is a linear relationship between a transformation of the mean and the predictors through the link function, and
+3. The errors are uncorrelated with constant variance, but not necessarily normally distributed.
+
+
+### Link Functions {#glm-links}
+
+
+## Futher Reading
+
+For a more detailed, theoretical introduction to generalized linear models, readers are directed to [@mccullagh2019]. 
