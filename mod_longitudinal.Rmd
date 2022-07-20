@@ -2160,11 +2160,11 @@ anova(fitaids6, fitaids6_combtreatments)
 We reject the null hypothesis that the model that combines treatments 1, 2 and 3 is adequate compared to the original model. This indicates that there exists at least one dual-treatment therapy that has a different time effect on the log(1 + CD4 counts). Looking at the LOESS curves from Figure \@ref(fig:long-lme-ex3-ggplotloess), this is unsurprising as treatment 3 appears to have a different time trend than treatments 1 and 2, which are similar. 
 
 
-## Generalize Linear Mixed Effects Models
+<!-- ## Generalize Linear Mixed Effects Models -->
 
-As seen in the previous section, linear mixed effect models are useful for analyzing relationships between a normally distributed outcome and covariates over time. However, we are often interested in non-normal longitudinal outcomes, such as binary or count outcomes. To handle these outcomes, we can use the generalized linear mixed effects model (GLMM), which is an generalization of the linear mixed effect model. 
+<!-- As seen in the previous section, linear mixed effect models are useful for analyzing relationships between a normally distributed outcome and covariates over time. However, we are often interested in non-normal longitudinal outcomes, such as binary or count outcomes. To handle these outcomes, we can use the generalized linear mixed effects model (GLMM), which is an generalization of the linear mixed effect model.  -->
 
-The GLMM is an extension of the generalized linear model (GLM). While a background on GLMs will be beneficial for readers in this section, we will assume most readers have no prior knowledge of GLMs throughout this chapter. 
+<!-- The GLMM is an extension of the generalized linear model (GLM). While a background on GLMs will be beneficial for readers in this section, we will assume most readers have no prior knowledge of GLMs throughout this chapter.  -->
 
 
 

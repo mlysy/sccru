@@ -1,5 +1,5 @@
 
-# Introduction to Logistic Regression 
+# Introduction to Logistic Regression {#logreg}
 
 *Author: Grace Tompkins, Yuliang Shi*
 
