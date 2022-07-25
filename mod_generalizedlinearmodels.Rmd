@@ -1,0 +1,879 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# Introduction to Generalized Linear Models 
+
+*Author: Grace Tompkins*
+
+*Last Updated: July 17, 2022*
+
+--- 
+```{r cache-chunk, include = F}
+knitr::opts_chunk$set(cache = T)
+```
+
+```{r functions-chunk, echo = F, warning = F, message = F}
+source("common_functions.R")
+# require("styler")
+# styler::style_file()
+```
+
+
+## Introduction {#glm-intro}
+
+Although linear models have the potential to answer many research questions, we may be interested in finding the association between an outcome and a set of covariates where the outcome is not necessarily continuous or normally distributed. For example, a researcher may be interested in the relationship between the number of cavities and oral hygiene habits in adolescent patients, or perhaps a researcher is interested in identifying covariates that are related to food insecurity in rural populations. In these settings where we do not have a normally distributed outcome, linear regression model assumptions do not hold, and we cannot use them to analyze such data. Generalized linear models (GLMs) are an extension of linear regression models that allow us to use a variety of distributions for the outcome. In fact, linear regression is a special case of a GLM.
+
+
+In this section, we will introduce the generalized linear model framework with an emphasis for model fitting in R. 
+
+## List of R Packages {#glm-rpackages}
+
+In this chapter, we will be using the packages `r cran_link("catdata")`, `r cran_link("MASS")`, `r cran_link("AER")`, `r cran_link("performance")`, `r cran_link("faraway")` 
+```{r long-library, warning=FALSE, message=FALSE}
+#load the required packages
+library(catdata)
+library(MASS)
+library(AER)
+library(performance)
+library(faraway)
+```
+
+
+
+## Generalized Linear Model Framework {#glm-framework}
+
+The generalized linear model is comprised of three components:
+
+1. The Random Component: The distribution of the independently and identically distributed (i.i.d.) response variables are assumed to come from a parametric distribution that is a member of the [exponential family](https://en.wikipedia.org/wiki/Exponential_family). These include (but are not limited to) the binomial, Poisson, normal, exponential, and gamma distributions,
+
+2. The Systematic Component: The linear combination of explanatory variables  and regression parameters, and
+
+3. The Link Function: The function that relates the mean of the distribution of $Y_i$ to the linear predictor through 
+
+$$
+g(\mu_i) = \beta_0 + \beta_1x_{i1} + \beta_2x_{i2} + ...+ \beta_px_{ip}
+$$
+where $\mu_i = E[Y_i]$ is the mean of outcome and $x_{i1}, ..., x_{ip}$ are the $p$ covariates for individual/subject $i$. We note that there is no error term on this model, unlike in the usual linear regression model. This is because we are modelling the mean of the outcome and thus a random error term is not needed. 
+
+
+### Assumptions {#glm-assumptions}
+
+We need to satisfy a number of assumptions to use the GLM framework:
+
+1. The outcome $Y_i$ is independent between subjects and comes from a distribution that belongs to the exponential family,
+2. There is a linear relationship between a transformation of the mean and the predictors through the link function, and
+3. The errors are uncorrelated with constant variance, but not necessarily normally distributed.
+
+
+### Link Functions {#glm-links}
+
+Recall that we are modelling the mean of the outcome through a link function as in
+$$
+g(\mu_i) = \beta_0 + \beta_1x_{i1} + \beta_2x_{i2} + ...+ \beta_px_{ip}.
+$$
+The link function will essentially transform a non-linear outcome to a linear outcome allowing us to fit a generalized linear model. For each distribution in the exponential family, there is a [canonical link](https://en.wikipedia.org/wiki/Generalized_linear_model#Link_function) which is recommended to use as simplifies the process of finding maximum likelihood estimates in our model by ensuring that the mean of our outcome is mapped to $(-\infty, \infty)$ so we do not need to worry about constraints when optimizing. It also ensures $\boldsymbol{x}^T\boldsymbol{y}$ is a  [sufficient](https://en.wikipedia.org/wiki/Sufficient_statistic) statistic for $\boldsymbol{\beta}$. 
+
+The following is a table containing commonly used distributions, their canonical links, and the corresponding name used in R:
+
+| Distribution of $Y$     | Canonical Link           | Family parameter in R `glm` function |
+| ------------------------|:------------------------:| ---------------:|
+| [Normal](https://en.wikipedia.org/wiki/Normal_distribution)  (used for symmetric continuous data) | Identity: $g(\mu) = \mu$ | `family = gaussian(link = "identity")`|
+| [Binomial](https://en.wikipedia.org/wiki/Binomial_distribution) (Binary data is a special case where n = 1)  | Logistic: $g(\mu) = \log\left(\frac{\mu}{n-\mu}\right)$ | `family = binomial(link = "logit")`|
+| [Poisson](https://en.wikipedia.org/wiki/Poisson_distribution#:~:text=In%20probability%20theory%20and%20statistics,time%20since%20the%20last%20event.) (used for discrete count data) | Log: $g(\mu) = \log(\mu)$ | `family = poisson(link = "log")`|
+| [Gamma](https://en.wikipedia.org/wiki/Gamma_distribution) (used for continuous, positive, skewed or heteroskedastic data) | Reciprocal: $g(\mu) = \frac{1}{\mu}$ | `family = gamma(link = "inverse")`| 
+
+Each link function will dictate how we interpret the model parameters. For example, using a logistic link for binomial outcome data (also known as logistic regression), we interpret our parameters $\beta$ as log odds ratios. More details on this can be found in the dedicated logistic regression module in Chapter \@ref(logreg). When using a log link on Poisson data, our model parameters estimate log relative rates, which we will detail Section \@ref(glm-poisson).
+
+We note that sometimes we will use link functions other than the canonical link. For example, it is common for researchers evaluating dose-response relationships for binary outcomes to use the [probit](https://en.wikipedia.org/wiki/Probit_model) links instead of the canonical logistic link. The probit link is the inverse of the standard normal cumulative distribution function. We will also provide a detailed example for this in Section \@ref(glm-bin-DR). 
+
+To fit a GLM in R, we use the `glm()` function. In this function, we can specify:
+
+ - `formula`: a description of the model to be fit, similar to that in a regular linear model. For example, to fit a glm with outcome `y` and covariates `x1` and `x2`, we would write `y ~ x1 + x2`.
+ - `family`: a description of the error distribution and link function. That is, we specify the type of GLM to fit using the calls in the third column of the above table. 
+ - `data`: the name of the data frame
+ - `weights`: (optional) a vector of column of weights.
+
+We will show concrete examples of how to fit different types of GLMs in the following sections.
+
+When fitting GLMs, it is important to perform model selection procedures and assess the model fit before interpreting the results. For GLMs, we often perform [likelihood ratio tests (LRTs)](https://en.wikipedia.org/wiki/Likelihood-ratio_test) on nested models to see which model provides a better fit. We can do this in a iterative fashion on many models until a final model is chosen. From there, we can look at model diagnoses (perhaps by a residual analysis or looking at various plots). If the model fit is deemed poor, we should consider other model structures, interaction terms, non-linear transformations of variables, look for influential observations or outliers, and repeat the model selection procedure until the fit is satisfactory. 
+
+For non-nested models, we can perform model selection by either [Akaike information criterion (AIC)](https://en.wikipedia.org/wiki/Akaike_information_criterion) or [Bayesian information criterion (BIC)](https://en.wikipedia.org/wiki/Bayesian_information_criterion) where a smaller value represents a better fit. Although both AIC and BIC are similar, research has shown that each are appropriate for different tasks, as discussed [here](https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_BIC). For model selection of GLMs, either of AIC or BIC are appropriate to use. 
+
+In the following sections, we will outline examples of fitting, assessing, and interpreting various of generalized linear models for commonly used distributions. 
+
+## Normally Distributed Outcomes {#glm-normal}
+
+A generalized linear model with a normally distributed outcome using the canonical link (identity) is the same as a linear regression model. 
+
+### Example
+
+We will be demonstrating the use of a glm on normally distributed data using the `rent` data set from the `r cran_link("catdata")` package in R. This data set contains information on 2053 units' rent (in euros), rent per squared meter (in euros), number of rooms, and other covariates for renal units in Munich in 2003. A full list and description of the variables can be found using by typing `?rent` in the R console and reading through the documentation. We read in this data set with the following code, and look at the first 6 observations by;
+```{r glm-normal-readin}
+# read in data set
+data(rent)
+
+# view first 6 observations
+head(rent)
+```
+
+We wish to see what main factors are related to rental prices, and use this model to predict the rental prices of units not included in the sample.
+
+First, we need to assess the distribution of the outcome. We are going to use `rentm`, which is the clear rent per square meter in euros, as the outcome of interest. To assess the normality of the outcome, we can plot a histogram of the distribution and create a [quantile-quantile (Q-Q)](https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot) plot. To do so in R, we perform the following commands:
+```{r glm-normal-normalityassumption, fig.cap = "Plots Used for Assessing Normality"}
+# plot two plots side by side
+par(mfrow = c(1,2)) 
+
+#plot the histogram
+hist(rent$rentm, main = "Histogram of Rent per \nSquared Meter",
+     xlab = "Rent per Squared Meter")
+
+#plot the qq plot, with reference line
+qqnorm(rent$rentm)
+qqline(rent$rentm)
+```
+From the histogram of `rentm` in Figure \@ref(fig:glm-normal-normalityassumption), we see that we have a fairly symmetric distribution. In the Q-Q plot, most points lie on the line, indicating that we have evidence to suggest the normality assumption is satisfied. That is, the normal distribution seems to be an appropriate distribution to assume for our outcome $Y$ in our GLM. 
+
+Let's fit a generalized linear model to this data set using the `glm()` function in R, recalling that some covariates are categorical and need to be assigned as a `factor()` while fitting the model:
+```{r glm-normal-fit1, fig.cap = "Plots Used for Assessing Normality"}
+# fit a full model
+rentm_fit1 <- glm(rentm ~ size + factor(rooms) + year + factor(area) +
+                    factor(good) + factor(best) + factor(warm) + 
+                    factor(central) + factor(tiles) + factor(bathextra) +
+                    factor(kitchen), data = rent, family = gaussian(link = "identity"))
+
+# see summary of model
+summary(rentm_fit1)
+```
+We note that we specified`family = gaussian(link = "identity")` in our model, but we could also have left this parameter out of the model as the default family is set to Gaussian for the `glm()` function. 
+
+All covariates appear to be significantly associated with the outcome `rentm`. As some of the levels of the `area`(municipality) covariate are insignificant, we can perform an LRT to see if the `area` covariate is needed. To do so, we fit a model without `area` and compare it to the model that includes `area` as a covariate using the `anova()` function:
+
+```{r glm-normal-fit2, fig.cap = "Plots Used for Assessing Normality"}
+# fit a model without area
+rentm_fit2 <- glm(rentm ~ size + factor(rooms) + year +
+                    factor(good) + factor(best) + factor(warm) + 
+                    factor(central) + factor(tiles) + factor(bathextra) +
+                    factor(kitchen), data = rent, family = gaussian(link = "identity"))
+
+# perform LRT
+anova(rentm_fit2, rentm_fit1, test = "LRT")
+```
+The null hypothesis we are testing is that the simpler model (model without `area`) is adequate compared to the fuller model. We have a small p-value here, indicating that we reject the null hypothesis and conclude that our model fit is better when we do include `area` as a covariate. 
+
+We can continue model building in this fashion, however as a GLM fitted with the identity link is the same as fitting a linear model, readers are directed to Section \@ref(linreg-mlm) for more information on model fitting, diagnostics, and interpretations. 
+
+
+
+## Binomial Distributed Outcomes (Logistic Regression) {#glm-bin}
+
+We often see data on individuals where the outcome data is binary (0/1, true/false, present/not present).  Readers are directed to the dedicated chapter on logistic regression (Chapter \@ref(logreg)) for this setting. 
+
+Sometimes when evaluating a binary response, we don't have data for each individual in the study and cannot fit a logistic regression in the usual way. However, if we have the proportion of outcomes for various subgroups in our data set, we can still model the proportion of outcomes using a binomial generalized linear model. That is, we observe $y_j/m_j$ for each combination $j = 1, 2, ..., J$ of our variables $\boldsymbol{x}$ where $y_j$ is the number of successes/occurrences in a subgroup $j$ of size $m_j$. 
+
+We model the expected proportions as a function of the covariates of interest using a binomial regression model (logistic regression). We can fit a generalized linear model two ways: we can either model the response as a pair where the response is `cbind(y, m - y)` or model the response as `y/m` where we set `weights = m` as a parameter in the `glm()` function. In both settings, we let `family = binomial()` and specify a link function. 
+
+The following example shows the use of the binomial regression model, and explains how we can fit the model in two different ways.
+
+### Example
+
+We will be looking at a data set involving the proportions of children who have reached menarche at different ages. The data set contains the average age of the group (which are reasonably homogeneous) (`Age`), the total number of children in the group (`Total`), and the number of children in the group who have reached menarche (`Menarche`). The goal of this analysis is to see quantify the relationship between age and menarche onset. We first load the `menarche` data set from the `r cran_link("MASS")` package:
+
+```{r glm-bin-load}
+# load the data from MASS package
+data("menarche") 
+
+# look at first 6 observations of the data
+head(menarche)
+```
+We see that for different age groups, we have different sizes of the number of individuals in that group (`Total`), and the corresponding number of children who have reached menarche (`Menarche`). The proportion of people who have reached menarche in each age group is then `Menarche/Total`. 
+
+We can fit a model two ways: we can either model the response as a pair where the response is `cbind(y, m - y)` or model the response as `y/m` where we set `weights = m` as a parameter in the `glm()` function. We will show that these models produce the same results. We will fit both models using the canonical logit link. First, we fit the model using the paired response:
+```{r glm-bin-mod1}
+menarche_fit1 <- glm(cbind(Menarche, Total - Menarche) ~ Age, 
+                     data = menarche, 
+                     family = binomial(link = "logit"))
+
+summary(menarche_fit1)
+```
+Next, we fit the model using the proportions and specifying the `weights`:
+```{r glm-bin-mod2}
+menarche_fit2 <- glm(Menarche/Total ~ Age, 
+                     data = menarche, 
+                     weights = Total,
+                     family = binomial(link = "logit"))
+
+summary(menarche_fit2)
+```
+
+We see that these models are equivalent. 
+
+We can look at the model fit by evaluating the residual and fitted values:
+```{r glm-bin-plot1, fig.cap = "Residual plot for Menarche GLM"}
+# first plot the residual vs dose
+resid_menarche <- residuals.glm(menarche_fit1, "deviance")
+plot(menarche$Age, resid_menarche, ylim = c(-3, 3),
+     main = "Deviance Residuals vs Age",
+     ylab = "Residuals",
+     xlab = "Age")
+abline(h = -2, lty = 2) # add dotted lines at 2 and -2
+abline(h = 2, lty = 2)
+
+```
+```{r glm-bin-plot2, fig.cap="Diagnostic Plot for Probit Model: Fitted Values"}
+# then plot the fitted versus dose
+fitted_menarche <- menarche_fit1$fitted.values
+plot(menarche$Age, fitted_menarche, ylim = c(0, 1),
+     main = "Fitted Value vs Age",
+     ylab = "Probability of Menarche",
+     xlab = "Age",
+     pch = 19)
+points(menarche$Age, menarche$Menarche/menarche$Total, col = "red", pch = 8)
+legend(13, 0.3, legend = c("Fitted", "Observed"), col = c("black", "red"), pch = c(19, 8))
+```
+
+The residuals in Figure \@ref(fig:glm-bin-plot1) are mostly between -2 and 2, and show no signs of a poor fit. The plot of the fitted and observed values in Figure \@ref(fig:glm-bin-plot2) are similar, indicating good prediction for the observations we fit our model on. Overall, this model appears to be a good fit for the data. 
+
+From (either) model output, we see that age is significantly associated with menarche. As we used the logit link, the interpretation of our parameters are log odds ratios. As such, we can interpret the model output as follows:
+
+- $\beta_0$: At age = 0, the log odds of menarche is estimated to be -21.226 (the odds is estimated to be $\exp(-21.226)$ = 0.000). This makes sense in the context of our study.
+- $\beta_1$: For a one unit increase in the average age, we estimate the log odds of menarche to be 1.632 times higher (the odds ratio is estimated to be $\exp(1.632)$ = 5.114 times higher). Confidence intervals can be calculated as in Chapter \@ref(logreg).
+
+From these results, we conclude that age is significantly associated with menarche onset. 
+
+We can also estimate the probability of menarche onset for certain ages. For example, let's estimate the probability of menarche for a 13 year old child based on this model. Our model is 
+$$
+\log\left(\frac{\widehat{\pi}_i}{1 - \widehat{\pi}}_i\right) = -21.226 + 1.632*\text{Age}_i
+$$
+which we can re-write as
+$$
+\widehat{\pi}_i = \frac{\exp(-21.226 + 1.632*\text{Age}_i)}{1 + \exp(-21.226 + 1.632*\text{Age}_i)}.
+$$
+Thus, at age 13, we can estimate the probability of menarche as
+$$
+\widehat{\pi}_i = \frac{\exp(-21.226 + 1.632*13)}{1 + \exp(-21.226 + 1.632*13)}.
+$$
+We can calculate this by hand, or use the following commands in R:
+```{r glm-binomial-estimate}
+# grab the coefficients of the model
+est_beta <- menarche_fit1$coefficients #beta[1] is the intercept, 
+# beta[2] is the coefficient on age
+
+
+# estimate the probability
+est_prob <- exp(est_beta[1] + est_beta[2]*13)/(1 + exp(est_beta[1] + est_beta[2]*13))
+print(paste("Estimated probability:", round(est_prob,3))) #print it out, rounded
+```
+Thus, for a 13 year old child, we estimate the probability of menarche to be 49.7%.
+
+### Dose-response Models {#glm-bin-DR}
+
+Suppose we want to quantify a [dose-response](https://en.wikipedia.org/wiki/Dose%E2%80%93response_relationship) relationship between a stimulus (dose) and a particular outcome (response). We typically see dose-response relationships in [bioassay](https://en.wikipedia.org/wiki/Bioassay#:~:text=A%20bioassay%20is%20an%20analytical,or%20quantitative%2C%20direct%20or%20indirect.) experiments where we expose groups of living subjects to varying doses of a toxin and determine how many deaths or other binary health outcomes there are within a given time period. Given the concentration of the toxin, we calculate the dose as
+
+$$
+x = \text{dose} = \log(\text{concentration})
+$$
+We assume that for each subject in the bioassay study there is a *tolerance* or *threshold* dosage where a response will always occur. This value can vary from individual to individual and can be described by a statistical distribution. For each group $j = 1, 2, \dots, J$, we let $m_j$ be the total number of subjects in group $j$, $x_j$ be the dose applied to all subjects in group $i$, and $y_i$ be the number of subjects that responded in group $j$. 
+
+We assume that $Y_j$ follows a binomial distribution with $n$ = $m_j$ and unknown probability of response $\pi_j$. We can model this using a GLM as
+$$
+g(\pi) = \beta_0 + \beta_1x
+$$
+where $g()$ is a link function. 
+
+Choices of $g()$ include the probit, logit, and complimentary log-log (cloglog). The "best" link function depends on the underlying distribution of the probability $\pi$. After describing the link functions, we will show in an example that includes how to choose the link function from the data. 
+
+**Probit Link**
+
+If $\pi(x)$ is normally distributed, use probit link $g(\pi) = \Phi^{-1}(\pi)$ where $\Phi$ is the standard normal distribution CDF ([cumulative distribution function](https://en.wikipedia.org/wiki/Cumulative_distribution_function))
+
+Using this link function, we do not have the interpretation of odds ratios as we are not using the logistic link function. We can re-write the relationship between $\pi$ and the covariate $x$ through the link function as 
+$$
+\pi(x) = g^{-1}(\beta_0 + \beta_1x) = \Phi\left( \frac{x - \mu}{\sigma} \right)
+$$
+where $\mu$ is the mean and $\sigma$ is the standard deviation of the tolerance distribution (here we subtract the mean and divide by the standard deviation to create a standard normal distribution). 
+
+We may be the median lethal/effective dose at which 50% of the population has a response ($\delta_{0.5}$), which is calculated as 
+$$
+\delta_{0.5} = \frac{-\beta_0}{\beta_1}
+$$
+
+which can be calculated using the GLM model output. We can also obtain expressions for the 100$p$th percentile of the tolerance distribution ($\delta_p$) as
+$$
+\delta_p = \frac{\Phi^{-1}(p) - \beta_0}{\beta_1}
+$$
+where $\Phi^{-1}()$ is the inverse of the standard normal CDF. 
+
+**Logit Link**
+
+If we assume the probability has the form $\pi(x) = \frac{\exp(\beta_0 + \beta_1x)}{1 + \exp(\beta_0 + \beta_1x)}$, then we can use the logit link $g(\pi) = \log\left(\frac{\pi}{1 - \pi}\right)$. We interpret the parameters $\beta_0$ and $\beta_1$ as log odds/log odds ratios as in our "usual" logistic regression. That is, $\beta_0$ is the log odds of response for a dose of zero and $\beta_1$ is the log odds ratio for response associated with a one unit increase in the dose. To find odds/odds ratios, we exponentiate the coefficients. 
+
+The median lethal/effective dose is the same as the probit link, which is 
+$$
+\delta_{0.5} = \frac{-\beta_0}{\beta_1}.
+$$
+It is also possible to obtain expressions for any percentile of the tolerance distribution. That is, the 100$p$th percentile of the tolerance distribution for $(0 < p < 1)$ can be found by solving
+$$
+\log{\frac{p}{1-p}} = \beta_0 + \beta_1\delta_p
+$$
+where $\delta_p$ is the dosage we'd like to solve for. 
+
+
+**Complimentary Log-log Link**
+
+If we assume $\pi(x) = 1 - \exp(-\exp(\beta_0 + \beta_1x))$ (extreme value distribution), we can use the complementary log-log (cloglog) link $g(\pi) = \log(-\log(1 - \pi))$
+
+The interpretation of the parameters when using a complimentary log-log link function is not as "nice" as when using the logit or probit links, however we can still obtain an expression for the median lethal/effective dose, which is
+$$
+\delta_{0.5} = \frac{\log(-\log(1 - 0.5)) - \beta_0}{\beta_1}.
+$$
+
+#### Example
+
+
+We use data from a study by [@milesi2013] to evaluate the dose-response relationship of insecticide dosages and insect fatalities. We will focus on one particular strain of insecticide for the first replicate of the study.
+
+To read in this data, which is located in the "data" folder, we perform the following:
+```{r glm-dr-readin}
+# read in the data
+insecticide <- read.table("data/insectdoseresponse.txt", header = T)
+
+# change colnames to english
+colnames(insecticide) <- c("insecticide", "strain", "dose", "m", "deaths", 
+                           "replicate", "date", "color")
+
+# view first 6 observations
+head(insecticide)
+```
+We are only interested in a subset of this data for the purposes of this example. We are only interested in the first replication of the KIS-ref strain. As such, we subset the data by:
+```{r glm-dr-subset}
+# only keep rows where souche == KIS-ref and replicate = 1
+insecticide <- insecticide[insecticide$strain == "KIS-ref" & insecticide$replicate == 1, ]
+insecticide
+```
+
+
+To fit a dose-response GLM to this data, we need to have the total number of insects in each group, the dose (log(concentration)), and construct the appropriate paired response variable for the regression `(y, m - y)`. In this data set, we already have the dose (`dose`) and number of events (`deaths`) and group totals (`m`). Prior to fitting the glm, we just need to construct the response variable. To do so in R, we perform the following:
+```{r glm-dr-dataclean}
+# calculate response variable
+insecticide$response <- cbind(insecticide$deaths, insecticide$m - insecticide$deaths)
+
+# look at the data
+insecticide
+```
+
+We will fit three models, one with each of the previously discussed link functions, using the `glm()` function. We start with the probit link:
+```{r glm-dr-glmprobit}
+# fit the glm using link = "probit"
+insecticide_fit_probit <- glm(response ~ dose, 
+                              family = binomial(link = "probit"), data = insecticide)
+
+# look at the model output
+summary(insecticide_fit_probit)
+```
+
+```{r glm-dr-glmprobitplots1, fig.cap="Diagnostic Plot for Probit Model: Residuals"}
+# assess the residuals
+
+# first plot the residual vs dose
+resid_probit <- residuals.glm(insecticide_fit_probit, "deviance")
+plot(insecticide$dose, resid_probit, ylim = c(-3, 3),
+     main = "Deviance Residuals vs Dose: Probit",
+     ylab = "Residuals",
+     xlab = "Dose")
+abline(h = -2, lty = 2) # add dotted lines at 2 and -2
+abline(h = 2, lty = 2)
+```
+
+```{r glm-dr-glmprobitplots2, fig.cap="Diagnostic Plot for Probit Model: Fitted Values"}
+# then plot the fitted versus dose
+fitted_probit <- insecticide_fit_probit$fitted.values
+plot(insecticide$dose, fitted_probit, ylim = c(0, 1),
+     main = "Fitted Value vs Dose: Probit Model",
+     ylab = "Probability of Death",
+     xlab = "Dose",
+     pch = 19)
+points(insecticide$dose, insecticide$deaths/insecticide$m, 
+       col = "red", pch = 8)
+legend(0.008, 0.3, legend = c("Fitted", "Observed"), 
+       col = c("black", "red"), pch = c(19, 8))
+```
+From Plots \@ref(fig:glm-dr-glmprobitplots1) we see that most residuals fall within (-2, 2), which we would expect for a model with an adequate fit. From Plot \@ref(fig:glm-dr-glmprobitplots2), the fitted values mostly agree with the observed values, with no large deviations.
+
+Next, we can fit the model using a logit link:
+```{r glm-dr-glmlogit}
+# fit the glm using link = "logit"
+insecticide_fit_logit <- glm(response ~ dose, 
+                             family = binomial(link = "logit"), data = insecticide)
+
+# look at the model output
+summary(insecticide_fit_logit)
+```
+
+```{r glm-dr-glmlogitplots1, fig.cap="Diagnostic Plot for logit Model: Residuals"}
+# assess the residuals
+
+# first plot the residual vs dose
+resid_logit <- residuals.glm(insecticide_fit_logit, "deviance")
+plot(insecticide$dose, resid_logit, ylim = c(-3, 3),
+     main = "Deviance Residuals vs Dose: logit",
+     ylab = "Residuals",
+     xlab = "Dose")
+abline(h = -2, lty = 2) # add dotted lines at 2 and -2
+abline(h = 2, lty = 2)
+```
+
+```{r glm-dr-glmlogitplots2, fig.cap="Diagnostic Plot for logit Model: Fitted Values"}
+# then plot the fitted versus dose
+fitted_logit <- insecticide_fit_logit$fitted.values
+plot(insecticide$dose, fitted_logit, ylim = c(0, 1),
+     main = "Fitted Value vs Dose: logit Model",
+     ylab = "Probability of Death",
+     xlab = "Dose",
+     pch = 19)
+points(insecticide$dose, insecticide$deaths/insecticide$m, 
+       col = "red", pch = 8)
+legend(0.008, 0.3, legend = c("Fitted", "Observed"), 
+       col = c("black", "red"), pch = c(19, 8))
+```
+From Plots \@ref(fig:glm-dr-glmlogitplots1) we see that most residuals fall within (-2, 2), which we would expect for a model with an adequate fit. From Plot \@ref(fig:glm-dr-glmlogitplots2), the fitted values mostly agree with the observed values, with no large deviations. This model is very similar to the one with the probit link model.
+
+Next, we fit the model using the complimentary log-log link:
+```{r glm-dr-glmcloglog}
+# fit the glm using link = "cloglog"
+insecticide_fit_cloglog <- glm(response ~ dose, 
+                    family = binomial(link = "cloglog"), data = insecticide)
+
+# look at the model output
+summary(insecticide_fit_cloglog)
+```
+
+```{r glm-dr-glmcloglogplots1, fig.cap="Diagnostic Plot for cloglog Model: Residuals"}
+# assess the residuals
+
+# first plot the residual vs dose
+resid_cloglog <- residuals.glm(insecticide_fit_cloglog, "deviance")
+plot(insecticide$dose, resid_cloglog, ylim = c(-6, 4),
+     main = "Deviance Residuals vs Dose: cloglog",
+     ylab = "Residuals",
+     xlab = "Dose")
+abline(h = -2, lty = 2) # add dotted lines at 2 and -2
+abline(h = 2, lty = 2)
+```
+
+```{r glm-dr-glmcloglogplots2, fig.cap="Diagnostic Plot for cloglog Model: Fitted Values"}
+# then plot the fitted versus dose
+fitted_cloglog <- insecticide_fit_cloglog$fitted.values
+plot(insecticide$dose, fitted_cloglog, ylim = c(0, 1),
+     main = "Fitted Value vs Dose: cloglog Model",
+     ylab = "Probability of Death",
+     xlab = "Dose",
+     pch = 19)
+points(insecticide$dose, insecticide$deaths/insecticide$m, 
+       col = "red", pch = 8)
+legend(0.008, 0.3, legend = c("Fitted", "Observed"), 
+       col = c("black", "red"), pch = c(19, 8))
+```
+From Plots \@ref(fig:glm-dr-glmcloglogplots1) we some very large residuals, indicating an inadequate fit. From Plot \@ref(fig:glm-dr-glmcloglogplots2), the fitted values do not agree with the observed values, with some large deviations. From these three models, it appears that the logit or probit models are the best.
+
+
+We can plot the entire dose/response curve from the logit and probit models using the following code:
+```{r glm-dr-curve}
+x = seq(0, 0.010, by = 0.0001) # tiny increments over the doses
+prob_logit = as.vector(rep(1, length(x)))
+prob_probit = as.vector(rep(1, length(x)))
+
+#calculate estimated probability at each increment using logit model
+beta_logit = as.vector(insecticide_fit_logit$coefficients)
+for(i in 1:length(x)){
+  prob_logit[i] <- exp(beta_logit[1] + 
+              beta_logit[2]*x[i])/(1 + exp(beta_logit[1] + beta_logit[2]*x[i]))
+}
+
+#calculate estimated probability at each increment using probit model
+beta_probit = as.vector(insecticide_fit_probit$coefficients)
+for(i in 1:length(x)){
+  prob_probit[i] <-pnorm(beta_probit[1] + beta_probit[2]*x[i])
+}
+
+# plot observed values
+plot(insecticide$dose, insecticide$deaths/insecticide$m,
+     col = "red", pch = 8,
+     main = "Plot of Dose/Response Curve",
+     ylab = "Probability of death",
+     xlab = "Dose")
+
+# add the dose response curves
+lines(x, prob_logit, lty = 1, col = "blue")
+lines(x, prob_probit, lty = 2, col = "darkgreen")
+legend(0.008, 0.21, legend = c("logit", "probit"), 
+       col = c("blue", "darkgreen"), lty = c(1, 2))
+```
+
+Using this plot, we can decide which model fits the observations best. Both models appear to model the observed probabilities similarly. The logit model appears to model the observed probabilities slightly better. As such, we will analyze this model. Recall the model output:
+```{r glm-bin-dr-output}
+summary(insecticide_fit_logit)
+```
+
+Now, let's estimate the median lethal dose, $\delta_{0.5}$. For the logit link, recall that we calculate $\delta_{0.5}$ as
+
+$$
+\delta_{0.5} = \frac{-\beta_0}{\beta_1}
+$$
+
+which can be estimated by
+$$
+\begin{aligned}
+\widehat{\delta}_{0.5} &= \frac{-\widehat{\beta}_0}{\widehat{\beta}_1}\\
+&=\frac{-(-2.7636)}{1215.5565}\\
+&= 0.0023.
+\end{aligned}
+$$
+That is, based on the probit model we estimate the median lethal dose at which 50% of the population will die to be 0.0023.
+
+For more information on dose response models, readers are directed to [@kerr1996] and [@karunarathne2022]. 
+
+
+
+## Poisson Distributed Outcomes (Log-linear Regression) {#glm-poisson}
+
+### Modelling
+Data involving counts of events is commonly used in research, and can be analyzed using a Poisson GLM with a log link (also referred to as log-linear regression). That is, we model
+$$
+log(\mu_i) = \boldsymbol{x}_i^T\boldsymbol{\beta}.
+$$
+We look at count data in terms of the underlying [counting process](https://en.wikipedia.org/wiki/Counting_process#:~:text=Counting%20processes%20deal%20with%20the,be%20a%20Markov%20counting%20process.). We often assume that the counting process can be classified as a [Poisson process](https://en.wikipedia.org/wiki/Poisson_point_process#Interpreted_as_a_counting_process), meaning:
+
+1. The number of events in one interval is independent of the number events in a different interval
+2. The distribution of the number of events occurring from (0, t] (denoted $N(t)$) is given by
+$$
+Pr(N(t) = n; \lambda) = \frac{(\lambda t)^ne^{-\lambda t}}{n!}
+$$
+where $!$ represents the factorial function (for example, $4! = 4\times 3\times 2 \times 1$) and $\lambda$ is a rate parameter. The expected number of events for an interval of length $t$ is $E(N(t)) = \mu(t) =\lambda t$. This is a time-homogeneous Poisson process since $\lambda$ is constant, and is not a function of time.
+
+Under the log link,
+$$
+\begin{aligned}
+\log(\mu(t)) &= \log(\lambda t)\\
+&= \log(\lambda) + \log(t)
+\end{aligned}
+$$
+by the rules of logarithm operations. 
+
+If for each subject we observe the number of events from $(0, t_i]$, along with covariates $x_{i1}, ..., x_{ip}$, then we can model
+$$
+\begin{aligned}
+\log(\mu_i(t_i)) &= \log(\lambda_i t_i)\\
+&= \log(\lambda_i) + \log(t_i)\\
+&= \boldsymbol{x_i}^T\boldsymbol{\beta} + \log(t_i).
+\end{aligned}
+$$
+That is, we model our log-linear regression with an [offset](https://en.wikipedia.org/wiki/Poisson_regression#%22Exposure%22_and_offset) term of $\log(t_i)$ that will explain some of the variation in the differing counts of outcomes due to differing lengths of time (or another appropriate measure, depending on the context of the problem).   
+
+#### Example {#logreg-models-poisson-R}
+
+Let's look at an example of a data set that records the number of times an incident occurs in cargo ships [@mccullagh2019], which can be found in the `r cran_link("MASS")` package. We can load the data set and look at the first 6 observations using:
+```{r glm-poisson-load1, warning = F, message = F}
+data(ships) # loads data set from the MASS package
+head(ships)
+```
+
+We have the variable `type` corresponding to the type of ship (A - E), `year` which is the year of construction (coded as "60" for 1960-1964, "65" for 1965 - 1969, and so on), `period` which similarly codes the year of operation (which is either "60" for 1960-1974 or "75" for 1975-1979), `service` which is the number of months of service for the ship, and `incidents` which is the number of damage incidents for the ship during the months of service. 
+
+We wish to see which factors are associated with ship incidents. To see the distribution of our outcome, we can create a histogram by:
+```{r glm-poisson-histogram, fig.cap="Plot showing frequency of incidents for the ships data set. Data is clearly non-normal."}
+hist(ships$incidents, main = "Histogram of Incidents", ylab = "Frequency", 
+     xlab = "Number of Incidents")
+```
+
+From \@ref(fig:glm-poisson-histogram), we see that our distribution of the outcome is not symmetric (very skewed to the right), indicating that we cannot use a linear model (which assumes normality of the outcome). This is expected as we are modelling counts of incidents. 
+
+In this data set, as different ships will be in service for different months (which may affect how many incidents the ship has), we can use that variable (which is a measure of time) as our offset term. Specifically, we will fit a Poisson regression model using `incidents` as our outcome and `log(service)` as the offset term. 
+
+We should first clean the data set. This involves changing all of the categorical variables to factors, and removing ships that were never in service:
+```{r glm-poisson-factors}
+# create new variables in the data set that are factors
+ships$type_f <- as.factor(ships$type)
+ships$year_f <- as.factor(ships$year)
+ships$period_f <- as.factor(ships$period)
+
+# remove ships (rows) that were never in service (service == 0)
+# find which rows have service == 0
+toremove <- which(ships$service == 0)
+
+# remove the rows=
+ships <- ships[-toremove, ] # the - sign removes the given rows
+
+```
+
+We start with a main-effects model using all of the covariates at our disposal. We fit this model in R by
+```{r glm-poisson-fit1}
+ships_fit1 <- glm(incidents ~ type_f + year_f +period_f + 
+                   offset(log(service)),
+                 family = poisson, data = ships)
+
+# look at the model output
+summary(ships_fit1)
+```
+
+We should test to see if we can remove any covariates by performing likelihood ratio tests (LRTs) on nested models. We first fit a model without `type_f` and see if the fit is adequate compared to the full model. In this setting, we are testing the null hypothesis that the simpler model without `type_f` is adequate compared to the full model. If we reject the null, that means that `type_f` should be included in the model (when we compare it to the full model). We do this in R as:
+```{r glm-poisson-fit2}
+# fit the new, nested model
+ships_fit2 <- glm(incidents ~ year_f +period_f + # remove type_f as variable
+                   offset(log(service)),
+                 family = poisson, data = ships)
+
+# perform the LRT
+anova(ships_fit1, ships_fit2, test = "LRT")
+```
+We see from the output we have a small $p$-value, indicating that we reject the null hypothesis and conclude that the full model including `type_f` is a better fit.  
+
+Next we can check if we should remove `year_f` in a similar manner. 
+```{r glm-poisson-fit3}
+# fit the new, nested model
+ships_fit3 <- glm(incidents ~  type_f  +period_f + # remove year_f as variable
+                   offset(log(service)),
+                 family = poisson, data = ships)
+
+# perform the LRT
+anova(ships_fit1, ships_fit3, test = "LRT")
+```
+We again have a small $p$-value and reject the null hypothesis that the simpler model fit is adequate. That is, the full model fits better between these two models. 
+
+Next, we test for `period_f`. 
+```{r glm-poisson-fit4}
+# fit the new, nested model
+ships_fit4 <- glm(incidents ~ type_f + year_f + # remove period_f as variable
+                   offset(log(service)),
+                 family = poisson, data = ships)
+
+# perform the LRT
+anova(ships_fit1, ships_fit4, test = "LRT")
+```
+Again, we have a small $p$-value and choose the main effects model. 
+
+Although we were unable to remove any covariates, we can still test for possible interactions of the covariates. We again perform LRTs where in this setting, the main effects model will be nested in the model that includes additional interactions. 
+
+Let's first start by seeing if we should have an interaction between `type_f` and `year_f`. We do this by fitting a new interaction model and comparing it to the main effects model. The null hypothesis here is that the main effects model (simpler model) fits as well as the interaction model (more complex model). Rejecting the null hypothesis will tell us that we should include the interaction effect in the final model. We do this in R by:
+```{r glm-poisson-fit5}
+# fit the new interaction model
+ships_fit5 <- glm(incidents ~ type_f + year_f + period_f + 
+                    type_f*year_f + offset(log(service)), #include interaction
+                 family = poisson, data = ships)
+
+# perform the LRT
+anova(ships_fit5, ships_fit1, test = "LRT")
+```
+With a small $p$-value, we reject the null hypothesis. That is, we conclude the main effects simpler model is not adequate and we should have this interaction in the final model. Let's take a look at the model summary here:
+```{r glm-poisson-fit5summary}
+summary(ships_fit5)
+```
+
+Looking at the model summary, we notice that only one covariate is significant and we have huge standard errors for most of our covariates in the model. This indicates that we have overparameterized our model as we have 12 interaction terms here. Looking at the full data set, we see that for ships with type D in the year 1960-1964 or 1965-1969 category, there are no events. This could cause issues with the model fitting. As such, despite what the statistical test told us, we should not continue with this model or use any models that include any interactions between `type_f` and `year_f`. 
+
+
+Next we can test if we should also have an interaction between `type_f` and `period_f`. We test this model to the main effects model (`ships_fit`). We do this in R by:
+```{r glm-poisson-fit6}
+# fit the new interaction model
+ships_fit6 <- glm(incidents ~ type_f + year_f + period_f + 
+                    type_f*period_f + offset(log(service)), #include interaction
+                 family = poisson, data = ships)
+
+# perform the LRT
+anova(ships_fit6, ships_fit1, test = "LRT")
+```
+We have a large $p$-value, thus we fail to reject the null hypothesis. That is, we conclude the simpler model with no interactions is adequate compared to the model with the interaction and continue model building from there.
+
+Next we can test if we should also have an interaction between `year_f` and `period_f`. We test this model to the main effects model again.. We do this in R by:
+```{r glm-poisson-fit7}
+# fit the new interaction model
+ships_fit7 <- glm(incidents ~ type_f + year_f + period_f + 
+                 year_f*period_f +  offset(log(service)), #include interaction
+                 family = poisson, data = ships)
+
+# perform the LRT
+anova(ships_fit7, ships_fit1, test = "LRT")
+```
+We have a large $p$-value, thus we fail to reject the null hypothesis. That is, we conclude the simpler main effects model is adequate compared to the one with the interaction.
+
+We finish our model building process and conclude that `ships_fit1` is the best fitting model of the ones we tested. From the main effects model output shown earlier, we see that all covariates have small standard errors, and most levels of the categorical covariates are significant. This is what we should expect from a final model after cycling through the fitting procedure.
+
+### Model Diagnostics {#glm-poisson-diagnostics}
+
+**Residuals**
+
+Once we settle on a model from the likelihood ratio tests and initial inspection, we need to check the overall model fit. The first thing we can do is look at a plot of the residual versus fitted values to see if there are any large residuals indicating poor fit in the model. The following code can be used to produce such plots:
+```{r glm-poisson-plot1}
+resid <- residuals.glm(ships_fit1)
+fitted <- ships_fit1$fitted.values
+plot(fitted, resid, ylim = c(-3, 3), ylab = "Deviance Residuals", xlab = "Fitted Values")
+abline(h = -2, lty = 2)
+abline(h = 2, lty = 2)
+```
+
+We see that most values fall within 2 standard deviations, and there do not appear to be extreme residuals. 
+
+**Overdispersion**
+
+A common issue of Poisson GLMs is [overdispersion](https://en.wikipedia.org/wiki/Overdispersion) where we have a larger variation in the data set then would expect for the Poisson model (where in this distribution, we have that the mean and variance are equal to each other). When overdispersion occurs, the standard errors of our regression coefficients may be underestimated and we must adjust them. To test for overdispersion, we can use the `dispersiontest()` function from the `r cran_link("AER")` package. A small $p$-value indicates that we reject the null hypothesis that our dispersion is less than one (no overdispersion present). We can perform this test on our model by:
+```{r glm-poisson-dispersiontest}
+dispersiontest(ships_fit1)
+```
+We have a moderately large $p$-value, so we fail to reject the null hypothesis. That is, we do not have evidence of overdispersion in this model and continue our analysis. 
+
+If overdispersion is present in a model, one can use an ad-hoc approach to estimate a dispersion parameter or use a mixed model (negative binomial distribution) that introduces a random variable that acts as a dispersion factor. For more information on these models, see [this tutorial](https://online.stat.psu.edu/stat504/lesson/9/9.2-0) which provides examples in both R and SAS.
+
+**Zero-inflation**
+
+We should also check if the amount of observed zeros in our outcome marches what would be predicted from our model. If the amount of predicted zeros is smaller than what is observed, we may need to use a [zero-inflated poisson regression](https://en.wikipedia.org/wiki/Zero-inflated_model). We can check for this looking at the ratio of observed versus predicted zeros. This can be done using the `check_zeroinflation()` function from the `r cran_link("performance")` package in R:
+```{r glm-poisson-zeroinfl}
+check_zeroinflation(ships_fit1)
+```
+We see that we have the same number of observed and predicted zeros in the model, and thus we do not need to use a zero-inflated model. There are no strict guidelines for what ratio a zero-inflated model must be used, but it is common for a ratio between 0.95 and 1.05 to be considered good enough to continue with a regular Poisson GLM. More discussion on this issue, along with some more formal statistical tests, can be found [here](https://stats.oarc.ucla.edu/r/dae/zip/#:~:text=Zero%2Dinflated%20poisson%20regression%20is,zeros%20can%20be%20modeled%20independently.).
+
+### Model Interpretations {#glm-poisson-interpretation}
+
+After checking the fit of our model, we can interpret our model to answer the research question of interest. Here, we are interested in seeing if the type of ship, the year it was built, or the period of operation are associated with an increase or decrease in the number of damage incidents. 
+
+We can see a summary of the final model again by calling:
+```{r glm-poisson-fit1summary}
+summary(ships_fit1)
+```
+We can write this model as
+$$
+\log(\mu(t)) = \beta_0 + \beta_1x_1 + \beta_2x_2 + \beta_3x_3 + \beta_4x_4 + \beta_5x_5 + \beta_6x_5 + \beta_7x_7 + \beta_8x_8
+$$
+where $x_1$ indicates the ship is type B, $x_2$ indicates the ship is type C, $x_3$ indicates the ship is type D, $x_4$ indicates the ship is type E, $x_5$ indicates the ship was built between 1965-1969, $x_6$ indicates the ship was built between 1970-1974, $x_7$ indicates the ship was built between 1974-1979, $x_8$ indicates the ship operated between 1975-1979. 
+
+
+Each coefficient can be interpreted as the expected log relative rate (log RR) of incidents. For example, the coefficient for the B type ships ($\beta_1$ or `type_fB` from the output) is `r round(summary(ships_fit1)$coef[2,1],3)` which means that for ships constructed in the same year and that operated in the same period, the rate of incidents for ships of type B is $\exp($  `r  round(summary(ships_fit1)$coef[2,1],3)`  $)$ = `r  round(exp(summary(ships_fit1)$coef[2,1]),3)` times larger than type A ships (the reference group). This indicates that risk of type B ships having incidents was less than that of type A ships  (since RR < 1), controlling for period of operation and construction year. 
+
+To obtain a confidence interval for this estimate, we can calculate the confidence interval for the log relative rate, and then exponentiate it. In this case, a 95% confidence interval for the log relative rate of incidents for B type ships versus A type ships is $\widehat{\beta_1} \pm$ 1.960 $\times \widehat{se}(\widehat{\beta_1})$  = `r  round(summary(ships_fit1)$coef[2,1],3)` $\pm$ 1.960 $\times$ `r  round(summary(ships_fit1)$coef[2,2],3)` = (`r  round(summary(ships_fit1)$coef[2,1] - 1.960*summary(ships_fit1)$coef[2,2],3)`,`r  round(summary(ships_fit1)$coef[2,1] + 1.960*summary(ships_fit1)$coef[2,2],3)`). Then, we take those two numbers and exponentiate them to get a 95% confidence interval for the relative rate, which is ($\exp($`r  round(summary(ships_fit1)$coef[2,1] - 1.960*summary(ships_fit1)$coef[2,2],3)`),$\exp($`r  round(summary(ships_fit1)$coef[2,1] + 1.960*summary(ships_fit1)$coef[2,2],3)`)) = (`r  round(exp(summary(ships_fit1)$coef[2,1] - 1.960*summary(ships_fit1)$coef[2,2]),3)`,`r  round(exp(summary(ships_fit1)$coef[2,1] + 1.960*summary(ships_fit1)$coef[2,2]),3)`). As this confidence interval does not contain RR = 1, we conclude that the relative rate of incidents for type B ships is significantly lower (since RR < 1) than type A when controlling for period of operation and construction year.  Other individual covariates can be similarly interpreted, and confidence intervals for the respective relative rates can easily be found using the `confint()` function from the `r cran_link("MASS")` package. For example, we can call
+
+```{r glm-poisson-confintfunction}
+exp(confint(ships_fit1))
+```
+to obtain the 95% individual confidence intervals for the relative rate (after exponentiating). Other confidence intervals can be calculated by changing the `level` parameter in the `confint()` function. 
+
+If we wanted to compare two ship types to each other where one is not the baseline value in the model, we can still do so with such models. For example, say we want to estimate the relative rate of incidents for ships of type E ($x_4 = 1$) versus C ($x_2 = 1$), controlling for construction year and period of operation. It is often helpful to create a table such as:
+$$
+\begin{aligned}
+& \beta_0 + \beta_1x_1 + \beta_2x_2 + \beta_3x_3 + \beta_4x_4 + \beta_5x_5 +\beta_6x_6 + \beta_7x_7 + \beta_8x_8\\
+-& (\beta_0 + \beta_1x_1 + \beta_2x_2 + \beta_3x_3 + \beta_4x_4 + \beta_5x_5 +\beta_6x_6 + \beta_7x_7 + \beta_8x_8)\\
+& \hline
+\qquad \qquad \qquad \qquad \qquad \qquad?? 
+\end{aligned}
+$$
+and then fill in the values for each scenario. The top row will be for the type E ship and the second row will be for the type C ship. Note that when we fill in 0 for the other types of ships since this is a categorical variable. We also hold the period of operation and construction year constant, so we can just leave these as arbitrary $x$ values. Then, we perform the subtraction:
+
+$$
+\begin{aligned}
+& \beta_0 + \beta_1(0) + \beta_2(0)+ \beta_3(0) + \beta_4(1) + \beta_5x_5 +\beta_6x_6 + \beta_7x_7 + \beta_8x_8\\
+-& (\beta_0 + \beta_1(0) + \beta_2(1) + \beta_3(0) + \beta_4(0) + \beta_5x_5 +\beta_6x_6 + \beta_7x_7 + \beta_8x_8)\\
+& \hline
+\qquad \quad  \qquad -\beta_2 \qquad  \qquad \quad  +\beta_4\\
+\end{aligned}
+$$
+
+So, the log relative rate we wish to calculate is $-\beta_2 + \beta_4$ = `r  round(-1*summary(ships_fit1)$coef[3,1],3)` + `r  round(summary(ships_fit1)$coef[5,1],3)` = `r  round(-1*summary(ships_fit1)$coef[3,1] + summary(ships_fit1)$coef[5,1],3)`. To obtain a confidence interval for this quantity, we first need to obtain the estimated standard error of $-\beta_2 + \beta_4$. We can do this in R by first creating a vector indicating the quantity we'd like to calculate the standard error for (here it is $(\beta_0, \beta_1, \beta_2, \beta_3, \beta_4, \beta_5, \beta_6, \beta_7, \beta_8) = (0, 0, -1, 0 , 1, 0, 0, 0, 0)$) and then calculating the error by:
+```{r glm-poisson-stderror}
+# create the vector for -beta2 + beta4 (don't forget to include beta0!)
+L <- c(0, 0, -1, 0, 1, 0, 0, 0, 0)
+
+# grab variance-covariance matrix from the model
+vcov <- summary(ships_fit1)$cov.unscaled
+
+esterror <- sqrt(t(L) %*% vcov %*% L) #%*% represents matrix multiplication
+esterror
+```
+Then, we can use this in our confidence interval for the log relative rate:
+```{r glm-poisson-cimulti}
+# calculate -beta2 + beta4
+estimate <- coef(ships_fit1)%*%L
+
+# calculate lower CI bound
+CI_lower <- estimate - 1.96*esterror
+
+# calculate upper CI bound
+CI_upper <- estimate + 1.96*esterror
+
+# print it out nicely
+print(paste("(", round(CI_lower,3), ",", round(CI_upper,3), ")"))
+```
+Then to get the estimated CI for the relative rate (not log relative rate), we exponentiate both ends of the interval:
+```{r glm-poisson-cimultiRR}
+
+# calculate lower CI bound for RR
+CI_RR_lower <- exp(CI_lower)
+
+# calculate upper CI bound for RR
+CI_RR_upper <- exp(CI_upper)
+
+# print it out nicely
+print(paste("(", round(CI_RR_lower,3), ", ", round(CI_RR_upper,3), ")", sep = ""))
+```
+As the resultant confidence interval for the relative rate does not contain an estimate of RR = 1, we conclude that the relative rate of incidents for ships of type E ($x_4 = 1$) versus C ($x_2 = 1$) significantly differs and is estimated to be`r paste(round(estimate,3))` (95% CI: `r print(paste("(", round(CI_RR_lower,3), ",", round(CI_RR_upper,3), ")"))`), controlling for construction year and period of operation. 
+
+For non-categorical variables, the interpretation of the regression coefficient is the log relative rate associated with a one-unit increase in that variable. 
+
+For more information on Poisson models, readers are directed to [@hilbe2013], [@mccullagh2019].
+
+
+## Gamma Distributed (Skewed) Outcomes
+
+For continuous data that is not not normally distributed, a GLM using the gamma distribution can be used to model skewed outcomes. 
+
+We note that under the gamma distribution, the variance is equal to the mean squared, meaning that the ratio of the mean and standard deviation is constant. Using a log link can stabilize the variance, as discussed in [@myers1997]. Although the canonical link for a gamma family GLM is the inverse link, we commonly see the log link applied in practice because of its interpretations and variance stabilization. Using the log link does not require further constraints on the model when fit. 
+
+Under the log link, we model
+$$
+\log(y_{i}) = \boldsymbol{x}_i^T\boldsymbol{\beta}
+$$
+which can also be written as
+$$
+\begin{aligned}
+y_i &= \exp(\boldsymbol{x}_i^T\boldsymbol{\beta})\\
+&= \exp(\beta_0 + \beta_1x_{i1} + \beta_2x_{i2} + ... + \beta_{ip}x_{ip})\\
+&= \exp(\beta_0)\exp(\beta_1x_{i1}) \exp(\beta_2x_{i2})\dots \exp(\beta_{ip}x_{ip}) \\
+&= \exp(\beta_0)\exp(\beta_1)^{x_{i1}} \exp(\beta_2)^{x_{i2}}...\exp(\beta_{ip})^{x_{ip}}.
+\end{aligned}.\
+$$
+Under the log link, we have a multiplicative model. We interpret $\exp(\beta_0)$ as the expected value of $y$ when all covariates are equal to zero.  We interpret $exp(\beta_j$) as the expected multiplicative increase of
+$y$ for a one unit increase in $x_j$, when the other coefficients are equal to zero. 
+
+
+
+
+### Example
+
+Data on a full-factorial experiment by [@myers1997] on four binary covariates was conducted to measure the resistivity of a wafer in a semiconductor experiment. Data is available as the `wafer` data set from the `r cran_link("faraway")` package in R. We show how the GLM can be employed to find associations between the different factors `x1` - `x4` and the resistivity (`resist`). 
+
+We first need to load in the data:
+```{r glm-gamma-readin}
+# load in the data set
+data(wafer)
+
+# look at the data structure
+str(wafer)
+```
+
+We already have `x1`, `x2`, `x3`, and `x4` as categorical variables so we don't need to change these. 
+
+Let's look at the distribution of our outcome:
+```{r glm-gamma-hist, fig.cap = "Histogram of Resistivity"}
+# create a histogram of the outcome
+hist(wafer$resist, breaks = 5)
+```
+
+```{r glm-gamma-boxplot, fig.cap = "Boxplot of Resistivity"}
+boxplot(wafer$resist)
+```
+Both of the plots in Figures \@ref(fig:glm-gamma-hist) and \@ref(fig:glm-gamma-boxplot) indicate that the outcome data is skewed and non-normal. As the outcome data is non-normal, it is inappropriate to use the normal distribution for modelling. However, we can model such outcomes using the gamma distribution.
+
+... continue example ....
+
+## Further Reading
+
+For a more detailed, theoretical introduction to generalized linear models, readers are directed to [@mccullagh2019]. 
