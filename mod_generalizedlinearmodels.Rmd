@@ -81,7 +81,7 @@ The following is a table containing commonly used distributions, their canonical
 | Distribution of $Y$     | Canonical Link           | Family parameter in R `glm` function |
 | ------------------------|:------------------------:| ---------------:|
 | [Normal](https://en.wikipedia.org/wiki/Normal_distribution)  (used for symmetric continuous data) | Identity: $g(\mu) = \mu$ | `family = gaussian(link = "identity")`|
-| [Binomial](https://en.wikipedia.org/wiki/Binomial_distribution) (Binary data special case where n = 1)  | Logistic: $g(\mu) = \log\left(\frac{\mu}{n-\mu}\right)$ | `family = binomial(link = "logit")`|
+| [Binomial](https://en.wikipedia.org/wiki/Binomial_distribution) (Binary data is a special case where n = 1)  | Logistic: $g(\mu) = \log\left(\frac{\mu}{n-\mu}\right)$ | `family = binomial(link = "logit")`|
 | [Poisson](https://en.wikipedia.org/wiki/Poisson_distribution#:~:text=In%20probability%20theory%20and%20statistics,time%20since%20the%20last%20event.) (used for discrete count data) | Log: $g(\mu) = \log(\mu)$ | `family = poisson(link = "log")`|
 | [Gamma](https://en.wikipedia.org/wiki/Gamma_distribution) (used for continuous, positive, skewed or heteroskedastic data) | Reciprocal: $g(\mu) = \frac{1}{\mu}$ | `family = gamma(link = "inverse")`| 
 
@@ -112,7 +112,7 @@ A generalized linear model with a normally distributed outcome using the canonic
 
 We will be demonstrating the use of a glm on normally distributed data using the `rent` data set from the `r cran_link("catdata")` package in R. This data set contains information on 2053 units' rent (in euros), rent per squared meter (in euros), number of rooms, and other covariates for renal units in Munich in 2003. A full list and description of the variables can be found using by typing `?rent` in the R console and reading through the documentation. We read in this data set with the following code, and look at the first 6 observations by;
 ```{r glm-normal-readin}
-# read in dataset
+# read in data set
 data(rent)
 
 # view first 6 observations
@@ -238,8 +238,8 @@ The residuals in Figure \@ref(fig:glm-bin-plot1) are mostly between -2 and 2, an
 
 From (either) model output, we see that age is significantly associated with menarche. As we used the logit link, the interpretation of our parameters are log odds ratios. As such, we can interpret the model output as follows:
 
-- $\beta_0$: At age = 0, the log odds of menarche is estimated to be -21.226 (the odds is estimated to be $exp(-21.226)$ = 0.000). This makes sense in the context of our study.
-- $\beta_1$: For a one unit increase in the average age, we estimate the log odds of menarche to be 1.632 times higher (the odds ratio is estimated to be $exp(1.632)$ = 5.114 times higher). Confidence intervals can be calculated as in Chapter \@ref(logreg).
+- $\beta_0$: At age = 0, the log odds of menarche is estimated to be -21.226 (the odds is estimated to be $\exp(-21.226)$ = 0.000). This makes sense in the context of our study.
+- $\beta_1$: For a one unit increase in the average age, we estimate the log odds of menarche to be 1.632 times higher (the odds ratio is estimated to be $\exp(1.632)$ = 5.114 times higher). Confidence intervals can be calculated as in Chapter \@ref(logreg).
 
 From these results, we conclude that age is significantly associated with menarche onset. 
 
@@ -333,7 +333,7 @@ $$
 #### Example
 
 
-We use data from a study by [@milesi2013] to evaluate the dose-response relationship of insecticide dosages and insect mortalities. We will focus on one particular strain of insecticide for the first replicate of the study.
+We use data from a study by [@milesi2013] to evaluate the dose-response relationship of insecticide dosages and insect fatalities. We will focus on one particular strain of insecticide for the first replicate of the study.
 
 To read in this data, which is located in the "data" folder, we perform the following:
 ```{r glm-dr-readin}
@@ -547,7 +547,7 @@ $$
 We look at count data in terms of the underlying [counting process](https://en.wikipedia.org/wiki/Counting_process#:~:text=Counting%20processes%20deal%20with%20the,be%20a%20Markov%20counting%20process.). We often assume that the counting process can be classified as a [Poisson process](https://en.wikipedia.org/wiki/Poisson_point_process#Interpreted_as_a_counting_process), meaning:
 
 1. The number of events in one interval is independent of the number events in a different interval
-2. The distribution of the number of events occuring from (0, t] (denoted $N(t)$) is given by
+2. The distribution of the number of events occurring from (0, t] (denoted $N(t)$) is given by
 $$
 Pr(N(t) = n; \lambda) = \frac{(\lambda t)^ne^{-\lambda t}}{n!}
 $$
@@ -576,7 +576,7 @@ That is, we model our log-linear regression with an [offset](https://en.wikipedi
 
 Let's look at an example of a data set that records the number of times an incident occurs in cargo ships [@mccullagh2019], which can be found in the `r cran_link("MASS")` package. We can load the data set and look at the first 6 observations using:
 ```{r glm-poisson-load1, warning = F, message = F}
-data(ships) # loads dataset from the MASS package
+data(ships) # loads data set from the MASS package
 head(ships)
 ```
 
@@ -717,7 +717,7 @@ We see that most values fall within 2 standard deviations, and there do not appe
 
 **Overdispersion**
 
-A common issue of Poisson GLMs is [overdispersion](https://en.wikipedia.org/wiki/Overdispersion) where we have a larger variation in the data set then would expect for the Poisson model (where in this distribution, we have that the mean and variance are equal to eachother). When overdispersion occurs, the standard errors of our regression coefficients may be underestimated and we must adjust them. To test for overdispersion, we can use the `dispersiontest()` function from the `r cran_link("AER")` package. A small $p$-value indicates that we reject the null hypothesis that our dispersion is less than one (no overdispersion present). We can perform this test on our model by:
+A common issue of Poisson GLMs is [overdispersion](https://en.wikipedia.org/wiki/Overdispersion) where we have a larger variation in the data set then would expect for the Poisson model (where in this distribution, we have that the mean and variance are equal to each other). When overdispersion occurs, the standard errors of our regression coefficients may be underestimated and we must adjust them. To test for overdispersion, we can use the `dispersiontest()` function from the `r cran_link("AER")` package. A small $p$-value indicates that we reject the null hypothesis that our dispersion is less than one (no overdispersion present). We can perform this test on our model by:
 ```{r glm-poisson-dispersiontest}
 dispersiontest(ships_fit1)
 ```
@@ -821,14 +821,32 @@ For non-categorical variables, the interpretation of the regression coefficient 
 For more information on Poisson models, readers are directed to [@hilbe2013], [@mccullagh2019].
 
 
-## Gamma Distributed Outcomes
+## Gamma Distributed (Skewed) Outcomes
 
-For continuous data that is not not normally distributed, a GLM using the gamma distribution can be used to model skewed outcomes. Although the canonical link for a gamma family GLM is the inverse link, we commonly see the log link applied in practice because of its interpretations. 
+For continuous data that is not not normally distributed, a GLM using the gamma distribution can be used to model skewed outcomes. 
+
+We note that under the gamma distribution, the variance is equal to the mean squared, meaning that the ratio of the mean and standard deviation is constant. Using a log link can stabilize the variance, as discussed in [@myers1997]. Although the canonical link for a gamma family GLM is the inverse link, we commonly see the log link applied in practice because of its interpretations and variance stabilization. Using the log link does not require further constraints on the model when fit. 
+
+Under the log link, we model
+$$
+\log(y_{i}) = \boldsymbol{x}_i^T\boldsymbol{\beta}
+$$
+which can also be written as
+$$
+\begin{aligned}
+y_i &= \exp(\boldsymbol{x}_i^T\boldsymbol{\beta})\\
+&= \exp(\beta_0 + \beta_1x_{i1} + \beta_2x_{i2} + ... + \beta_{ip}x_{ip})\\
+&= \exp(\beta_0)\exp(\beta_1x_{i1}) \exp(\beta_2x_{i2})\dots \exp(\beta_{ip}x_{ip}) \\
+&= \exp(\beta_0)\exp(\beta_1)^{x_{i1}} \exp(\beta_2)^{x_{i2}}...\exp(\beta_{ip})^{x_{ip}}.
+\end{aligned}.\
+$$
+Under the log link, we have a multiplicative model. We interpret $\exp(\beta_0)$ as the expected value of $y$ when all covariates are equal to zero.  We interpret $exp(\beta_j$) as the expected multiplicative increase of
+$y$ for a one unit increase in $x_j$, when the other coefficients are equal to zero. 
 
 
-... Insert more theory...
 
 
+### Example
 
 Data on a full-factorial experiment by [@myers1997] on four binary covariates was conducted to measure the resistivity of a wafer in a semiconductor experiment. Data is available as the `wafer` data set from the `r cran_link("faraway")` package in R. We show how the GLM can be employed to find associations between the different factors `x1` - `x4` and the resistivity (`resist`). 
 
@@ -844,16 +862,17 @@ str(wafer)
 We already have `x1`, `x2`, `x3`, and `x4` as categorical variables so we don't need to change these. 
 
 Let's look at the distribution of our outcome:
-```{r glm-gamma-hist}
+```{r glm-gamma-hist, fig.cap = "Histogram of Resistivity"}
 # create a histogram of the outcome
 hist(wafer$resist, breaks = 5)
 ```
 
-```{r glm-gamma-boxplot}
+```{r glm-gamma-boxplot, fig.cap = "Boxplot of Resistivity"}
 boxplot(wafer$resist)
 ```
-Both of the plots in Figures \@ref(fig:glm-gamma-hist) and \@ref(fig:glm-gamma-boxplot) indicate that the outcome data is skewed and non-normal. 
+Both of the plots in Figures \@ref(fig:glm-gamma-hist) and \@ref(fig:glm-gamma-boxplot) indicate that the outcome data is skewed and non-normal. As the outcome data is non-normal, it is inappropriate to use the normal distribution for modelling. However, we can model such outcomes using the gamma distribution.
 
+... continue example ....
 
 ## Further Reading
 
