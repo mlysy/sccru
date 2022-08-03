@@ -8,7 +8,7 @@ output:
 
 *Author: Grace Tompkins*
 
-*Last Updated: July 17, 2022*
+*Last Updated: August 3, 2022*
 
 --- 
 ```{r cache-chunk, include = F}
@@ -31,7 +31,7 @@ In this section, we will introduce the generalized linear model framework with a
 
 ## List of R Packages {#glm-rpackages}
 
-In this chapter, we will be using the packages `r cran_link("catdata")`, `r cran_link("MASS")`, `r cran_link("AER")`, `r cran_link("performance")`, `r cran_link("faraway")` 
+In this chapter, we will be using the packages `r cran_link("catdata")`, `r cran_link("MASS")`, `r cran_link("AER")`, `r cran_link("performance")`, `r cran_link("faraway")` , `r cran_link("LogisticDx")`, and `r cran_link("car")`. We can load these packages in R after installing them by the following:
 ```{r long-library, warning=FALSE, message=FALSE}
 #load the required packages
 library(catdata)
@@ -39,6 +39,8 @@ library(MASS)
 library(AER)
 library(performance)
 library(faraway)
+library(LogisticDx)
+library(car)
 ```
 
 
@@ -67,6 +69,11 @@ We need to satisfy a number of assumptions to use the GLM framework:
 2. There is a linear relationship between a transformation of the mean and the predictors through the link function, and
 3. The errors are uncorrelated with constant variance, but not necessarily normally distributed.
 
+We also assume that there is no [multicollinearity](https://en.wikipedia.org/wiki/Multicollinearity) among explanatory variables. 
+
+Multicollinearity (sometimes referred to as collinearity) occurs when two or more explanatory variables are highly correlated, such that they do not provide unique or independent information in the regression model. If the degree of correlation is high enough between variables, it can cause problems when fitting and interpreting the model. One way to detect multicollinearity is to calculate the [variation inflation factor (VIF)](https://en.wikipedia.org/wiki/Variance_inflation_factor) for each covariate in a model.  The general guideline is that a VIF larger than 5 or 10 indicates that the model has problems estimating the coefficient possibly due to multicollinearity. We will show in Section \@ref(glm-logreg) how to use R functions to calculate the VIF after model building. 
+
+We note that our methodology will be particularly sensitive to these assumptions when sample sizes are small. When collecting data, we also want to ensure that the sample is representative of the population of interest to answer the research question(s).
 
 ### Link Functions {#glm-links}
 
@@ -83,11 +90,11 @@ The following is a table containing commonly used distributions, their canonical
 | [Normal](https://en.wikipedia.org/wiki/Normal_distribution)  (used for symmetric continuous data) | Identity: $g(\mu) = \mu$ | `family = gaussian(link = "identity")`|
 | [Binomial](https://en.wikipedia.org/wiki/Binomial_distribution) (Binary data is a special case where n = 1)  | Logistic: $g(\mu) = \log\left(\frac{\mu}{n-\mu}\right)$ | `family = binomial(link = "logit")`|
 | [Poisson](https://en.wikipedia.org/wiki/Poisson_distribution#:~:text=In%20probability%20theory%20and%20statistics,time%20since%20the%20last%20event.) (used for discrete count data) | Log: $g(\mu) = \log(\mu)$ | `family = poisson(link = "log")`|
-| [Gamma](https://en.wikipedia.org/wiki/Gamma_distribution) (used for continuous, positive, skewed or heteroskedastic data) | Reciprocal: $g(\mu) = \frac{1}{\mu}$ | `family = gamma(link = "inverse")`| 
+| [Gamma](https://en.wikipedia.org/wiki/Gamma_distribution) (used for continuous, positive, skewed or heteroskedastic data) | Reciprocal: $g(\mu) = \frac{1}{\mu}$ | `family = Gamma(link = "inverse")`| 
 
-Each link function will dictate how we interpret the model parameters. For example, using a logistic link for binomial outcome data (also known as logistic regression), we interpret our parameters $\beta$ as log odds ratios. More details on this can be found in the dedicated logistic regression module in Chapter \@ref(logreg). When using a log link on Poisson data, our model parameters estimate log relative rates, which we will detail Section \@ref(glm-poisson).
+Each link function will dictate how we interpret the model parameters. For example, using a logistic link for binomial outcome data (also known as logistic regression), we interpret our parameters $\beta$ as log odds ratios. More details on this can be found in the dedicated logistic regression module in Chapter \@ref(glm-logreg). When using a log link on Poisson data, our model parameters estimate log relative rates, which we will detail in Section \@ref(glm-poisson).
 
-We note that sometimes we will use link functions other than the canonical link. For example, it is common for researchers evaluating dose-response relationships for binary outcomes to use the [probit](https://en.wikipedia.org/wiki/Probit_model) links instead of the canonical logistic link. The probit link is the inverse of the standard normal cumulative distribution function. We will also provide a detailed example for this in Section \@ref(glm-bin-DR). 
+We note that sometimes we will use link functions other than the canonical link. For example, it is common for researchers evaluating dose-response relationships for binary outcomes to use the [probit](https://en.wikipedia.org/wiki/Probit_model) link instead of the canonical logistic link. The probit link is the inverse of the standard normal cumulative distribution function. We will also provide a detailed example for this in Section \@ref(glm-binprop-DR). 
 
 To fit a GLM in R, we use the `glm()` function. In this function, we can specify:
 
@@ -98,9 +105,17 @@ To fit a GLM in R, we use the `glm()` function. In this function, we can specify
 
 We will show concrete examples of how to fit different types of GLMs in the following sections.
 
-When fitting GLMs, it is important to perform model selection procedures and assess the model fit before interpreting the results. For GLMs, we often perform [likelihood ratio tests (LRTs)](https://en.wikipedia.org/wiki/Likelihood-ratio_test) on nested models to see which model provides a better fit. We can do this in a iterative fashion on many models until a final model is chosen. From there, we can look at model diagnoses (perhaps by a residual analysis or looking at various plots). If the model fit is deemed poor, we should consider other model structures, interaction terms, non-linear transformations of variables, look for influential observations or outliers, and repeat the model selection procedure until the fit is satisfactory. 
 
-For non-nested models, we can perform model selection by either [Akaike information criterion (AIC)](https://en.wikipedia.org/wiki/Akaike_information_criterion) or [Bayesian information criterion (BIC)](https://en.wikipedia.org/wiki/Bayesian_information_criterion) where a smaller value represents a better fit. Although both AIC and BIC are similar, research has shown that each are appropriate for different tasks, as discussed [here](https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_BIC). For model selection of GLMs, either of AIC or BIC are appropriate to use. 
+## Notes on Model Selection {#glm-modelselection}
+
+When fitting GLMs, it is important to perform model selection procedures and assess the model fit before interpreting the results. We aim to find a [parsimonious model](https://www.statisticshowto.com/parsimonious-model/#:~:text=Parsimonious%20models%20are%20simple%20models,called%20lex%20parsimoniae%20in%20Latin) that addresses our research questions. That is, we aim to find the simplest model that explains the relationship between the outcome and covariate(s) of interest.
+
+One of the most common ways to compare models against each other is through the [likelihood ratio test](https://en.wikipedia.org/wiki/Likelihood-ratio_test) (LRT). For the likelihood ratio test, we can compare [nested](https://www.statology.org/nested-model/#:~:text=A%20nested%20model%20is%20simply,variables%20in%20another%20regression%20model.) models. That is, we can compare a full model to a nested model that contains a subset of variables that appear in the full model (and no other variables or transformations). Likelihood ratio tests tend to be the preferred method for building logistic regression models where we want to draw claims and perform hypothesis tests. 
+
+We typically start model selection with a full main-effects only model and look at removing the least significant covariates in the full model.  We can see if these covariates can be removed in the model by testing the full model against one that does not contain those two covariates by a LRT. The LRT compares the residual deviance from both models we are comparing, with degrees of freedom (df) equal to the difference in the number of covariates between the two models. We are specifically testing the null hypothesis $H_0$: the simpler model is adequate compared to the more complex model. That is, if the $p$-value from the test is small, we reject the null and conclude that the simpler model is not adequate, and we should use the fuller model. We can perform an LRT in R by using the `anova()` function with `test = "LRT"` in the function call. 
+
+For nested or non-nested models, we can also perform model selection by either [Akaike information criterion (AIC)](https://en.wikipedia.org/wiki/Akaike_information_criterion) or [Bayesian information criterion (BIC)](https://en.wikipedia.org/wiki/Bayesian_information_criterion) where a smaller value represents a better fit. Although both AIC and BIC are similar, research has shown that each are appropriate for different tasks, as discussed [here](https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_BIC). For the problems discusses in the following sections, AIC and BIC are comparable and either are appropriate for use.
+
 
 In the following sections, we will outline examples of fitting, assessing, and interpreting various of generalized linear models for commonly used distributions. 
 
@@ -147,7 +162,7 @@ rentm_fit1 <- glm(rentm ~ size + factor(rooms) + year + factor(area) +
 # see summary of model
 summary(rentm_fit1)
 ```
-We note that we specified`family = gaussian(link = "identity")` in our model, but we could also have left this parameter out of the model as the default family is set to Gaussian for the `glm()` function. 
+We note that we specified`family = gaussian(link = "identity")` in our model, but we could also have left this parameter out of the model as the default family is set to Gaussian for the `glm()` function, or fit the model using the `lm()` function. 
 
 All covariates appear to be significantly associated with the outcome `rentm`. As some of the levels of the `area`(municipality) covariate are insignificant, we can perform an LRT to see if the `area` covariate is needed. To do so, we fit a model without `area` and compare it to the model that includes `area` as a covariate using the `anova()` function:
 
@@ -161,27 +176,419 @@ rentm_fit2 <- glm(rentm ~ size + factor(rooms) + year +
 # perform LRT
 anova(rentm_fit2, rentm_fit1, test = "LRT")
 ```
-The null hypothesis we are testing is that the simpler model (model without `area`) is adequate compared to the fuller model. We have a small p-value here, indicating that we reject the null hypothesis and conclude that our model fit is better when we do include `area` as a covariate. 
+The null hypothesis we are testing is that the simpler model (model without `area`) is adequate compared to the fuller model. We have a small $p$-value here, indicating that we reject the null hypothesis and conclude that our model fit is better when we do include `area` as a covariate. 
 
 We can continue model building in this fashion, however as a GLM fitted with the identity link is the same as fitting a linear model, readers are directed to Section \@ref(linreg-mlm) for more information on model fitting, diagnostics, and interpretations. 
 
 
 
-## Binomial Distributed Outcomes (Logistic Regression) {#glm-bin}
+## Bernoulli Distributed Outcomes (Logistic Regression) {#glm-logreg}
 
-We often see data on individuals where the outcome data is binary (0/1, true/false, present/not present).  Readers are directed to the dedicated chapter on logistic regression (Chapter \@ref(logreg)) for this setting. 
+[Logistic regression](https://en.wikipedia.org/wiki/Logistic_regression) allows us to quantify the relationship between an outcome and other factors similar to traditional linear regression. However,  traditional linear regression is limited to continuous outcomes and is thus not suitable for modelling binary outcomes. This is because the normality assumption of the outcome will be violated. 
 
-Sometimes when evaluating a binary response, we don't have data for each individual in the study and cannot fit a logistic regression in the usual way. However, if we have the proportion of outcomes for various subgroups in our data set, we can still model the proportion of outcomes using a binomial generalized linear model. That is, we observe $y_j/m_j$ for each combination $j = 1, 2, ..., J$ of our variables $\boldsymbol{x}$ where $y_j$ is the number of successes/occurrences in a subgroup $j$ of size $m_j$. 
+
+More specifically, logistic regression relates a binary outcome $\bm{Y_i}$ to a set of covariates $\bm{x_i}$ through the mean, as
+$$
+g(\mu_i) = \bm{x}_i^T\bm{\beta} 
+$$
+where $Y_i$ is the binary outcome for individual $i$, $bm{x}_i$ is a $p \times 1$ vector of covariates for individual $i$, and $g(\cdot)$ is a [link function](https://en.wikipedia.org/wiki/Generalized_linear_model#Link_function). For logistic regression, we use the [logit link](https://en.wikipedia.org/wiki/Logit), meaning we express our model as
+
+$$
+\text{log} \left[\frac{P(Y_i=1|\bm{x}_i)}{P(Y_i=0|\bm{x}_i)} \right] = \text{log} \left[\frac{\pi_i}{1-\pi_i} \right]=\bm{x_i}^T\bm{\beta}
+$$
+That is, we model the natural logarithm of the ratio of the probability that $Y_i$ is one versus zero. We denote the probability that $Y_i$ is one given covariates $\bm{x}_i$ as $\pi_i$. We refer to the quantity $\text{log} \left[\frac{\pi_i}{1-\pi_i} \right]$ as the **log-odds** (the logarithm of the [odds](https://en.wikipedia.org/wiki/Odds)) where the odds is the ratio of the probability an event occurring ($P(Y_i = 1)$) versus not occurring ($P(Y_i = 0)$). For example, in a roll of a standard six-sided die, the odds of rolling a three is 
+$$
+\text{Odds} = \frac{P(\text{3 is rolled})}{P(\text{3 is not rolled})} = \frac{(1/6)}{(5/6)} = 1/5 = 0.2
+$$
+We emphasize that the odds are **not** equal to the probability of an event happening. The probability of rolling a three on a standard die is $1/6 = 0.167$, which is not equal to the odds, however the two quantities are related by the definition of the odds.  
+
+Notice that in our model that there is no random error term. This may be surprising as we typically see a random error term in linear regression models, however because we are modelling the mean of the outcome a random error term is not needed. 
+
+Our primary interest is in estimating the coefficients $\bm{\beta}$ in our model. These coefficients can be interpreted as log odds ratio of the outcome for a one unit change in the corresponding covariate.  For example, if we consider a discrete covariate $x_1$ representing disease presence, we would interpret $\beta_1$ as the estimated log odds ratio of the outcome $Y$ for those with the disease versus without, controlling for other covariates in the model. For continuous covariates such as age, we would interpret the coefficient as the estimated log odds ratio associated with a one year increase in age, controlling for other covariates. We will show examples of the model interpretation for real data examples in the following sections, with a focus on building, evaluating, and interpreting models in R. 
+
+
+
+### Example {#glm-logreg-example}
+
+Let us look at an example using the `heart` data set from the `r cran_link("catdata")` package in R. This data set contains a retrospective sample of 462 males between ages 15 and 64 in South Africa where the risk of heart disease is considered high. We have data on whether or not the subject has coronary heart disease (CHD) (`y` = 1 indicates subject has CHD), measurements of systolic blood pressure (`sbp`), cumulative tobacco use (`tobacco`), low density lipoprotein cholesterol (`ldl`), adiposity (`adiposity`), whether or not the subject has a family history of heart disease (`famhist` = 1 indicates family history), measures of type-A behavior (`typea`), a measure of obesity (`obestiy`),  current alcohol consumption (`alcohol`), and the subject's age (`age`). 
+
+```{r glm-logreg-library, warning=FALSE, message=FALSE}
+data("heart", package = "catdata") # load the data set heart from catdata package
+# here we specify package because there are other data sets named
+# heart in other loaded packages
+
+# convert to data frame
+heart <- data.frame(heart)
+
+# view first 6 rows of data
+head(heart)
+```
+
+For illustrative purposes, we will convert `age` into a categorical variable to have a multi-level categorical variable in our analysis. We will convert our age into 10-year age categories: 1: 15 to 24, 2: 25 to 34, 3: 35 to 44, 4: 45 to 54, 5: 55 to 64. We emphasize that this decision is just to show readers how to work with categorical factors. We convert our variable into a factor using the following code:
+```{r glm-logreg-conver, warning = F, message = F}
+#make a copy of age
+heart$age_f <- heart$age
+
+# overwrite it, making groups by age
+heart$age_f[heart$age %in% 15:24] <- 1
+heart$age_f[heart$age %in% 25:34] <- 2
+heart$age_f[heart$age %in% 35:44] <- 3
+heart$age_f[heart$age %in% 45:54] <- 4
+heart$age_f[heart$age %in% 55:64] <- 5
+```
+
+
+From this data set, we'd like to see if there is a relationship between CHD diagnosis and tobacco use. We wish to control for other factors in our analysis, which we can do using a logistic regression model. 
+
+
+Before building logistic regression models in R, we need to pre-process or "clean" the data. The first thing we can do is ensure the covariates in our data set are the correct type (continuous, categorical, etc) so that the model will be appropriately fit. The variables `sbp`, `tobacco`, `adiposity`, `obesity`, and `alcohol`, are continuous covariates and thus do not need to be specified as such. The variable `famhist` is a binary variable, and `age.f` is a categorical variable so these need to be specified as categorical variables or "factors" in R. We also need to convert the data set to a data frame. We do so with the following:
+```{r glm-logreg-R-cleanup, warning=FALSE}
+# specify categorical variables as factors
+heart$famhist_f <- as.factor(heart$famhist)
+heart$age_f <- as.factor(heart$age_f)
+```
+
+Other things we may need to deal with in the data cleaning stage include missing data and duplicated responses. In our case, we do not have to deal with any of these issues and will continue with our analysis. 
+
+#### Model Fitting {#glm-logreg-example-fit}
+
+To fit a logistic regression model in R, we fit a generalized linear model using the `glm()` function and specify a logistic link function by using the `family=binomial(link = "logit")"` argument. For example, we can build the main-effects only logistic regression model considering all covariates previously described by:
+```{r glm-logreg-R-firstfit, warning=FALSE, cache=TRUE}
+#build the logistic model
+heart_modelmaineffects <- glm(y ~ sbp + tobacco + ldl + adiposity + famhist_f + 
+                         typea + obesity + alcohol + age_f, 
+                            family=binomial(link = "logit"), data=heart)
+
+#show the output
+summary(heart_modelmaineffects)
+```
+
+Calling `summary()` on the model fit provides us with various estimates for the regression coefficients ("Estimate"), standard errors ("Std. Error"), and the associated Wald test statistic ("z value") and $p$-value ("Pr(>|z|)") for the null hypothesis that the corresponding coefficient is equal to zero.
+
+While we could interpret this model and perform hypothesis tests, we must consider model selection to find the most appropriate model to answer our research questions. 
+
+We notice from the model output that `alcohol`, `adiposity` and `sbp` covariates have large $p$-values for the Wald test that $\beta_{sbp} = 0$ and $\beta_{adiposity} = 0$ and $\beta_{alcohol} = 0$. We can see if these covariates are necessary in the model by testing the full model against one that does not contain those two covariates by a LRT. We do so in R by first fitting the new model, obtaining the residual deviance from both models we are comparing, and performing the LRT using the degrees of freedom (df) equal to the difference in the number of covariates between the two models (here, we removed 3 covariates and thus we have 3 degrees of freedom). The null hypothesis here is that `heart_model2` is adequate compared to `heart_modelfull`. 
+
+```{r glm-logreg-R-lrt1, warning=FALSE, message=FALSE}
+# fit the nested model without sbp, alcohol, or adiposity
+heart_model2 <- glm(y ~ tobacco + ldl + famhist_f + typea + 
+                      obesity + age_f, 
+                    family=binomial(link = "logit"), data=heart)
+
+# perform the LRT 
+anova(heart_model2, heart_modelmaineffects, test = "LRT")
+```
+We have a large $p$-value here, indicating that we do NOT reject the null hypothesis. That is, we are comfortable moving forward with the simpler model. Let's take a look at the model summary:
+```{r glm-logreg-F-fit2summary}
+summary(heart_model2)
+```
+We notice that as we add and remove covariates, the estimates of our coefficients, standard errors, test statistics, and $p$-values will change. We see that  `obestiy` does not appear to be significant in the model. We can see if this variable are necessary again by performing an LRT against our second model:
+
+```{r glm-logreg-R-lrt2, warning=FALSE, message=FALSE}
+# fit the nested model without obesity
+heart_model3 <- glm(y ~ tobacco + ldl + famhist_f + typea + age_f, 
+                    family=binomial(link = "logit"), data=heart)
+
+# perform the LRT 
+anova(heart_model3, heart_model2, test = "LRT")
+
+```
+We have a moderate $p$-value here, indicating that we do NOT reject the null hypothesis. That is, we are comfortable moving forward with the simpler model (`heart_model3`). Let's take a look at the model summary:
+```{r glm-logreg-R-fit3summary}
+summary(heart_model3)
+```
+All of the remaining covariates in our model are significantly significant. While we could stop the model selection procedure here, we should also consider interactions and higher-order terms in our model selection. 
+
+It is possible that those with a family history of heart disease may have different cholesterol levels than those who do not. We can consider adding in this interaction term to account for the potential difference in cholesterol levels by family history, and its impact on chronic heart disease diagnosis. We further fit another model with the interaction and perform an LRT against the model without the interaction by:
+```{r glm-logreg-R-lrt3, warning=FALSE, message=FALSE}
+# fit the nested model with an interaction term
+heart_model4 <- glm(y ~ tobacco + ldl + famhist_f + typea + age_f + ldl*famhist_f, 
+                    family=binomial(link = "logit"), data=heart)
+
+#show the output
+
+# perform the LRT 
+anova(heart_model3, heart_model4, test = "LRT")
+
+```
+
+We have a small $p$-value here, indicating that we reject the null hypothesis that the simpler model fits as well as the larger model. That is, we should include the interaction term in our model. Let's look at the summary of this model:
+```{r glm-logreg-R-summarymod4, warning=FALSE, message=FALSE}
+summary(heart_model4)
+
+```
+We notice that the main effects of `ldl` and `famhist_f` are now insignificant. However, as we have the interaction term in the model, we tend to want to keep the main effects in the model as well to interpret. We note that there is a higher chance that the interaction will be significant if the main effects are as well. 
+
+
+We also note that for categorical variables, we do not test if individual levels of the covariate should be included. That is, if one level of `age_f` was not significant, we do not remove that one level. We would need to do an LRT to see if the entire covariate of `age_f` was necessary. We can do so by the following:
+```{r glm-logreg-R-cat}
+# fit the model without age_f
+heart_model5 <- glm(y ~ tobacco + ldl + famhist_f + typea + ldl*famhist_f, 
+                    family=binomial(link = "logit"), data=heart)
+
+# perform the LRT 
+anova(heart_model4, heart_model5, test = "LRT")
+```
+We have a very small $p$-value, indicating that we reject the null hypothesis that the simpler model is better. That is, `age_f` is necessary in our model and we should use `heart_model4` as our final model!
+
+
+We will compare the final model selected by LRTs to a built-in stepwise model selection procedure in R using the [`step()`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/step) function. The `step()` function evaluates the model on the [Akaike information criterion (AIC)](https://en.wikipedia.org/wiki/Akaike_information_criterion), where a smaller value represents a better fit. To do so in R, we use this function on the full model and perform a backward selection procedure by:
+```{R glm-logreg-R-step, warning = F, message = F}
+#fit a full model, including the interaction
+heart_full <- glm(y ~ sbp + tobacco + ldl + adiposity + famhist_f + 
+                         typea + obesity + alcohol + age_f + ldl*famhist_f, 
+                            family=binomial(link = "logit"), data=heart)
+
+
+step(heart_full, direction = c("backward"))
+```
+The final model contains `tobacco`, `ldl`, `famhist_f`, `typea`, `age_f`, and the interaction between `ldl` and `famhist_f` as covariates. The model chosen by the `step()` function in this case is exactly the same as the one we obtained by the LRT. However, depending on the order we perform the likelihood ratio tests, or the direction of the stepwise algorithm, we can obtain different model results. Likelihood ratio tests tend to be preferred over AIC based algorithms for building logistic regression models where we want to draw claims and perform hypothesis tests while AIC based algorithms tend to be preferred for forecasting problems. As such, we will continue our analysis with the model chosen by our LRTs. 
+
+
+#### Model Diagnostics {#glm-logreg-example-diagnostics}
+
+Before interpreting the chosen model, we must assess the model fit. We can do so by plotting the deviance residuals to give an idea of the model fit. We can do so in R by:
+```{r glm-logreg-md-plots, fig.cap="Plot of Residuals for Logistic Regression Model"}
+# Plot the residuals
+plot(residuals(heart_model4, type = "pearson"), ylab = "Pearson Residuals")
+```
+
+We notice that there are two subjects with high residual values. To identify them, we can use the following code;
+```{r glm-logreg-md-identifyresid}
+# sort residuals largest to smallest and select the first two
+sort(residuals(heart_model4, type = "pearson"), decreasing = T)[1:2]
+```
+
+Subjects 261 and 21 have high deviance residuals. To see if these are [influential observations](https://en.wikipedia.org/wiki/Influential_observation#:~:text=In%20statistics%2C%20an%20influential%20observation,effect%20on%20the%20parameter%20estimates.), we can refit the logistic regression model without these observations. If the estimates of our model change greatly, then we should remove these two observations as they may affect inference and predictions made with the logistic regression model.
+
+Let's make a second data set without the 261st observation and see if the results of the model change. 
+```{r glm-logreg-md-remove261}
+heart2 <- heart[-261,] # removing the 261st observation
+
+#fit the model using heart2
+heart_model4_2 <- glm(y ~ tobacco + ldl + famhist_f + typea + age_f + ldl*famhist_f, 
+                    family=binomial(link = "logit"), data=heart2) #use heart2
+
+summary(heart_model4_2) #model summary excluding id 261
+summary(heart_model4) #original model summary
+```
+We do see that the estimated coefficients and standard errors change after removing the observation. In particular, the estimated regression coefficients and standard errors of the `age_f` variable changed greatly. This shows that observation 261 is an influential observation, and should be removed. 
+
+We can do the same procedure for removing observation 21:
+```{r glm-logreg-md-remove21}
+heart3 <- heart[-c(21, 261),] # removing the 21st (and 261st from prev removal) 
+# observation
+
+#fit the model using heart3
+heart_model4_3 <- glm(y ~ tobacco + ldl + famhist_f + typea + age_f + ldl*famhist_f, 
+                    family=binomial(link = "logit"), data=heart3) #use heart2
+
+summary(heart_model4_3) #model summary excluding id 21 and id 261
+summary(heart_model4) #original model summary
+```
+Again we see that the coefficients change significantly and deem the 21st observation to be influential. Thus, we continue our analysis without observation 21 and 261.
+
+
+```{r glm-logreg-md-plots2, fig.cap="Plot of Residuals for Logistic Regression Model\\ with Influential Observation Removed"}
+# Plot the residuals
+plot(residuals(heart_model4_3, type = "pearson"), ylab = "Pearson Residuals")
+```
+
+Now, we see that most residual values fall between $(-2, 2)$ (with no values beyond $\pm 3$), which indicates a proper model fit. 
+
+We notice that when we look at the model summary, some covariates have very large estimated standard errors and are no longer significant, indicating that after removing the influential observations we should re-do our model fitting. 
+```{R glm-logreg-R-stepnoinfluential, warning = F, message = F}
+#fit a full model, including the interaction
+heart_full2 <- glm(y ~ sbp + tobacco + ldl + adiposity + famhist_f + 
+                         typea + obesity + alcohol + age_f + ldl*famhist_f, 
+                            family=binomial(link = "logit"), data=heart3)
+
+
+step(heart_full2, direction = "both", trace = 0) #trace = 0 means don't print
+# every step
+```
+
+Let's see the summary of the model:
+```{r glm-logreg-md-modelfit2}
+# fit a new model
+heart_model6 <- glm(y ~ tobacco + ldl + famhist_f + 
+                         typea + age_f + ldl*famhist_f , 
+                            family=binomial(link = "logit"), data=heart3)
+summary(heart_model6)
+```
+Although the stepwise procedure (and an LRT) will tell us otherwise, we should remove the age_f variable due to the large, insignificant estimates. It is likely that for this sample, `age_f` is not adding any value to our model. We refit this model without `age_f`:
+
+```{r glm-logreg-md-modelfit3}
+# fit a new model
+heart_model7 <- glm(y ~ tobacco + ldl + famhist_f + 
+                         typea + ldl*famhist_f , 
+                            family=binomial(link = "logit"), data=heart3)
+summary(heart_model7)
+```
+and see estimates with less extreme values and variances. When we plot the residuals:
+
+```{r glm-logreg-md-plots3, fig.cap="Plot of Residuals for Second \\Logistic Regression Modelwith Influential Observation Removed"}
+# Plot the residuals
+plot(residuals(heart_model7, type = "pearson"), ylab = "Pearson Residuals")
+```
+
+We see that the residuals are behaving as expected with no extreme values. 
+
+We should also check for multicollinearity in our model. We can do so by using the `vif()` function from the `r cran_link("car")` package. We can do so by the following R code:
+```{r glm-logreg-md-collinearity}
+vif(heart_model7)
+```
+
+We see that we only have low-moderate variance inflation factors (VIFs), indicating that multicollinearity is not an issue in this model. We typically are concerned about multicollinearity when VIF values are above 10. 
+
+
+
+
+#### Model Interpretation and Hypothesis Testing {#glm-logreg-example-ht}
+
+**Odds Ratios**
+
+As previously mentioned, we interpret each coefficients as the log odds ratio of the outcome for a one unit change in the corresponding covariate, controlling for the other covariates in the model. That means, to obtain estimates of the odds ratio, we take the exponential (`exp()` in R) of the coefficient. The estimates of the standard error for the coefficients (log-odds) will be useful for hypothesis testing and constructing confidence intervals.
+
+Let's look again at the model we chose from the selection procedure:
+```{r glm-logreg-MIHT-summary}
+summary(heart_model7)
+```
+In mathematical notation, we can write this model as
+
+$$
+\begin{aligned}
+\text{log} \left[\frac{\pi_i}{1-\pi_i} \right]= \beta_0 + &\beta_1x_1 + \beta_2x_2 + \beta_3x_3 + \beta_4x_4 + \beta_5x_2*x_3
+\end{aligned}
+$$
+where $\pi_i$ is the probability of having CHD, $x_1$ is the measurement of cumulative tobacco use, $x_2$ is the ldl cholesterol measurement, $x_3$ is an indicator for family history, and $x_4$ is the type a measurement.
+
+We are provided with the estimates and standard errors of the log odds ratios, but typically want to interpret and communicate our findings on the scale of odd ratios. To obtain an estimate of the odds ratio for a given covariate, we simply exponentiate the coefficient. For example, the `tobacco` covariate's estimated coefficient ($\widehat{\beta_1}$) is `r paste(round(summary(heart_model7)$coef[2,1],3))`, meaning we estimate that a one unit increase in `tobacco` is associate with a **log odds ratio** of chronic heart disease equal to `r paste(round(summary(heart_model7)$coef[2,1],3))`, controlling for the other factors in the model. Alternatively, we can say that a one unit increase in `tobacco` is associate with an **odds ratio** of chronic heart disease equal to $\exp($ `r paste(round(summary(heart_model7)$coef[2,1],3))` $)$ = `r paste(round(exp(summary(heart_model7)$coef[2,1]),3))`, controlling for other factors. 
+
+[Confidence intervals](https://en.wikipedia.org/wiki/Confidence_interval) (CIs) are useful in communicating the uncertainty in our estimates and are typically presented along with our estimate. Confidence intervals are calculated on the log odds ratio scale, and then exponentiated to find the confidence interval for the odds ratio. We calculate a 95% confidence interval for a log odds ratio as:
+
+$$
+\widehat{\beta} \pm 1.96\times \widehat{se}(\widehat{\beta})
+$$
+where $\widehat{se}(\widehat{\beta})$ is the estimated standard error of the regression coefficient. For example, a 95% confidence interval for the log odds ratio of `tobacco` is
+$$
+0.138 \pm 1.960 \times 0.025 = (0.089, 0.187).
+$$
+Then, to find the 95% CI for the odds ratio, we exponentiate both sides of the CI as:
+$$
+(\exp(0.089), \exp(0.187)) = (1.093, 1.206)
+$$
+So, we estimate the odds ratio to be `r paste(round(exp(summary(heart_model7)$coef[2,1]),3))` (95% CI: (1.093, 1.206)) controlling for the other factors in the model. As this 95% CI does not contain the value of 1 in it, we say that we are 95% confident that higher tobacco use is associated with an increased odds of developing CHD. 
+
+For the odds ratios and confidence intervals of the regression coefficients individually, one can also call the `confint.default()` function
+
+```{r glm-logreg-MIHT-confint}
+logORs <- cbind(coef(heart_model7), confint.default(heart_model7))
+colnames(logORs) <- c("logOR", "Lower", "Upper")
+logORs
+```
+and exponentiate it to get the ORs:
+```{r glm-logreg-MIHT-confint2}
+ORs <- exp(logORs)
+colnames(ORs) <- c("Odds Ratio", "Lower", "Upper")
+ORs
+
+```
+
+
+For another example, let's look at estimating the odds ratio of CHD for a one unit increase in `ldl` among those with a family history of CHD, controlling for the other factors. For more complex estimates where we may be interested in combinations of covariates, it can be useful to create a table to determine what regression coefficients we want to use.  
+
+
+Recall the model 
+$$
+\begin{aligned}
+\text{log} \left[\frac{\pi_i}{1-\pi_i} \right]= \beta_0 + &\beta_1x_1 + \beta_2x_2 + \beta_3x_3 + \beta_4x_4 + \beta_5x_2x_3.
+\end{aligned}
+$$
+and recall $x_2$ represents `ldl` and $x_3$ represents `famhist_f`.
+
+We wish to estimate the odds ratio of CHD for a one unit increase in `ldl`, which is the same as looking at $x_2$ = 1 versus $x_2 = 0$ (or $x_2 = 2$ versus $x_2 = 1$, and so on, however 1 versus 0 is the simplest example). We also are interested in only those with a family history of CHD, represented by $x_3 = 1$. All of the other covariates are held constant. So, we are comparing
+
+$$
+\begin{aligned}
+\beta_0 + &\beta_1x_1 + \beta_2(1) + \beta_3(1) + \beta_4x_4 + \beta_5(1)(1)
+\end{aligned}
+$$
+to
+$$
+\begin{aligned}
+\beta_0 + &\beta_1x_1 + \beta_2(0) + \beta_3(1) + \beta_4x_4 + \beta_5(0)(1)
+\end{aligned}
+$$
+If we look at the difference of these equations, we have 
+$$
+\begin{aligned}
+& \beta_0 + \beta_1x_1 + \beta_2(1) + \beta_3(1) + \beta_4x_4 + \beta_5(1)(1)\\
+&-\beta_0 + \beta_1x_1 + \beta_2(0) + \beta_3(1) + \beta_4x_4 + \beta_5(0)(1)\\
+\hline
+& \qquad \qquad  \qquad \quad \beta_2 \qquad \quad \quad \quad  \qquad  \quad+\beta_5
+\end{aligned}
+$$
+which shows that we should estimate and interpret $\beta_2 + \beta_5$ to answer this question. From the model output, we estimate the log odds ratio as $\widehat{\beta_2} + \widehat{\beta_5} = 0.099 + 0.301 = 0.400$. Then, the estimated odds ratio is $\exp(0.400) = 1.492$. So, we estimate that a one unit increase in low density lipoprotein cholesterol is associated with an odds ratio of CHD equal to 1.492, controlling for other factors. 
+
+To estimate the confidence interval, we can use the `OR()` function from the `r cran_link("LogisticDx")` package where we specify `newdata` to be $(\beta_0,\beta_1,\beta_2,\beta_3,\beta_4,\beta_5)$ =(0,0,1,0,0,1), which represents $\beta_2 + \beta_5$. To obtain the CI for the odds ratio, we call
+```{r glm-logreg-MIHT-logisticdx}
+OR(heart_model7, newdata = c(0,0,1,0,0,1))
+```
+which provides us with estimates of the odds ratio (OR), lowOR, and upOR where the 95% CI is (lowOR, upOR). The two lines are for two models: one with an intercept and without, though in this case the OR and CI's are the same. We can also find the CI manually by finding the estimated standard error of the $\widehat{\beta_2} + \widehat{\beta_5}$ manually.
+
+**Probabilities**
+
+Perhaps we are interested in estimating or predicting the probability of the outcome instead of the odds ratio for given covariates. 
+
+Suppose we are interested in the probability that a 25 year old with `spb` = 150, `tobacco` = 0, `ldl` = 6, `adiposity` = 24, no family history of CHD, `typea` = 60, `obesity` = 30, and `alcohol` = 10. Using the required information, we can obtain a prediction using the `predict()` function as:
+```{r glm-logreg-MIHT-prediction}
+
+# make a vector of the new information as it would appear in the original 
+# dataframe (excluding y). Use colnames(heart) to see the order of variables
+newsubject <- data.frame(sbp = 150,
+                         tobacco = 0,
+                         ldl = 6,
+                         adiposity = 24,
+                         famhist = 0,
+                         typea = 60,
+                         obesity = 30,
+                         alcohol = 10,
+                         age = 25,
+                         age_f = 2,
+                         famhist_f = 1
+                         )
+
+newsubject$age_f <- as.factor(newsubject$age_f)
+newsubject$famhist_f <- as.factor(newsubject$famhist_f)
+
+predict(heart_model7, newdata = newsubject)
+
+```
+
+We estimate that $\frac{\log{\pi}}{1 - \pi} = -0.037$. So, to estimate the probability, we take the expit() of this estimate, or obtain
+$$
+\frac{\exp(-0.037)}{1 + \exp(-0.037)} = 0.491
+$$
+We estimate this hypothetical individual to have a 49.1% probability of having CHD given their covariates. 
+
+
+
+
+
+## Binominal Distributed/Proportional Outcomes (Logistic Regression on Proportions) {#glm-binprop}
+
+Sometimes when evaluating a binary response, we don't have data for each individual in the study and cannot fit a logistic regression in the usual way. However, if we have the proportion of outcomes for various subgroups in our data set, we can still model the proportion of outcomes using a binomial generalized linear model. That is, we observe $y_j/m_j$ for each combination $j = 1, 2, ..., J$ of our variables $\boldsymbol{x}$ where $y_j$ is the number of successes/occurrences in a subgroup $j$ of size $m_j$. We note that this method is recommended over treating the proportion as a continuous outcome and fitting a linear regression model. This is because the proportions may not be normally distributed, or even continuous for small $m$. 
 
 We model the expected proportions as a function of the covariates of interest using a binomial regression model (logistic regression). We can fit a generalized linear model two ways: we can either model the response as a pair where the response is `cbind(y, m - y)` or model the response as `y/m` where we set `weights = m` as a parameter in the `glm()` function. In both settings, we let `family = binomial()` and specify a link function. 
 
 The following example shows the use of the binomial regression model, and explains how we can fit the model in two different ways.
 
-### Example
+### Example {#glm-binprop-example}
 
 We will be looking at a data set involving the proportions of children who have reached menarche at different ages. The data set contains the average age of the group (which are reasonably homogeneous) (`Age`), the total number of children in the group (`Total`), and the number of children in the group who have reached menarche (`Menarche`). The goal of this analysis is to see quantify the relationship between age and menarche onset. We first load the `menarche` data set from the `r cran_link("MASS")` package:
 
-```{r glm-bin-load}
+```{r glm-binprop-load}
 # load the data from MASS package
 data("menarche") 
 
@@ -190,8 +597,10 @@ head(menarche)
 ```
 We see that for different age groups, we have different sizes of the number of individuals in that group (`Total`), and the corresponding number of children who have reached menarche (`Menarche`). The proportion of people who have reached menarche in each age group is then `Menarche/Total`. 
 
-We can fit a model two ways: we can either model the response as a pair where the response is `cbind(y, m - y)` or model the response as `y/m` where we set `weights = m` as a parameter in the `glm()` function. We will show that these models produce the same results. We will fit both models using the canonical logit link. First, we fit the model using the paired response:
-```{r glm-bin-mod1}
+#### Model Fitting {#glm-binprop-example-mf}
+
+Recall that we can fit a model two ways: fitting the outcome as `cbind(y, m - y)` or fitting the outcome as `y/m` where we set `weights = m` as a parameter in the `glm()` function. We will show that these models produce the same results. We will fit both models using the canonical logit link. First, we fit the model using the paired response:
+```{r glm-binprop-mod1}
 menarche_fit1 <- glm(cbind(Menarche, Total - Menarche) ~ Age, 
                      data = menarche, 
                      family = binomial(link = "logit"))
@@ -199,7 +608,7 @@ menarche_fit1 <- glm(cbind(Menarche, Total - Menarche) ~ Age,
 summary(menarche_fit1)
 ```
 Next, we fit the model using the proportions and specifying the `weights`:
-```{r glm-bin-mod2}
+```{r glm-binprop-mod2}
 menarche_fit2 <- glm(Menarche/Total ~ Age, 
                      data = menarche, 
                      weights = Total,
@@ -210,8 +619,10 @@ summary(menarche_fit2)
 
 We see that these models are equivalent. 
 
+#### Model Diagnostics {#glm-binprop-example-md}
+
 We can look at the model fit by evaluating the residual and fitted values:
-```{r glm-bin-plot1, fig.cap = "Residual plot for Menarche GLM"}
+```{r glm-binprop-plot1, fig.cap = "Residual plot for Menarche GLM"}
 # first plot the residual vs dose
 resid_menarche <- residuals.glm(menarche_fit1, "deviance")
 plot(menarche$Age, resid_menarche, ylim = c(-3, 3),
@@ -222,7 +633,7 @@ abline(h = -2, lty = 2) # add dotted lines at 2 and -2
 abline(h = 2, lty = 2)
 
 ```
-```{r glm-bin-plot2, fig.cap="Diagnostic Plot for Probit Model: Fitted Values"}
+```{r glm-binprop-plot2, fig.cap="Diagnostic Plot for Probit Model: Fitted Values"}
 # then plot the fitted versus dose
 fitted_menarche <- menarche_fit1$fitted.values
 plot(menarche$Age, fitted_menarche, ylim = c(0, 1),
@@ -234,12 +645,14 @@ points(menarche$Age, menarche$Menarche/menarche$Total, col = "red", pch = 8)
 legend(13, 0.3, legend = c("Fitted", "Observed"), col = c("black", "red"), pch = c(19, 8))
 ```
 
-The residuals in Figure \@ref(fig:glm-bin-plot1) are mostly between -2 and 2, and show no signs of a poor fit. The plot of the fitted and observed values in Figure \@ref(fig:glm-bin-plot2) are similar, indicating good prediction for the observations we fit our model on. Overall, this model appears to be a good fit for the data. 
+The residuals in Figure \@ref(fig:glm-binprop-plot1) are mostly between -2 and 2, and show no signs of a poor fit. The plot of the fitted and observed values in Figure \@ref(fig:glm-binprop-plot2) are similar, indicating good prediction for the observations we fit our model on. Overall, this model appears to be a good fit for the data. 
+
+#### Model Interpretation {#glm-binprop-example-interpretation}
 
 From (either) model output, we see that age is significantly associated with menarche. As we used the logit link, the interpretation of our parameters are log odds ratios. As such, we can interpret the model output as follows:
 
 - $\beta_0$: At age = 0, the log odds of menarche is estimated to be -21.226 (the odds is estimated to be $\exp(-21.226)$ = 0.000). This makes sense in the context of our study.
-- $\beta_1$: For a one unit increase in the average age, we estimate the log odds of menarche to be 1.632 times higher (the odds ratio is estimated to be $\exp(1.632)$ = 5.114 times higher). Confidence intervals can be calculated as in Chapter \@ref(logreg).
+- $\beta_1$: For a one unit increase in the average age, we estimate the log odds of menarche to be 1.632 times higher (the odds ratio is estimated to be $\exp(1.632)$ = 5.114 times higher). Confidence intervals can be calculated as in Chapter \@ref(glm-logreg).
 
 From these results, we conclude that age is significantly associated with menarche onset. 
 
@@ -256,7 +669,7 @@ $$
 \widehat{\pi}_i = \frac{\exp(-21.226 + 1.632*13)}{1 + \exp(-21.226 + 1.632*13)}.
 $$
 We can calculate this by hand, or use the following commands in R:
-```{r glm-binomial-estimate}
+```{r glm-binprop-estimate}
 # grab the coefficients of the model
 est_beta <- menarche_fit1$coefficients #beta[1] is the intercept, 
 # beta[2] is the coefficient on age
@@ -268,7 +681,7 @@ print(paste("Estimated probability:", round(est_prob,3))) #print it out, rounded
 ```
 Thus, for a 13 year old child, we estimate the probability of menarche to be 49.7%.
 
-### Dose-response Models {#glm-bin-DR}
+### Dose-response Models {#glm-binprop-DR}
 
 Suppose we want to quantify a [dose-response](https://en.wikipedia.org/wiki/Dose%E2%80%93response_relationship) relationship between a stimulus (dose) and a particular outcome (response). We typically see dose-response relationships in [bioassay](https://en.wikipedia.org/wiki/Bioassay#:~:text=A%20bioassay%20is%20an%20analytical,or%20quantitative%2C%20direct%20or%20indirect.) experiments where we expose groups of living subjects to varying doses of a toxin and determine how many deaths or other binary health outcomes there are within a given time period. Given the concentration of the toxin, we calculate the dose as
 
@@ -283,7 +696,7 @@ g(\pi) = \beta_0 + \beta_1x
 $$
 where $g()$ is a link function. 
 
-Choices of $g()$ include the probit, logit, and complimentary log-log (cloglog). The "best" link function depends on the underlying distribution of the probability $\pi$. After describing the link functions, we will show in an example that includes how to choose the link function from the data. 
+Choices of $g()$ include the probit, logit, and complimentary log-log (cloglog). The "best" link function depends on the underlying distribution of the probability $\pi$. After describing the link functions, we will show in an example in Section \@ref(glm-binprop-DR-ex) that includes how to choose the link function from the data. 
 
 **Probit Link**
 
@@ -330,7 +743,7 @@ $$
 \delta_{0.5} = \frac{\log(-\log(1 - 0.5)) - \beta_0}{\beta_1}.
 $$
 
-#### Example
+#### Example {#glm-binprop-DR-ex}
 
 
 We use data from a study by [@milesi2013] to evaluate the dose-response relationship of insecticide dosages and insect fatalities. We will focus on one particular strain of insecticide for the first replicate of the study.
@@ -512,8 +925,8 @@ legend(0.008, 0.21, legend = c("logit", "probit"),
        col = c("blue", "darkgreen"), lty = c(1, 2))
 ```
 
-Using this plot, we can decide which model fits the observations best. Both models appear to model the observed probabilities similarly. The logit model appears to model the observed probabilities slightly better. As such, we will analyze this model. Recall the model output:
-```{r glm-bin-dr-output}
+Using this plot, we can decide which model fits the observations best. Both models appear to model the observed probabilities similarly. The logit model appears to model the predicted probabilities more closely to the observed probabilities. As such, we will analyze this model. Recall the model output:
+```{r glm-binprop-dr-output}
 summary(insecticide_fit_logit)
 ```
 
@@ -531,7 +944,7 @@ $$
 &= 0.0023.
 \end{aligned}
 $$
-That is, based on the probit model we estimate the median lethal dose at which 50% of the population will die to be 0.0023.
+That is, based on the logit model we estimate the median lethal dose at which 50% of the population will die to be 0.0023.
 
 For more information on dose response models, readers are directed to [@kerr1996] and [@karunarathne2022]. 
 
@@ -539,7 +952,6 @@ For more information on dose response models, readers are directed to [@kerr1996
 
 ## Poisson Distributed Outcomes (Log-linear Regression) {#glm-poisson}
 
-### Modelling
 Data involving counts of events is commonly used in research, and can be analyzed using a Poisson GLM with a log link (also referred to as log-linear regression). That is, we model
 $$
 log(\mu_i) = \boldsymbol{x}_i^T\boldsymbol{\beta}.
@@ -570,9 +982,9 @@ $$
 &= \boldsymbol{x_i}^T\boldsymbol{\beta} + \log(t_i).
 \end{aligned}
 $$
-That is, we model our log-linear regression with an [offset](https://en.wikipedia.org/wiki/Poisson_regression#%22Exposure%22_and_offset) term of $\log(t_i)$ that will explain some of the variation in the differing counts of outcomes due to differing lengths of time (or another appropriate measure, depending on the context of the problem).   
+That is, we model our log-linear regression with an [offset](https://en.wikipedia.org/wiki/Poisson_regression#%22Exposure%22_and_offset) term of $\log(t_i)$ that will explain some of the variation in the differing counts of outcomes due to differing lengths of time (or another appropriate measure, depending on the context of the problem).  We note that in some cases, an offset term may not be necessary. 
 
-#### Example {#logreg-models-poisson-R}
+### Example {#logreg-poisson-example}
 
 Let's look at an example of a data set that records the number of times an incident occurs in cargo ships [@mccullagh2019], which can be found in the `r cran_link("MASS")` package. We can load the data set and look at the first 6 observations using:
 ```{r glm-poisson-load1, warning = F, message = F}
@@ -608,7 +1020,9 @@ ships <- ships[-toremove, ] # the - sign removes the given rows
 
 ```
 
-We start with a main-effects model using all of the covariates at our disposal. We fit this model in R by
+
+#### Model Fitting {#logreg-poisson-example-mf}
+We start with a main-effects only model using all of the covariates at our disposal. We fit this model in R by
 ```{r glm-poisson-fit1}
 ships_fit1 <- glm(incidents ~ type_f + year_f +period_f + 
                    offset(log(service)),
@@ -618,7 +1032,7 @@ ships_fit1 <- glm(incidents ~ type_f + year_f +period_f +
 summary(ships_fit1)
 ```
 
-We should test to see if we can remove any covariates by performing likelihood ratio tests (LRTs) on nested models. We first fit a model without `type_f` and see if the fit is adequate compared to the full model. In this setting, we are testing the null hypothesis that the simpler model without `type_f` is adequate compared to the full model. If we reject the null, that means that `type_f` should be included in the model (when we compare it to the full model). We do this in R as:
+We should test to see if we can remove any covariates by performing likelihood ratio tests (LRTs) on nested models. We first fit a model without `type_f` and see if the fit is adequate compared to the main-effects only model. In this setting, we are testing the null hypothesis that the simpler model without `type_f` is adequate compared to the main-effects only model. If we reject the null, that means that `type_f` should be included in the model (when we compare it to the main-effects only model). We do this in R as:
 ```{r glm-poisson-fit2}
 # fit the new, nested model
 ships_fit2 <- glm(incidents ~ year_f +period_f + # remove type_f as variable
@@ -628,7 +1042,7 @@ ships_fit2 <- glm(incidents ~ year_f +period_f + # remove type_f as variable
 # perform the LRT
 anova(ships_fit1, ships_fit2, test = "LRT")
 ```
-We see from the output we have a small $p$-value, indicating that we reject the null hypothesis and conclude that the full model including `type_f` is a better fit.  
+We see from the output we have a small $p$-value, indicating that we reject the null hypothesis and conclude that the main-effects only model including `type_f` is a better fit.  
 
 Next we can check if we should remove `year_f` in a similar manner. 
 ```{r glm-poisson-fit3}
@@ -640,7 +1054,7 @@ ships_fit3 <- glm(incidents ~  type_f  +period_f + # remove year_f as variable
 # perform the LRT
 anova(ships_fit1, ships_fit3, test = "LRT")
 ```
-We again have a small $p$-value and reject the null hypothesis that the simpler model fit is adequate. That is, the full model fits better between these two models. 
+We again have a small $p$-value and reject the null hypothesis that the simpler model fit is adequate. That is, the main-effects onlyull model fits better between these two models. 
 
 Next, we test for `period_f`. 
 ```{r glm-poisson-fit4}
@@ -652,11 +1066,11 @@ ships_fit4 <- glm(incidents ~ type_f + year_f + # remove period_f as variable
 # perform the LRT
 anova(ships_fit1, ships_fit4, test = "LRT")
 ```
-Again, we have a small $p$-value and choose the main effects model. 
+Again, we have a small $p$-value and choose the main-effects only model. 
 
 Although we were unable to remove any covariates, we can still test for possible interactions of the covariates. We again perform LRTs where in this setting, the main effects model will be nested in the model that includes additional interactions. 
 
-Let's first start by seeing if we should have an interaction between `type_f` and `year_f`. We do this by fitting a new interaction model and comparing it to the main effects model. The null hypothesis here is that the main effects model (simpler model) fits as well as the interaction model (more complex model). Rejecting the null hypothesis will tell us that we should include the interaction effect in the final model. We do this in R by:
+Let's first start by seeing if we should have an interaction between `type_f` and `year_f`. We do this by fitting a new interaction model and comparing it to the main-effects only model. The null hypothesis here is that the main-effects only model (simpler model) fits as well as the interaction model (more complex model). Rejecting the null hypothesis will tell us that we should include the interaction effect in the final model. We do this in R by:
 ```{r glm-poisson-fit5}
 # fit the new interaction model
 ships_fit5 <- glm(incidents ~ type_f + year_f + period_f + 
@@ -666,12 +1080,12 @@ ships_fit5 <- glm(incidents ~ type_f + year_f + period_f +
 # perform the LRT
 anova(ships_fit5, ships_fit1, test = "LRT")
 ```
-With a small $p$-value, we reject the null hypothesis. That is, we conclude the main effects simpler model is not adequate and we should have this interaction in the final model. Let's take a look at the model summary here:
+With a small $p$-value, we reject the null hypothesis. That is, we conclude the main-effects only (simpler) model is not adequate and we should have this interaction in the final model. Let's take a look at the model summary here:
 ```{r glm-poisson-fit5summary}
 summary(ships_fit5)
 ```
 
-Looking at the model summary, we notice that only one covariate is significant and we have huge standard errors for most of our covariates in the model. This indicates that we have overparameterized our model as we have 12 interaction terms here. Looking at the full data set, we see that for ships with type D in the year 1960-1964 or 1965-1969 category, there are no events. This could cause issues with the model fitting. As such, despite what the statistical test told us, we should not continue with this model or use any models that include any interactions between `type_f` and `year_f`. 
+Looking at the model summary, we notice that only one covariate is significant and we have huge standard errors for most of our covariates in the model. This indicates that we have over-parameterized our model as we have 12 interaction terms here. Looking at the full data set, we see that for ships with type D in the year 1960-1964 or 1965-1969 category, there are no events. This could cause issues with the model fitting. As such, despite what the statistical test told us, we should not continue with this model or use any models that include any interactions between `type_f` and `year_f`. 
 
 
 Next we can test if we should also have an interaction between `type_f` and `period_f`. We test this model to the main effects model (`ships_fit`). We do this in R by:
@@ -684,7 +1098,7 @@ ships_fit6 <- glm(incidents ~ type_f + year_f + period_f +
 # perform the LRT
 anova(ships_fit6, ships_fit1, test = "LRT")
 ```
-We have a large $p$-value, thus we fail to reject the null hypothesis. That is, we conclude the simpler model with no interactions is adequate compared to the model with the interaction and continue model building from there.
+We have a large $p$-value, thus we fail to reject the null hypothesis. That is, we conclude the simpler main-effects only model with no interactions is adequate compared to the model with the interaction and continue model building from there.
 
 Next we can test if we should also have an interaction between `year_f` and `period_f`. We test this model to the main effects model again.. We do this in R by:
 ```{r glm-poisson-fit7}
@@ -696,11 +1110,11 @@ ships_fit7 <- glm(incidents ~ type_f + year_f + period_f +
 # perform the LRT
 anova(ships_fit7, ships_fit1, test = "LRT")
 ```
-We have a large $p$-value, thus we fail to reject the null hypothesis. That is, we conclude the simpler main effects model is adequate compared to the one with the interaction.
+We have a large $p$-value, thus we fail to reject the null hypothesis. That is, we conclude themain-effects only model is adequate compared to the one with the interaction.
 
-We finish our model building process and conclude that `ships_fit1` is the best fitting model of the ones we tested. From the main effects model output shown earlier, we see that all covariates have small standard errors, and most levels of the categorical covariates are significant. This is what we should expect from a final model after cycling through the fitting procedure.
+We finish our model building process and conclude that `ships_fit1` is the best fitting model of the ones we tested. From the main-effects only model output shown earlier, we see that all covariates have small standard errors, and most levels of the categorical covariates are significant. This is what we should expect from a final model after cycling through the fitting procedure.
 
-### Model Diagnostics {#glm-poisson-diagnostics}
+#### Model Diagnostics {#logreg-poisson-example-md}
 
 **Residuals**
 
@@ -733,7 +1147,17 @@ check_zeroinflation(ships_fit1)
 ```
 We see that we have the same number of observed and predicted zeros in the model, and thus we do not need to use a zero-inflated model. There are no strict guidelines for what ratio a zero-inflated model must be used, but it is common for a ratio between 0.95 and 1.05 to be considered good enough to continue with a regular Poisson GLM. More discussion on this issue, along with some more formal statistical tests, can be found [here](https://stats.oarc.ucla.edu/r/dae/zip/#:~:text=Zero%2Dinflated%20poisson%20regression%20is,zeros%20can%20be%20modeled%20independently.).
 
-### Model Interpretations {#glm-poisson-interpretation}
+
+**Multicollinearity**
+
+We should also perform a check on the covariates included in the model. 
+```{r glm-poisson-vif}
+vif(ships_fit1)
+```
+All VIF values are low, which indicates that there are no issues with multicollinearity in the model. 
+
+
+#### Model Interpretation and Hypothesis Testing {#glm-poisson-example-interpretation}
 
 After checking the fit of our model, we can interpret our model to answer the research question of interest. Here, we are interested in seeing if the type of ship, the year it was built, or the period of operation are associated with an increase or decrease in the number of damage incidents. 
 
@@ -814,16 +1238,16 @@ CI_RR_upper <- exp(CI_upper)
 # print it out nicely
 print(paste("(", round(CI_RR_lower,3), ", ", round(CI_RR_upper,3), ")", sep = ""))
 ```
-As the resultant confidence interval for the relative rate does not contain an estimate of RR = 1, we conclude that the relative rate of incidents for ships of type E ($x_4 = 1$) versus C ($x_2 = 1$) significantly differs and is estimated to be`r paste(round(estimate,3))` (95% CI: `r print(paste("(", round(CI_RR_lower,3), ",", round(CI_RR_upper,3), ")"))`), controlling for construction year and period of operation. 
+As the resultant confidence interval for the relative rate does not contain an estimate of RR = 1, we conclude that the relative rate of incidents for ships of type E ($x_4 = 1$) versus C ($x_2 = 1$) significantly differs and is estimated to be `r paste(round(estimate,3))` (95% CI: `r print(paste("(", round(CI_RR_lower,3), ",", round(CI_RR_upper,3), ")"))`), controlling for construction year and period of operation. 
 
 For non-categorical variables, the interpretation of the regression coefficient is the log relative rate associated with a one-unit increase in that variable. 
 
 For more information on Poisson models, readers are directed to [@hilbe2013], [@mccullagh2019].
 
 
-## Gamma Distributed (Skewed) Outcomes
+## Gamma Distributed (Skewed) Outcomes {#glm-gamma}
 
-For continuous data that is not not normally distributed, a GLM using the gamma distribution can be used to model skewed outcomes. 
+For continuous data that is not not normally distributed, a GLM using the gamma distribution can be used to model skewed, positive outcomes. 
 
 We note that under the gamma distribution, the variance is equal to the mean squared, meaning that the ratio of the mean and standard deviation is constant. Using a log link can stabilize the variance, as discussed in [@myers1997]. Although the canonical link for a gamma family GLM is the inverse link, we commonly see the log link applied in practice because of its interpretations and variance stabilization. Using the log link does not require further constraints on the model when fit. 
 
@@ -840,18 +1264,18 @@ y_i &= \exp(\boldsymbol{x}_i^T\boldsymbol{\beta})\\
 &= \exp(\beta_0)\exp(\beta_1)^{x_{i1}} \exp(\beta_2)^{x_{i2}}...\exp(\beta_{ip})^{x_{ip}}.
 \end{aligned}.\
 $$
-Under the log link, we have a multiplicative model. We interpret $\exp(\beta_0)$ as the expected value of $y$ when all covariates are equal to zero.  We interpret $exp(\beta_j$) as the expected multiplicative increase of
-$y$ for a one unit increase in $x_j$, when the other coefficients are equal to zero. 
+Under the log link, we have a multiplicative model. We interpret $\exp(\beta_0)$ as the expected value of $y$ when all covariates are equal to zero.  We interpret $\exp(\beta_j$) as the expected multiplicative increase of
+$y$ for a one unit increase in $x_j$, when the other covariates are equal to zero. 
 
 
 
 
-### Example
+### Example {#glm-gamma-example}
 
 Data on a full-factorial experiment by [@myers1997] on four binary covariates was conducted to measure the resistivity of a wafer in a semiconductor experiment. Data is available as the `wafer` data set from the `r cran_link("faraway")` package in R. We show how the GLM can be employed to find associations between the different factors `x1` - `x4` and the resistivity (`resist`). 
 
 We first need to load in the data:
-```{r glm-gamma-readin}
+```{r glm-gamma-ex-readin}
 # load in the data set
 data(wafer)
 
@@ -862,17 +1286,130 @@ str(wafer)
 We already have `x1`, `x2`, `x3`, and `x4` as categorical variables so we don't need to change these. 
 
 Let's look at the distribution of our outcome:
-```{r glm-gamma-hist, fig.cap = "Histogram of Resistivity"}
+```{r glm-gamma-ex-hist, fig.cap = "Histogram showing skewed outcome"}
 # create a histogram of the outcome
-hist(wafer$resist, breaks = 5)
+hist(wafer$resist, main = "Histogram of Resistivity", 
+     xlab = "Resistivity")
 ```
 
-```{r glm-gamma-boxplot, fig.cap = "Boxplot of Resistivity"}
-boxplot(wafer$resist)
+```{r glm-gamma-ex-boxplot, fig.cap = "Boxplot showing skewed outcome"}
+boxplot(wafer$resist, main = "Boxplot of Resistivity", 
+        ylab = "Resistivity")
 ```
-Both of the plots in Figures \@ref(fig:glm-gamma-hist) and \@ref(fig:glm-gamma-boxplot) indicate that the outcome data is skewed and non-normal. As the outcome data is non-normal, it is inappropriate to use the normal distribution for modelling. However, we can model such outcomes using the gamma distribution.
+Both of the plots in Figures \@ref(fig:glm-gamma-ex-hist) and \@ref(fig:glm-gamma-ex-boxplot) indicate that the outcome data is skewed and non-normal. As the outcome data is non-normal, it is inappropriate to use the normal distribution for modelling. However, we can model such outcomes using the gamma distribution.
 
-... continue example ....
+#### Model Fitting {#glm-gamma-example-mf}
+
+We fit a gamma GLM with a log link, as described in the previous section. To do so in R, we perform the following:
+```{r glm-gamma-ex-fit1}
+fit1_wafer <- glm(resist ~ x1 + x2 + x3 + x4, data = wafer,
+                  family = Gamma(link = "log"))
+summary(fit1_wafer)
+```
+We see from the output of the main-effects only model that $x_1$, $x_2$, and $x_3$ are significantly associated with the resistivity. Similar to other model building procedures, we should consider interaction effects in our model. Although $x_4$ is not statistically significant, interactions involving $x_4$ may be significant so we should use hypothesis testing to formally investigate which covariates and interactions to include in the model.
+
+We can look at adding each 2-way interaction term one by one, or start by comparing the main-effects only model to a model including all 2-way interactions. We fit the model using all two-way interaction effects and perform a hypothesis test of $H_0:$ the simpler model (main-effects only) is adequate compared to the fuller model (interaction model) using an LRT as:
+```{r glm-gamma-ex-fit2}
+# fit interaction model
+fit2_wafer <- glm(resist ~ x1*x2 + x1*x3 + x1*x4 + x2*x3 + x2*x4 + x3*x4, 
+                  data = wafer,
+                  family = Gamma(link = "log")) # fit interaction model
+
+# perform the LRT
+anova(fit1_wafer, fit2_wafer, test = "LRT")
+```
+With a small $p$-value, we reject the null hypothesis and conclude that we should continue  model building with the interaction model. Let's look at a summary of the model:
+```{r glm-gamma-ex-fit2summary}
+summary(fit2_wafer)
+```
+We notice that some of the two-way interactions are insignificant, and should consider models that do not include them. As such, we should compare the existing model with one that does not contain the the least statistically significant interaction term. In this case, we should fit a model without the $x_1$ and $x_4$ interaction and see if the fit is adequate.
+```{r glm-gamma-ex-fit3}
+# fit interaction model without x_1:x_4
+fit3_wafer <- glm(resist ~ x1 + x2 + x3 + x4 + 
+                    x1:x2 + x1:x3 + x2:x3 + x2:x4 + x3:x4, 
+                  data = wafer,
+                  family = Gamma(link = "log")) # fit interaction model
+
+# perform the LRT, comparing to full interaction model
+anova(fit2_wafer, fit3_wafer, test = "LRT")
+```
+We obtain a large $p$-value from the hypothesis test that the simpler model is adequate, so we conclude that we do not need the $x_1:x_4$ interaction term in the model. Let's look at the current model output:
+```{r glm-gamma-ex-fit3summary}
+summary(fit3_wafer)
+```
+We repeat the previous steps for the $x_1:x_2$ interaction term.
+```{r glm-gamma-ex-fit4}
+# fit interaction model without x_1:x_2
+fit4_wafer <- glm(resist ~ x1 + x2 + x3 + x4 + 
+                    + x1:x3 + x2:x3 + x2:x4 + x3:x4, 
+                  data = wafer,
+                  family = Gamma(link = "log")) # fit interaction model
+
+# perform the LRT, comparing to full interaction model
+anova(fit3_wafer, fit4_wafer, test = "LRT")
+```
+We again obtain a large $p$-value from the hypothesis test that the simpler model is adequate, so we conclude that we do not need the $x_1:x_2$ interaction term in the model. Let's look at the current model output:
+```{r glm-gamma-ex-fit4summary}
+summary(fit4_wafer)
+```
+We repeat the previous steps for the $x_2:x_4$ interaction term.
+```{r glm-gamma-ex-fit5}
+# fit interaction model without x2:x4 interaction
+fit5_wafer <- glm(resist ~ x1 + x2 + x3 + x4 + 
+                    + x1:x3 + x2:x3 + x3:x4, 
+                  data = wafer,
+                  family = Gamma(link = "log")) # fit interaction model
+
+# perform the LRT, comparing to full interaction model
+anova(fit4_wafer, fit5_wafer, test = "LRT")
+```
+We again obtain a large $p$-value from the hypothesis test that the simpler model is adequate, so we conclude that we do not need the $x_2:x_4$ interaction term in the model. Let's look at the current model output:
+```{r glm-gamma-ex-fit5summary}
+summary(fit5_wafer)
+```
+All of the interaction terms in this model are significant. Although $x_4$ is not individually significant, we keep it in the model as we do have one interaction term involving $x_4$. We select this model (`fit5_wafer`) to interpret.
+
+#### Model Diagnostics {#glm-gamma-example-md}
+
+Prior to interpreting our model, we need to assess the model fit. To do so, we can take a look at the residual plot to see if there are any large residuals that may indicate a poor model fit. 
+```{r glm-gamma-ex-resid, fig.cap = "Residual plot for Gamma GLM"}
+resid_wafer <- residuals.glm(fit1_wafer, "deviance")
+plot(resid_wafer, ylim = c(-3, 3),
+     main = "Deviance Residuals",
+     ylab = "Residuals")
+abline(h = -2, lty = 2) # add dotted lines at 2 and -2
+abline(h = 2, lty = 2)
+```
+We see that we have very small residuals for all observations, indicating no lack-of fit. 
+
+We can also check if there is multicollinearity present in the final model using the `vif()` function. However, we do not anticipate this to be an issue for this specific study as we are using a full factorial design where we independently manipulate the four covariates. 
+```{r glm-gamma-ex-vif}
+vif(fit5_wafer)
+```
+The VIF values are all considered low (< 5) and do not indicate issues with collinearity.
+
+These diagnostics do not indicate a poor fit and thus the model we chose can be interpreted. 
+
+#### Model Interpretation {#glm-gamma-example-interpretation}
+
+We can write the chosen model as
+
+$$
+\log(y_i) = \beta_0 + \beta_1x_1 + \beta_2x_2 + \beta_3x_3 + \beta_4x_4 + \beta_5x_1x_3 + \beta_6x_2x_3 + \beta_7x_3x_4
+$$
+or equivalently 
+$$
+\begin{aligned}
+y_i &= \exp(\beta_0 + \beta_1x_1 + \beta_2x_2 + \beta_3x_3 + \beta_4x_4 + \beta_5x_1x_3 + \beta_6x_2x_3 + \beta_7x_3x_4)\\
+&=\exp(\beta_0)\exp(x_1)^{\beta_1}\exp(x_2)^{\beta_2}\exp(x_3)^{\beta_3}\exp(x_4)^{\beta_4}\exp(x_1x_3)^{\beta_5}\exp(x_2x_3)^{\beta_6}\exp(x_3x_4)^{\beta_7}.
+\end{aligned}
+$$
+
+From this model, we interpret $\exp(\beta_0) = \exp(5.31195) = 202.745$ as the expected resitivity when all covariates are equal to "-". 
+
+We interpret $\exp(\beta_1) = \exp(0.20029) = 1.222$ as the expected multiplicative increase of the resistivity when $x_1$ is "+", when the other covariates are "-". We similarly interpret the coefficients for $x_2$, $x_3$, and $x_4$, although we note the individual effect for $x_4$ is not statistically significant. For the interaction term $x_1:x_3$, we interpret $\exp(\beta_5) = \exp(-0.15549) = 0.856$ as the additional multiplicative increase in resistivity when both $x_1$ and $x_3$ are equal to "+", and all other covariates are equal to "-". We similarly interpret the other interaction terms. 
+
+
 
 ## Further Reading
 
