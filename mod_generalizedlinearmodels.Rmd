@@ -8,7 +8,7 @@ output:
 
 *Author: Grace Tompkins*
 
-*Last Updated: August 3, 2022*
+*Last Updated: August 5, 2022*
 
 --- 
 ```{r cache-chunk, include = F}
@@ -31,7 +31,7 @@ In this section, we will introduce the generalized linear model framework with a
 
 ## List of R Packages {#glm-rpackages}
 
-In this chapter, we will be using the packages `r cran_link("catdata")`, `r cran_link("MASS")`, `r cran_link("AER")`, `r cran_link("performance")`, `r cran_link("faraway")` , `r cran_link("LogisticDx")`, and `r cran_link("car")`. We can load these packages in R after installing them by the following:
+In this section, we will be using the packages `r cran_link("catdata")`, `r cran_link("MASS")`, `r cran_link("AER")`, `r cran_link("performance")`, `r cran_link("faraway")` , `r cran_link("LogisticDx")`, and `r cran_link("car")`. We can load these packages in R after installing them by the following:
 ```{r long-library, warning=FALSE, message=FALSE}
 #load the required packages
 library(catdata)
@@ -71,7 +71,7 @@ We need to satisfy a number of assumptions to use the GLM framework:
 
 We also assume that there is no [multicollinearity](https://en.wikipedia.org/wiki/Multicollinearity) among explanatory variables. 
 
-Multicollinearity (sometimes referred to as collinearity) occurs when two or more explanatory variables are highly correlated, such that they do not provide unique or independent information in the regression model. If the degree of correlation is high enough between variables, it can cause problems when fitting and interpreting the model. One way to detect multicollinearity is to calculate the [variation inflation factor (VIF)](https://en.wikipedia.org/wiki/Variance_inflation_factor) for each covariate in a model.  The general guideline is that a VIF larger than 5 or 10 indicates that the model has problems estimating the coefficient possibly due to multicollinearity. We will show in Section \@ref(glm-logreg) how to use R functions to calculate the VIF after model building. 
+Multicollinearity (sometimes referred to as collinearity) occurs when two or more explanatory variables are highly correlated, such that they do not provide unique or independent information in the regression model. If the degree of correlation is high enough between variables, it can cause problems when fitting and interpreting the model. One way to detect multicollinearity is to calculate the [variation inflation factor (VIF)](https://en.wikipedia.org/wiki/Variance_inflation_factor) for each covariate in a model.  The general guideline is that a VIF larger than 10 indicates that the model has problems estimating the coefficients possibly due to multicollinearity. We will show in Section \@ref(glm-logreg) how to use R functions to calculate the VIF after model building. 
 
 We note that our methodology will be particularly sensitive to these assumptions when sample sizes are small. When collecting data, we also want to ensure that the sample is representative of the population of interest to answer the research question(s).
 
@@ -92,7 +92,7 @@ The following is a table containing commonly used distributions, their canonical
 | [Poisson](https://en.wikipedia.org/wiki/Poisson_distribution#:~:text=In%20probability%20theory%20and%20statistics,time%20since%20the%20last%20event.) (used for discrete count data) | Log: $g(\mu) = \log(\mu)$ | `family = poisson(link = "log")`|
 | [Gamma](https://en.wikipedia.org/wiki/Gamma_distribution) (used for continuous, positive, skewed or heteroskedastic data) | Reciprocal: $g(\mu) = \frac{1}{\mu}$ | `family = Gamma(link = "inverse")`| 
 
-Each link function will dictate how we interpret the model parameters. For example, using a logistic link for binomial outcome data (also known as logistic regression), we interpret our parameters $\beta$ as log odds ratios. More details on this can be found in the dedicated logistic regression module in Chapter \@ref(glm-logreg). When using a log link on Poisson data, our model parameters estimate log relative rates, which we will detail in Section \@ref(glm-poisson).
+Each link function will dictate how we interpret the model parameters. For example, using a logistic link for binomial outcome data (also known as logistic regression), we interpret our parameters $\beta$ as log odds ratios. More details on this can be found in the dedicated logistic regression module in Section \@ref(glm-logreg). When using a log link on Poisson data, our model parameters estimate log relative rates, which we will detail in Section \@ref(glm-poisson).
 
 We note that sometimes we will use link functions other than the canonical link. For example, it is common for researchers evaluating dose-response relationships for binary outcomes to use the [probit](https://en.wikipedia.org/wiki/Probit_model) link instead of the canonical logistic link. The probit link is the inverse of the standard normal cumulative distribution function. We will also provide a detailed example for this in Section \@ref(glm-binprop-DR). 
 
@@ -123,7 +123,7 @@ In the following sections, we will outline examples of fitting, assessing, and i
 
 A generalized linear model with a normally distributed outcome using the canonical link (identity) is the same as a linear regression model. 
 
-### Example
+### Example {#glm-normal-ex}
 
 We will be demonstrating the use of a glm on normally distributed data using the `rent` data set from the `r cran_link("catdata")` package in R. This data set contains information on 2053 units' rent (in euros), rent per squared meter (in euros), number of rooms, and other covariates for renal units in Munich in 2003. A full list and description of the variables can be found using by typing `?rent` in the R console and reading through the documentation. We read in this data set with the following code, and look at the first 6 observations by;
 ```{r glm-normal-readin}
@@ -293,7 +293,7 @@ heart_model3 <- glm(y ~ tobacco + ldl + famhist_f + typea + age_f,
 anova(heart_model3, heart_model2, test = "LRT")
 
 ```
-We have a moderate $p$-value here, indicating that we do NOT reject the null hypothesis. That is, we are comfortable moving forward with the simpler model (`heart_model3`). Let's take a look at the model summary:
+We have a moderate $p$-value of 0.1902 here, indicating that we do NOT reject the null hypothesis. That is, we are comfortable moving forward with the simpler model (`heart_model3`). Let's take a look at the model summary:
 ```{r glm-logreg-R-fit3summary}
 summary(heart_model3)
 ```
@@ -435,8 +435,10 @@ plot(residuals(heart_model7, type = "pearson"), ylab = "Pearson Residuals")
 We see that the residuals are behaving as expected with no extreme values. 
 
 We should also check for multicollinearity in our model. We can do so by using the `vif()` function from the `r cran_link("car")` package. We can do so by the following R code:
-```{r glm-logreg-md-collinearity}
-vif(heart_model7)
+```{r glm-logreg-md-collinearity, warning = F, message = F}
+# there are multiple vif functions so car:: specifies 
+# we are using the vif function from the car package
+car::vif(heart_model7) 
 ```
 
 We see that we only have low-moderate variance inflation factors (VIFs), indicating that multicollinearity is not an issue in this model. We typically are concerned about multicollinearity when VIF values are above 10. 
@@ -478,7 +480,7 @@ Then, to find the 95% CI for the odds ratio, we exponentiate both sides of the C
 $$
 (\exp(0.089), \exp(0.187)) = (1.093, 1.206)
 $$
-So, we estimate the odds ratio to be `r paste(round(exp(summary(heart_model7)$coef[2,1]),3))` (95% CI: (1.093, 1.206)) controlling for the other factors in the model. As this 95% CI does not contain the value of 1 in it, we say that we are 95% confident that higher tobacco use is associated with an increased odds of developing CHD. 
+So, we estimate the odds ratio to be `r paste(round(exp(summary(heart_model7)$coef[2,1]),3))` (95% CI: (1.093, 1.206)) controlling for the other factors in the model. As this 95% CI does not contain the value of OR = 1 in it, we say that we are 95% confident that higher tobacco use is associated with an increased odds of developing CHD. 
 
 For the odds ratios and confidence intervals of the regression coefficients individually, one can also call the `confint.default()` function
 
@@ -535,7 +537,7 @@ To estimate the confidence interval, we can use the `OR()` function from the `r 
 ```{r glm-logreg-MIHT-logisticdx}
 OR(heart_model7, newdata = c(0,0,1,0,0,1))
 ```
-which provides us with estimates of the odds ratio (OR), lowOR, and upOR where the 95% CI is (lowOR, upOR). The two lines are for two models: one with an intercept and without, though in this case the OR and CI's are the same. We can also find the CI manually by finding the estimated standard error of the $\widehat{\beta_2} + \widehat{\beta_5}$ manually.
+which provides us with estimates of the odds ratio (OR), andwhere lowOR and upOR are the lower and upper bounds to the 95% CI. The two lines are for two models: one with an intercept and without, though in this case the OR and CI's are the same. We can also find the CI manually by finding the estimated standard error of the $\widehat{\beta_2} + \widehat{\beta_5}$ manually.
 
 **Probabilities**
 
@@ -652,7 +654,7 @@ The residuals in Figure \@ref(fig:glm-binprop-plot1) are mostly between -2 and 2
 From (either) model output, we see that age is significantly associated with menarche. As we used the logit link, the interpretation of our parameters are log odds ratios. As such, we can interpret the model output as follows:
 
 - $\beta_0$: At age = 0, the log odds of menarche is estimated to be -21.226 (the odds is estimated to be $\exp(-21.226)$ = 0.000). This makes sense in the context of our study.
-- $\beta_1$: For a one unit increase in the average age, we estimate the log odds of menarche to be 1.632 times higher (the odds ratio is estimated to be $\exp(1.632)$ = 5.114 times higher). Confidence intervals can be calculated as in Chapter \@ref(glm-logreg).
+- $\beta_1$: For a one unit increase in the average age, we estimate the log odds of menarche to be 1.632 times higher (the odds ratio is estimated to be $\exp(1.632)$ = 5.114 times higher). Confidence intervals can be calculated as in Section \@ref(glm-logreg).
 
 From these results, we conclude that age is significantly associated with menarche onset. 
 
@@ -1054,7 +1056,7 @@ ships_fit3 <- glm(incidents ~  type_f  +period_f + # remove year_f as variable
 # perform the LRT
 anova(ships_fit1, ships_fit3, test = "LRT")
 ```
-We again have a small $p$-value and reject the null hypothesis that the simpler model fit is adequate. That is, the main-effects onlyull model fits better between these two models. 
+We again have a small $p$-value and reject the null hypothesis that the simpler model fit is adequate. That is, the main-effects only model fits better between these two models. 
 
 Next, we test for `period_f`. 
 ```{r glm-poisson-fit4}
@@ -1119,7 +1121,7 @@ We finish our model building process and conclude that `ships_fit1` is the best 
 **Residuals**
 
 Once we settle on a model from the likelihood ratio tests and initial inspection, we need to check the overall model fit. The first thing we can do is look at a plot of the residual versus fitted values to see if there are any large residuals indicating poor fit in the model. The following code can be used to produce such plots:
-```{r glm-poisson-plot1}
+```{r glm-poisson-plot1, fig.cap = "Residual diagnostic plot for Poisson GLM."}
 resid <- residuals.glm(ships_fit1)
 fitted <- ships_fit1$fitted.values
 plot(fitted, resid, ylim = c(-3, 3), ylab = "Deviance Residuals", xlab = "Fitted Values")
@@ -1135,7 +1137,7 @@ A common issue of Poisson GLMs is [overdispersion](https://en.wikipedia.org/wiki
 ```{r glm-poisson-dispersiontest}
 dispersiontest(ships_fit1)
 ```
-We have a moderately large $p$-value, so we fail to reject the null hypothesis. That is, we do not have evidence of overdispersion in this model and continue our analysis. 
+We have a moderately large $p$-value of 0.1784, so we fail to reject the null hypothesis. That is, we do not have evidence of overdispersion in this model and continue our analysis. 
 
 If overdispersion is present in a model, one can use an ad-hoc approach to estimate a dispersion parameter or use a mixed model (negative binomial distribution) that introduces a random variable that acts as a dispersion factor. For more information on these models, see [this tutorial](https://online.stat.psu.edu/stat504/lesson/9/9.2-0) which provides examples in both R and SAS.
 
@@ -1151,8 +1153,9 @@ We see that we have the same number of observed and predicted zeros in the model
 **Multicollinearity**
 
 We should also perform a check on the covariates included in the model. 
-```{r glm-poisson-vif}
-vif(ships_fit1)
+```{r glm-poisson-vif, warning = F, message = F}
+# again specify using the car package using car::vif()
+car::vif(ships_fit1)
 ```
 All VIF values are low, which indicates that there are no issues with multicollinearity in the model. 
 
@@ -1247,9 +1250,35 @@ For more information on Poisson models, readers are directed to [@hilbe2013], [@
 
 ## Gamma Distributed (Skewed) Outcomes {#glm-gamma}
 
-For continuous data that is not not normally distributed, a GLM using the gamma distribution can be used to model skewed, positive outcomes. 
+For continuous data that is not normally distributed, a GLM using the Gamma distribution can be used to model skewed, positive outcomes. 
 
-We note that under the gamma distribution, the variance is equal to the mean squared, meaning that the ratio of the mean and standard deviation is constant. Using a log link can stabilize the variance, as discussed in [@myers1997]. Although the canonical link for a gamma family GLM is the inverse link, we commonly see the log link applied in practice because of its interpretations and variance stabilization. Using the log link does not require further constraints on the model when fit. 
+Below are a few examples of Gamma distributions with varying parameters (referred to as the shape and scale parameters).
+
+```{r glm-gamma-plots, fig.cap = "Examples of the Gamma distribution. Shape changes across rows while scale changes across columns."}
+par(mfrow = c(2,2))
+curve(dgamma(x, shape = 1.5, scale = 1), from = 0, to = 10, col = "red",
+      main = "Shape = 1.5, Scale = 1",
+      xlab = "x",
+      ylab = "Density",
+      ylim = c(0,1))
+curve(dgamma(x, shape = 2.5, scale = 1), from = 0, to = 10, col = "steelblue",
+      main = "Shape = 2.5, Scale = 1",
+      xlab = "x",
+      ylab = "Density",
+      ylim = c(0,1))
+curve(dgamma(x, shape = 1.5, scale = 0.5), from = 0, to = 10, col = "darkgreen",
+      main = "Shape = 1.5, Scale = 0.5",
+      xlab = "x",
+      ylab = "Density",
+      ylim = c(0,1))
+curve(dgamma(x, shape = 2.5, scale = 0.5), from = 0, to = 10, col = "purple",
+      main = "Shape = 2.5, Scale = 0.5",
+      xlab = "x",
+      ylab = "Density",
+      ylim = c(0,1))
+```
+
+We can see from these four examples that the Gamma distribution is very flexible for modelling continuous outcomes that are skewed and positive. We however note that under the Gamma distribution, the variance is equal to the mean squared, meaning that the ratio of the mean and standard deviation is constant. Using a log link can stabilize the variance, as discussed in [@myers1997]. Although the canonical link for a Gamma family GLM is the inverse link, we commonly see the log link applied in practice because of its interpretations and variance stabilization. Using the log link does not require further constraints on the model when fit. 
 
 Under the log link, we model
 $$
@@ -1264,152 +1293,149 @@ y_i &= \exp(\boldsymbol{x}_i^T\boldsymbol{\beta})\\
 &= \exp(\beta_0)\exp(\beta_1)^{x_{i1}} \exp(\beta_2)^{x_{i2}}...\exp(\beta_{ip})^{x_{ip}}.
 \end{aligned}.\
 $$
-Under the log link, we have a multiplicative model. We interpret $\exp(\beta_0)$ as the expected value of $y$ when all covariates are equal to zero.  We interpret $\exp(\beta_j$) as the expected multiplicative increase of
-$y$ for a one unit increase in $x_j$, when the other covariates are equal to zero. 
+Under the log link, we have a multiplicative model. We interpret $\exp(\beta_0)$ as the expected value of $y$ when all covariates are equal to zero.  We interpret $\exp(\beta_j$) as the expected multiplicative increase of $y$ for a one unit increase in $x_j$, when the other covariates are equal to zero. We note that covariates can either be continuous or categorical. 
 
 
 
 
 ### Example {#glm-gamma-example}
 
-Data on a full-factorial experiment by [@myers1997] on four binary covariates was conducted to measure the resistivity of a wafer in a semiconductor experiment. Data is available as the `wafer` data set from the `r cran_link("faraway")` package in R. We show how the GLM can be employed to find associations between the different factors `x1` - `x4` and the resistivity (`resist`). 
+We will re-use the data presented in Section \@ref(glm-normal-ex) on rent prices in Munich in 2003. Instead of looking at the clear rent per square meter (`rentm`) as we did in Section \@ref(glm-normal-ex), we will be using the clear rent (without adjustment for apartment area) as the outcome, (`rent`). 
 
-We first need to load in the data:
-```{r glm-gamma-ex-readin}
-# load in the data set
-data(wafer)
-
-# look at the data structure
-str(wafer)
+If the data has not already been loaded in from the `r cran_link("catdata")` package, we can load it in and look at first 6 observations using the following code:
+```{r glm-gamma-example-load}
+data(rent) # load in the data set
+head(rent)
 ```
-
-We already have `x1`, `x2`, `x3`, and `x4` as categorical variables so we don't need to change these. 
-
-Let's look at the distribution of our outcome:
-```{r glm-gamma-ex-hist, fig.cap = "Histogram showing skewed outcome"}
-# create a histogram of the outcome
-hist(wafer$resist, main = "Histogram of Resistivity", 
-     xlab = "Resistivity")
+Next, we can plot the outcome to see if it is skewed.
+```{r glm-gamma-example-hist, fig.cap = "Plot used to see if there is any evidence of non-normality in the outcome."}
+hist(rent$rent, main = "Plot of Rent", xlab = "Rent")
 ```
-
-```{r glm-gamma-ex-boxplot, fig.cap = "Boxplot showing skewed outcome"}
-boxplot(wafer$resist, main = "Boxplot of Resistivity", 
-        ylab = "Resistivity")
+We see that there is some skewness present in the outcome variable. We can confirm this using the [Shaprio-Wilk test](https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test) of normality. Rejecting this test indicates that the normality assumption is not appropriate to use. We can perform this test in R by:
+```{r glm-gamma-example-swtest}
+shapiro.test(rent$rent)
 ```
-Both of the plots in Figures \@ref(fig:glm-gamma-ex-hist) and \@ref(fig:glm-gamma-ex-boxplot) indicate that the outcome data is skewed and non-normal. As the outcome data is non-normal, it is inappropriate to use the normal distribution for modelling. However, we can model such outcomes using the gamma distribution.
+Our $p$-value is very small (<0.000) and indicates that we cannot assume the outcome is normal for this data set. As such, we can turn to the Gamma GLM to model this outcome and see if the rent is related to any other covariates in the data set. 
+
+
 
 #### Model Fitting {#glm-gamma-example-mf}
 
-We fit a gamma GLM with a log link, as described in the previous section. To do so in R, we perform the following:
+We fit a Gamma GLM to the data set with a log link, as described in the previous section. We start by building a main-effects only model containing all possible covariates (aside from `rentm`). To do so in R, we perform the following:
 ```{r glm-gamma-ex-fit1}
-fit1_wafer <- glm(resist ~ x1 + x2 + x3 + x4, data = wafer,
+rent_fit1 <- glm(rent ~ size + factor(rooms) + year + factor(area) + 
+    factor(good) + factor(best) + factor(warm) + factor(central) + 
+    factor(tiles) + factor(bathextra) + factor(kitchen), data = rent,
                   family = Gamma(link = "log"))
-summary(fit1_wafer)
+summary(rent_fit1)
 ```
-We see from the output of the main-effects only model that $x_1$, $x_2$, and $x_3$ are significantly associated with the resistivity. Similar to other model building procedures, we should consider interaction effects in our model. Although $x_4$ is not statistically significant, interactions involving $x_4$ may be significant so we should use hypothesis testing to formally investigate which covariates and interactions to include in the model.
-
-We can look at adding each 2-way interaction term one by one, or start by comparing the main-effects only model to a model including all 2-way interactions. We fit the model using all two-way interaction effects and perform a hypothesis test of $H_0:$ the simpler model (main-effects only) is adequate compared to the fuller model (interaction model) using an LRT as:
-```{r glm-gamma-ex-fit2}
-# fit interaction model
-fit2_wafer <- glm(resist ~ x1*x2 + x1*x3 + x1*x4 + x2*x3 + x2*x4 + x3*x4, 
-                  data = wafer,
-                  family = Gamma(link = "log")) # fit interaction model
+We see many covariates (or levels of a categorical covariate) are statistically significant. We should still, however, see if we can remove some of these covariates to simplify the model. The covariates `area` has a large number of categories, and some that are not statistically significant. We can investigate whether or not we should include this covariate in the model by fitting a new GLM without `area` and performing a LRT. We do so with the following code:
+```{r glm-gamma-example-lrt1}
+# fit the model without factor(area)
+rent_fit2 <- glm(rent ~ size + factor(rooms) + year + 
+    factor(good) + factor(best) + factor(warm) + factor(central) + 
+    factor(tiles) + factor(bathextra) + factor(kitchen), data = rent,
+                  family = Gamma(link = "log"))
 
 # perform the LRT
-anova(fit1_wafer, fit2_wafer, test = "LRT")
+anova(rent_fit2, rent_fit1, test = "LRT")
 ```
-With a small $p$-value, we reject the null hypothesis and conclude that we should continue  model building with the interaction model. Let's look at a summary of the model:
-```{r glm-gamma-ex-fit2summary}
-summary(fit2_wafer)
-```
-We notice that some of the two-way interactions are insignificant, and should consider models that do not include them. As such, we should compare the existing model with one that does not contain the the least statistically significant interaction term. In this case, we should fit a model without the $x_1$ and $x_4$ interaction and see if the fit is adequate.
-```{r glm-gamma-ex-fit3}
-# fit interaction model without x_1:x_4
-fit3_wafer <- glm(resist ~ x1 + x2 + x3 + x4 + 
-                    x1:x2 + x1:x3 + x2:x3 + x2:x4 + x3:x4, 
-                  data = wafer,
-                  family = Gamma(link = "log")) # fit interaction model
+The results of this test give us a very small $p$-value (<0.001) indicating that we reject the null hypothesis that the simpler model fit is adequate. That is, we should not remove `area` from the model. 
 
-# perform the LRT, comparing to full interaction model
-anova(fit2_wafer, fit3_wafer, test = "LRT")
-```
-We obtain a large $p$-value from the hypothesis test that the simpler model is adequate, so we conclude that we do not need the $x_1:x_4$ interaction term in the model. Let's look at the current model output:
-```{r glm-gamma-ex-fit3summary}
-summary(fit3_wafer)
-```
-We repeat the previous steps for the $x_1:x_2$ interaction term.
-```{r glm-gamma-ex-fit4}
-# fit interaction model without x_1:x_2
-fit4_wafer <- glm(resist ~ x1 + x2 + x3 + x4 + 
-                    + x1:x3 + x2:x3 + x2:x4 + x3:x4, 
-                  data = wafer,
-                  family = Gamma(link = "log")) # fit interaction model
+We can further see if other covariates should be removed from the model. Some levels of `rooms` are insignificant, and so we can fit a model without it and again perform a LRT:
+```{r glm-gamma-example-lrt2}
+# fit the model without factor(area)
+rent_fit3 <- glm(rent ~ size +  year + factor(area) +
+    factor(good) + factor(best) + factor(warm) + factor(central) + 
+    factor(tiles) + factor(bathextra) + factor(kitchen), data = rent,
+                  family = Gamma(link = "log"))
 
-# perform the LRT, comparing to full interaction model
-anova(fit3_wafer, fit4_wafer, test = "LRT")
+# perform the LRT, comparing to fit1 as fit2 was not adequate
+anova(rent_fit3, rent_fit1, test = "LRT")
 ```
-We again obtain a large $p$-value from the hypothesis test that the simpler model is adequate, so we conclude that we do not need the $x_1:x_2$ interaction term in the model. Let's look at the current model output:
-```{r glm-gamma-ex-fit4summary}
-summary(fit4_wafer)
-```
-We repeat the previous steps for the $x_2:x_4$ interaction term.
-```{r glm-gamma-ex-fit5}
-# fit interaction model without x2:x4 interaction
-fit5_wafer <- glm(resist ~ x1 + x2 + x3 + x4 + 
-                    + x1:x3 + x2:x3 + x3:x4, 
-                  data = wafer,
-                  family = Gamma(link = "log")) # fit interaction model
+The results of this test also give us a very small $p$-value (<0.001) indicating that we reject the null hypothesis that the simpler model fit is adequate. That is, we should not remove `rooms` from the model. 
 
-# perform the LRT, comparing to full interaction model
-anova(fit4_wafer, fit5_wafer, test = "LRT")
-```
-We again obtain a large $p$-value from the hypothesis test that the simpler model is adequate, so we conclude that we do not need the $x_2:x_4$ interaction term in the model. Let's look at the current model output:
-```{r glm-gamma-ex-fit5summary}
-summary(fit5_wafer)
-```
-All of the interaction terms in this model are significant. Although $x_4$ is not individually significant, we keep it in the model as we do have one interaction term involving $x_4$. We select this model (`fit5_wafer`) to interpret.
+It does not appear that we should reduce the model further, and we can check this by using the `step()` function to compare different models by the AIC values:
+```{r glm-gamma-example-step}
+# perform backward selection based on AIC
+step(rent_fit1, direction = "backward") 
 
-#### Model Diagnostics {#glm-gamma-example-md}
+```
+The final model selected by a backwards-selection process also kept all of the main effects in the final model. 
 
-Prior to interpreting our model, we need to assess the model fit. To do so, we can take a look at the residual plot to see if there are any large residuals that may indicate a poor model fit. 
-```{r glm-gamma-ex-resid, fig.cap = "Residual plot for Gamma GLM"}
-resid_wafer <- residuals.glm(fit1_wafer, "deviance")
-plot(resid_wafer, ylim = c(-3, 3),
-     main = "Deviance Residuals",
-     ylab = "Residuals")
-abline(h = -2, lty = 2) # add dotted lines at 2 and -2
+We can also consider adding interaction terms. `year` and `size` are both statistically significant, and perhaps there is an added increase in rent for units of the same size build in newer years. To see if this is true, we can build a model including the interaction term and again perform an LRT against `rent_fit1`:
+```{r glm-gamma-ex-inter1}
+# include interaction between year and size
+rent_fit4 <- glm(rent ~ size + factor(rooms) + year + factor(area) + 
+    factor(good) + factor(best) + factor(warm) + factor(central) + 
+    factor(tiles) + factor(bathextra) + factor(kitchen) + year*size, data = rent,
+                  family = Gamma(link = "log"))
+# show the output
+summary(rent_fit4)
+
+# perform the LRT
+anova(rent_fit1, rent_fit4, test = "LRT")
+```
+We see that the $p$-value of this test is 0.0542. While it is common to only reject null hypotheses when $p$ < 0.05, many statisticians argue that such cut-offs are arbitrary and should not be used. However, although borderline "statistically significant" according to the common threshold of 0.05, the coefficient on the `size:year` is very close to zero, indicating no practical significance. As such, we leave it out of the model and continue analysis with `rent_fit1`.
+
+We note that while other interaction terms can be included, interactions between categorical covariates with a large number of levels may cause issues with the model fitting when sample sizes are small. 
+
+
+### Model Diagnostics {#glm-gamma-example-md}
+
+We need to evaluate the model fit prior to interpreting the coefficients and determining associations. We begin by looking at the residuals for any outliers, extreme values, or overall poor model fit:
+```{r glm-gamma-example-resid, fig.cap = "Diagnostic plot for Gamma GLM fit"}
+resid_rent <- residuals.glm(rent_fit1)
+fitted_rent <- rent_fit1$fitted.values
+plot(fitted_rent, resid_rent, ylim = c(-3, 3), ylab = "Deviance Residuals", xlab = "Fitted Values")
+abline(h = -2, lty = 2)
 abline(h = 2, lty = 2)
 ```
-We see that we have very small residuals for all observations, indicating no lack-of fit. 
+We see that all of the residuals fall between $(-2,2)$, which does not provide any evidence of poor model fit. 
 
-We can also check if there is multicollinearity present in the final model using the `vif()` function. However, we do not anticipate this to be an issue for this specific study as we are using a full factorial design where we independently manipulate the four covariates. 
-```{r glm-gamma-ex-vif}
-vif(fit5_wafer)
+We should also check for multicollinearity using the `vif()` function from the `r cran_link("car")` package:
+```{r glm-gamma-example-vif}
+car::vif(rent_fit1)
 ```
-The VIF values are all considered low (< 5) and do not indicate issues with collinearity.
 
-These diagnostics do not indicate a poor fit and thus the model we chose can be interpreted. 
+All VIF values are below 10, and as such we do not have reason to be concerned about multicollinearity in this model. 
 
 #### Model Interpretation {#glm-gamma-example-interpretation}
 
-We can write the chosen model as
+Recall the final model chosen by the model selection procedure above:
+```{r glm-gamma-example-mod}
+summary(rent_fit1)
+```
+
+We can write the chosen model (`rent_fit1)`) as
 
 $$
-\log(y_i) = \beta_0 + \beta_1x_1 + \beta_2x_2 + \beta_3x_3 + \beta_4x_4 + \beta_5x_1x_3 + \beta_6x_2x_3 + \beta_7x_3x_4
+\log(y_i) = \beta_0 + \beta_1x_1 + \beta_2x_2 + \beta_3x_3 + \dots  + \beta_{38}x_{38}
 $$
 or equivalently 
 $$
 \begin{aligned}
-y_i &= \exp(\beta_0 + \beta_1x_1 + \beta_2x_2 + \beta_3x_3 + \beta_4x_4 + \beta_5x_1x_3 + \beta_6x_2x_3 + \beta_7x_3x_4)\\
-&=\exp(\beta_0)\exp(x_1)^{\beta_1}\exp(x_2)^{\beta_2}\exp(x_3)^{\beta_3}\exp(x_4)^{\beta_4}\exp(x_1x_3)^{\beta_5}\exp(x_2x_3)^{\beta_6}\exp(x_3x_4)^{\beta_7}.
+y_i &= \exp( \beta_0 + \beta_1x_1 + \beta_2x_2 + \beta_3x_3 + \dots  + \beta_{38}x_{38})\\
+&=\exp(\beta_0)\exp(\beta_1)^{x_1}\exp(\beta_2)^{x_2}\exp(\beta_3)^{x_3}\dots\exp(\beta_{38})^{x_{38}}
 \end{aligned}
 $$
+where $x_{1}, x_{2}, \dots, x_{38}$ represent each covariate (or level or each covariates) as in the summary of `rent_fit1`. 
 
-From this model, we interpret $\exp(\beta_0) = \exp(5.31195) = 202.745$ as the expected resitivity when all covariates are equal to "-". 
+From this model, we interpret $\exp(\beta_0) = \exp(0.324) = 1.383$ as the expected clear rent when all other covariates are 0. For the other covariates, we interpret $\exp(\beta_j)$ as the expected multiplicative increase of the clear rent for a one unit increase in $x_j$ when all other covariates are 0.
+For example, we would interpret $\exp(\beta_1) = \exp(0.012) = 1.012$ as the expected multiplicative increase of the clear rent for a one unit increase in the living space per squared meter when all other covariates are 0. This result is statistically significant.
 
-We interpret $\exp(\beta_1) = \exp(0.20029) = 1.222$ as the expected multiplicative increase of the resistivity when $x_1$ is "+", when the other covariates are "-". We similarly interpret the coefficients for $x_2$, $x_3$, and $x_4$, although we note the individual effect for $x_4$ is not statistically significant. For the interaction term $x_1:x_3$, we interpret $\exp(\beta_5) = \exp(-0.15549) = 0.856$ as the additional multiplicative increase in resistivity when both $x_1$ and $x_3$ are equal to "+", and all other covariates are equal to "-". We similarly interpret the other interaction terms. 
+We can also use these models to predict. Fore example, if we wanted to predict the clear rent for a 100 square meter home with 2 rooms built in 1995 in municipality 3 with a "good" address, warm water, central heating, no bathroom tiles, no special furniture in the bathroom, and an upmarket kitchen. We can create a new observation as if it is in the data frame and use the `predict()` function to obtain a prediction. We do this in R by:
+```{r glm-gamma-example-predict}
+# create a data frame using info we want to use to predict
+newdata = data.frame(size = 100, rooms = 2, year = 1995, 
+                     area = 3, good = 1, best = 0, warm = 1, 
+                     central = 1, tiles = 0, bathextra = 0, kitchen = 1)
 
+#use model to predict value of am
+predict(rent_fit1, newdata, type = "response")
 
+```
+We estimate the clear rent for the above unit to be 679.89 Euros based on the Gamma GLM. 
 
 ## Further Reading
 
