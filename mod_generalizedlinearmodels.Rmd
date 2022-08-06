@@ -537,7 +537,7 @@ To estimate the confidence interval, we can use the `OR()` function from the `r 
 ```{r glm-logreg-MIHT-logisticdx}
 OR(heart_model7, newdata = c(0,0,1,0,0,1))
 ```
-which provides us with estimates of the odds ratio (OR), andwhere lowOR and upOR are the lower and upper bounds to the 95% CI. The two lines are for two models: one with an intercept and without, though in this case the OR and CI's are the same. We can also find the CI manually by finding the estimated standard error of the $\widehat{\beta_2} + \widehat{\beta_5}$ manually.
+which provides us with estimates of the odds ratio (OR), where lowOR and upOR are the lower and upper bounds to the 95% CI. The two lines are for two models: one with an intercept and without, though in this case the OR and CI's are the same. We can also find the CI manually by finding the estimated standard error of the $\widehat{\beta_2} + \widehat{\beta_5}$ manually.
 
 **Probabilities**
 
@@ -1315,7 +1315,7 @@ We see that there is some skewness present in the outcome variable. We can confi
 ```{r glm-gamma-example-swtest}
 shapiro.test(rent$rent)
 ```
-Our $p$-value is very small (<0.000) and indicates that we cannot assume the outcome is normal for this data set. As such, we can turn to the Gamma GLM to model this outcome and see if the rent is related to any other covariates in the data set. 
+Our $p$-value is very small (<0.001) and indicates that we cannot assume the outcome is normal for this data set. As such, we can turn to the Gamma GLM to model this outcome and see if the rent is related to any other covariates in the data set. 
 
 
 
