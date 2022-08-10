@@ -4,7 +4,7 @@ output:
   pdf_document: default
 ---
 
-# Introduction to Generalized Linear Models 
+# Introduction to Generalized Linear Models {#glm}
 
 *Author: Grace Tompkins*
 
@@ -92,7 +92,7 @@ The following is a table containing commonly used distributions, their canonical
 | [Poisson](https://en.wikipedia.org/wiki/Poisson_distribution#:~:text=In%20probability%20theory%20and%20statistics,time%20since%20the%20last%20event.) (used for discrete count data) | Log: $g(\mu) = \log(\mu)$ | `family = poisson(link = "log")`|
 | [Gamma](https://en.wikipedia.org/wiki/Gamma_distribution) (used for continuous, positive, skewed or heteroskedastic data) | Reciprocal: $g(\mu) = \frac{1}{\mu}$ | `family = Gamma(link = "inverse")`| 
 
-Each link function will dictate how we interpret the model parameters. For example, using a logistic link for binomial outcome data (also known as logistic regression), we interpret our parameters $\beta$ as log odds ratios. More details on this can be found in the dedicated logistic regression module in Section \@ref(glm-logreg). When using a log link on Poisson data, our model parameters estimate log relative rates, which we will detail in Section \@ref(glm-poisson).
+Each link function will dictate how we interpret the model parameters. For example, using a logistic link for binomial outcome data (also known as logistic regression), we interpret our parameters $\beta$ as log odds ratios. More details on this can be found in the dedicated logistic regression module in Section \@ref(glm-gogreg). When using a log link on Poisson data, our model parameters estimate log relative rates, which we will detail in Section \@ref(glm-poisson).
 
 We note that sometimes we will use link functions other than the canonical link. For example, it is common for researchers evaluating dose-response relationships for binary outcomes to use the [probit](https://en.wikipedia.org/wiki/Probit_model) link instead of the canonical logistic link. The probit link is the inverse of the standard normal cumulative distribution function. We will also provide a detailed example for this in Section \@ref(glm-binprop-DR). 
 
@@ -986,7 +986,7 @@ $$
 $$
 That is, we model our log-linear regression with an [offset](https://en.wikipedia.org/wiki/Poisson_regression#%22Exposure%22_and_offset) term of $\log(t_i)$ that will explain some of the variation in the differing counts of outcomes due to differing lengths of time (or another appropriate measure, depending on the context of the problem).  We note that in some cases, an offset term may not be necessary. 
 
-### Example {#logreg-poisson-example}
+### Example {#glm-poisson-example}
 
 Let's look at an example of a data set that records the number of times an incident occurs in cargo ships [@mccullagh2019], which can be found in the `r cran_link("MASS")` package. We can load the data set and look at the first 6 observations using:
 ```{r glm-poisson-load1, warning = F, message = F}
@@ -1023,7 +1023,7 @@ ships <- ships[-toremove, ] # the - sign removes the given rows
 ```
 
 
-#### Model Fitting {#logreg-poisson-example-mf}
+#### Model Fitting {#glm-poisson-example-mf}
 We start with a main-effects only model using all of the covariates at our disposal. We fit this model in R by
 ```{r glm-poisson-fit1}
 ships_fit1 <- glm(incidents ~ type_f + year_f +period_f + 
@@ -1116,7 +1116,7 @@ We have a large $p$-value, thus we fail to reject the null hypothesis. That is, 
 
 We finish our model building process and conclude that `ships_fit1` is the best fitting model of the ones we tested. From the main-effects only model output shown earlier, we see that all covariates have small standard errors, and most levels of the categorical covariates are significant. This is what we should expect from a final model after cycling through the fitting procedure.
 
-#### Model Diagnostics {#logreg-poisson-example-md}
+#### Model Diagnostics {#glm-poisson-example-md}
 
 **Residuals**
 
