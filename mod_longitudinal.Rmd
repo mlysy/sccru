@@ -1140,7 +1140,7 @@ fitLME_slope <- lme(
 summary(fitLME_slope) # look at the output
 ```
 
-Without specifying the `method` parameter, we fit this model using REML. Again, from the output we see a number of fit statistics including AIC and BIC, which are ttly larger than in the random intercept model. Under the `Random effects:` header, we can obtain estimates for the standard deviations of our random slope and intercept, along with the standard deviations of our error term and the estimated correlation between our random slope and intercept. We can then calculate: 
+Without specifying the `method` parameter, we fit this model using REML. Again, from the output we see a number of fit statistics including AIC and BIC, which are slightly larger than in the random intercept model. Under the `Random effects:` header, we can obtain estimates for the standard deviations of our random slope and intercept, along with the standard deviations of our error term and the estimated correlation between our random slope and intercept. We can then calculate: 
 
 - the estimated variance of our random intercept as $\widehat{\sigma}_{b,0}^2 = 2.797^2 =$ `r paste(round(2.797^2,4))`, 
 - the estimated variance of our random slope as $\widehat{\sigma}_{b,1}^2 = 0.1609^2 =$ `r paste(round(0.1609^2,4))`,
@@ -1175,7 +1175,7 @@ ggplot(data = dental_long, aes(x = age, y = distance, group = subject)) +
 
 In Figure \@ref(fig:long-lme-spaghettiplotdent), each line is one subject's observations over time (age). The groups are stratified by sex to account for differences in trajectory by sex, which was a statistically significant factor in our model. We see that subjects within each strata have very different baseline measurements, but see similar trajectories (slopes) over time. This is particularly evident in the subset of females enrolled in the study. Our random intercept model thus makes sense for this setting. 
 
-### Model Diagnostics for Linear mixed-effects Models {#long-linearmixed-diagnostics}
+### Model Diagnostics for Linear Mixed-Effects Models {#long-linearmixed-diagnostics}
 
 After fitting our LME model, we need to assess the model fit to make sure it is appropriate for the data. 
 
@@ -2174,7 +2174,7 @@ We reject the null hypothesis that the model that combines treatments 1, 2 and 3
 
 As seen in the previous section, linear mixed effect models are useful for analyzing relationships between normally distributed outcomes and covariates over time. However, we are often interested in non-normal longitudinal outcomes, such as skewed, binary, or count outcomes. To handle these outcomes, we can use the generalized linear mixed-effects model (GLMM, or sometimes referred to as a GLMEM), which is an generalization of the linear mixed effect model presented in Section \@ref(long-linearmixed). 
 
-Like the linear mixed-effects model, GMLEMs again allow a subset of the regression parameters to vary randomly between the subjects to account for sources of natural heterogeneity in the population. GLMMs model the mean response as a combination of the population characteristics (which are assumed to be the same for all subjects), and the unique subject-specific characteristics for each subject. We allow for this by including random effects $\boldsymbol{b}_i$ (sometimes referred to as the subject-specific regression coefficients) along with the usual population coefficients or "fixed effects" $\boldsymbol{\beta}$ in the model. Readers are directed to Section \@ref(long-linearmixed) for more information on fixed and random effects. 
+Like the linear mixed-effects model, GLMMs again allow a subset of the regression parameters to vary randomly between the subjects to account for sources of natural heterogeneity in the population. GLMMs model the mean response as a combination of the population characteristics (which are assumed to be the same for all subjects), and the unique subject-specific characteristics for each subject. We allow for this by including random effects $\boldsymbol{b}_i$ (sometimes referred to as the subject-specific regression coefficients) along with the usual population coefficients or "fixed effects" $\boldsymbol{\beta}$ in the model. Readers are directed to Section \@ref(long-linearmixed) for more information on fixed and random effects. 
 
 The GLMM can also be viewed as an extension of the generalized linear model (GLM), which was presented in Section \@ref(glm). It will be beneficial for readers unfamiliar with GLMs to read Section \@ref(glm) as we will assume readers have a basic understanding of GLMs in this section. 
 
@@ -2208,11 +2208,11 @@ These three components together formulate the generalized linear mixed-effects m
 
 ### Modelling in R {#long-glmm-R}
 
-In this section, we describe how to fit generalized linear mixed-effects models in R. We will be using the `glmer()` function from the `r cran_link("lme4")` package. This function requires the data to be in long form (see Section \@ref(long-datastruc) for details on long versus wide form longitudinal data). There are a number of important arguments in this function:
+In this section, we describe how to fit generalized linear mixed-effects models in R. We will be using the `glmer()` function from the `r cran_link("lme4")` package. This function requires the data to be in long form (see Section \@ref(long-datastruc) for details on long versus wide form longitudinal data). GLMMs can also be fit using the `r cran_link("glmm")` package in R. There are a number of important arguments in this function:
 
 - `formula`: the two-sided linear formula object describing both the fixed and random effects in the model, written as `response ~ fixed effec1 + fixed effect1 + ... + 1(subject) + (time|subject)` where `(1|subject)` is the random intercept grouped by subject and `(time|subject)` is an example of a random slope on time grouped by subject. 
 - `family`: similar to in a GLM, the name of the exponential family distribution and the link function. For example, for a binary data we may specify `family = binomial(link = "logit")`.
-- `nAGQ`: the argument for the number of quadrature points to be used for the approximation  (adaptive Gaussian quadrature approximation). We need to use numerical approximation methods as the likelihood function under a GLMM is high-dimensional and complicated to solve for.  When `nAGQ = 1`, we use Laplace approximation. We can specify `nAGQ` larger than one only for GLMMs with single random effect terms. The larger the value, the more accurate the approximation. 
+- `nAGQ`: the argument for the number of quadrature points to be used for the approximation  (adaptive Gaussian quadrature approximation). We need to use numerical approximation methods as the likelihood function under a GLMM is high-dimensional and complicated to solve for.  When `nAGQ = 1`, we use Laplace approximation. We can specify `nAGQ` larger than one only for GLMMs with single random effect terms. The larger the value, the more accurate the approximation. However, computational complexity will increase as we increase the value of `nAGQ`. 
 
 As this function only allows for approximation by adaptive Gaussian quadrature, we often see GLMMs fit using SAS software's built-in GLIMMIX procedure. Readers interested in fitting GLMMs in SAS are directed [here](https://support.sas.com/documentation/onlinedoc/stat/131/glimmix.pdf).
 
@@ -2312,7 +2312,7 @@ $$
 &= \bm{x}_{ij}^T\bm{\beta} + \bm{z}_{ij}^T\bm{b}_i + \log(t_{ij}).
 \end{aligned}
 $$
-That is, we account for the irregularity in the length of time intervals pre- and post- treatment by using an offset term of $\log(t_{ij})$.  
+That is, we account for the irregularity in the length of time intervals pre- and post- treatment by using an offset term of $\log(t_{ij})$. We note that not all Poisson or count models will require an offset term if our intervals remain the same.   
 
 We start with a model random slope and intercept model of the form:
 $$
@@ -2328,6 +2328,8 @@ where
 - $t_{ij}$ is the length of the observation period for period $j$ (period 0 is eight weeks, periods 1 - 4 are two weeks).
 
 We are looking only at the time effect as pre- and post- randomization because the average group trend is relatively stable across time after randomization. We allow for an interaction effect between $trt$ and $post$ because there will likely be a difference in seizure rates before and after randomization (after period 0) which may differ by the treatment group. We allow for a random intercept $b_{0,i}$ as in the above plots we see that individuals tend to have different baseline seizure counts. We also allow for a random effect on $post$ as individual subjects may see different time trends after randomization. 
+
+We note that this model may change as we perform statistical tests to see which covariates should be included or excluded in the model. 
 
 
 Prior to fitting this model in R, we need to include a categorical variable indicating we are post randomization, and also the information on the time period length in our data set. We will need to use the $\log()$ of this time so we will calculate that as well and include it as its own column:
@@ -2464,7 +2466,7 @@ In this model, $\exp(\beta_1) = \exp(-0.042) = 0.959$ represents the relative ra
 
 We interpret $\exp(\beta_2) = \exp(0.079) = 1.082$ represents the increase in relative rate of seizures per week for those on Progabide versus placebo for the "average" patient in pre-randomization. We note that this result is also not statistically significant
 
-$\exp(\beta_3) = \exp(-0.260) = 0.771$ is represents the increase in relative rate of seizures per week for post- versus pre-randomization comparing two patients: one from the Progabide group and one from the placebo group with the same unobserved random effects. We note that in this way, $\beta_3$ is not a population average like we have previously seen. With a $p$-value or 0.0797, some may consider this result statistically significant depending on the definition of "significant". We will refer to this value as moderately significant in this setting. As such, we conclude that there is evidence that the rate of seizures per week for post- versus pre- randomization was further reduced in the Progabide group, indicating that the drug is useful for reducing seizures for epileptic patients.  
+$\exp(\beta_3) = \exp(-0.260) = 0.771$ represents the increase in relative rate of seizures per week for post- versus pre-randomization comparing two patients: one from the Progabide group and one from the placebo group with the same unobserved random effects. We note that in this way, $\beta_3$ is not a population average like we have previously seen. With a $p$-value or 0.0797, some may consider this result statistically significant depending on the definition of "significant". We will refer to this value as moderately significant in this setting. As such, we conclude that there is evidence that the rate of seizures per week for post- versus pre- randomization was further reduced in the Progabide group, indicating that the drug is useful for reducing seizures for epileptic patients.  
 
 
 From this model, we also can estimate the patient-to-patient variability in terms of their baseline rate, which is $\widehat{\sigma}^2_{b_0} = 0.496$. The estimate of the variance of the random slope representing the patient-to-patient variability in their change of rate from pre- to post-randomization is  $\widehat{\sigma}^2_{b_1} = 0.214$. We also obtain an estimate of the correlation between the random slope and intercept, which is 0.13. This is small, indicating that the expected changes in seizure rates are not directly related to the patients baseline seizure rate prior to randomization.
