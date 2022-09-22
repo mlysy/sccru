@@ -2470,3 +2470,10 @@ $\exp(\beta_3) = \exp(-0.260) = 0.771$ represents the increase in relative rate 
 
 
 From this model, we also can estimate the patient-to-patient variability in terms of their baseline rate, which is $\widehat{\sigma}^2_{b_0} = 0.496$. The estimate of the variance of the random slope representing the patient-to-patient variability in their change of rate from pre- to post-randomization is  $\widehat{\sigma}^2_{b_1} = 0.214$. We also obtain an estimate of the correlation between the random slope and intercept, which is 0.13. This is small, indicating that the expected changes in seizure rates are not directly related to the patients baseline seizure rate prior to randomization.
+
+## A Note on Irregular Longitudinal Data
+
+As previously mentioned, we frequently encounter studies where the observation times vary across individuals in the study. We refer to this as irregular longitudinal data. While methods like the generalized estimating equation (GEE - see [@fitzmaurice11]) and the generalized linear mixed effects model (GLMM - see Section \@ref(long-glmm)) can handle irregular data, we must be careful as we can end up with incorrect results and interpretations from our model if the longitudinal outcome is related to the observation times, known as outcome-dependent follow-up or informative follow-up. If this is the case, readers are directed [here](https://cran.r-project.org/web/packages/IrregLong/vignettes/Irreglong-vignette.html) for options on how to deal with this issue. 
+
+## Further Reading
+Readers are directed to [@fitzmaurice11] and [@diggle02] for more information on longitudinal data analysis.
