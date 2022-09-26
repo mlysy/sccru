@@ -37,6 +37,8 @@ For questions regarding the materials of this book, please [contact us](https://
 - Yuliang Shi
 - Grace Tompkins
 - Feiyu Zhu
+- Grace Tompkins
+- Yuliang Shi
 
 ## Editors {-}
 
