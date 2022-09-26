@@ -18,10 +18,10 @@ knitr::include_graphics("data/images/rintro-rstudio.png")
 
 The interface of RStudio shown in Figure \@ref(fig:rintro-rstudio) contains four panes:
 
-- [Source Editor], <!-- contains the R code files, where codes are written and edited. We can also run the R code from the Code Editor by selecting the code chunk and clicking <kbd>Run</kbd>. -->  
-- Console, <!-- To run a single line of code, write the code in the R Console and press <kbd>Enter</kbd>. The printed results of the code are also shown in the R Console.  --> 
-- Workspace Browser, and <!-- consists of (1) the Environment pane that shows the objects we are working with, and (2) the History pane that shows codes that were executed previously.-->
-- Files (and Plots, Packages, Help, and Viewer). <!-- pane shows outputs such as plots or files created with the R code. It also helps with the management of packages or files required for the codes.-->
+- [Source Editor], 
+- Console, 
+- Workspace Browser, and 
+- Files (and Plots, Packages, Help, and Viewer).
 
 The four panes can be positioned differently based on personal preference. Figure \@ref(fig:rintro-rstudio) shows the default position. In this section, we will mainly be using the Source Editor and Console panes. Readers are encouraged to refer to other [resources](https://robwschlegel.github.io/Intro_R_Workshop/rstudio.html#the-panes-of-rstudio) on the use of other panes.
 
@@ -119,14 +119,7 @@ age <- c(18, 21, 19, 20, 21)
 ```
 In the Workspace Browser pane, we can see the variable `age` with the values that we have given. And if we type `age` in the Console pane, we get these values printed in the Console.
 
-Vectors may not appear to be useful for many since most of the popular functions are ready for use. But for those intending to create their own R functions, it is important to understand how to create and manipulate vectors. Many [comparators and logical operators](https://www.statmethods.net/management/operators.html) such as those discussed in Section [1.2.1](#rintro-calculate) work on both vectors and scalars. These calculations will be element-wise. <!--- For example, 
-```{r rintro-basic-vector-calculate, echo = TRUE, eval = FALSE, comment = NA}
-age * 2
-log(age)
-x <- c(0, 1, 2, 3, 4, 5)
-age - x
-```
----> 
+Vectors may not appear to be useful for many since most of the popular functions are ready for use. But for those intending to create their own R functions, it is important to understand how to create and manipulate vectors. Many [comparators and logical operators](https://www.statmethods.net/management/operators.html) such as those discussed in Section [1.2.1](#rintro-calculate) work on both vectors and scalars. These calculations will be element-wise. 
 
 ## Basic Data Analysis Workflow
 
@@ -148,8 +141,6 @@ In the real world, data are recorded in different formats such as Excel spreadsh
 
 Data are imported into the R Environment using functions such as `read.csv()` and `read.table()`. Imported data are stored as a data frame object. In this section, we will look at two data sets: [`caliRain.csv`](data/caliRain.csv) and [`drinks.csv`](data/drinks.csv).
 
-<!-- `r embed_data_file("data/caliRain.csv", text = "caliRain.csv")` and `r embed_data_file("data/drinks.csv", text = "drinks.csv")`.  -->
-
 Suppose we saved the data sets in a subfolder called `data` in the working directory. We can import both data sets `caliRain.csv` and `drinks.csv` into the R environment and save them as data frames called `drinks_df` and `rain_df` respectively.
 ```{r rintro-data-import, echo=TRUE, eval=TRUE, comment = NA}
 drinks_df <- read.csv("data/drinks.csv")
@@ -158,7 +149,12 @@ rain_df <- read.csv("data/caliRain.csv")
 
 #### A Look at the Data 
 
-It is important to take a look at the data set imported into the environment before performing the analysis. To view `rain_df` as a table, 
+It is important to take a look at the data set imported into the environment before performing the analysis. To view `rain_df` as a table,
+
+```{r rintro-call-common-function, echo = FALSE, eval = TRUE, comment = NA}
+source("common_functions.R")
+```
+
 ```{r rintro-data-view, echo=TRUE, eval=FALSE, comment = NA}
 View(rain_df)
 ```
@@ -180,7 +176,7 @@ The variables `STATION` and `SHADOW` are categorical variables, whereas the rema
 
 #### Accessing the Data Frame 
 
-Oftentimes, we are interested to access an individual column (or variable) within the data frame. For example, if we are interested in the `PRECIP` variable in the data set `caliRain.csv` (which is now stored as `rain_df`). There are two ways to access the column:
+Oftentimes, we are interested in accessing an individual column (or variable) within the data frame. For example, if we are interested in the `PRECIP` variable in the data set `caliRain.csv` (which is now stored as `rain_df`). There are two ways to access the column:
 
 - Use the dollar sign followed by the name of the variable.
     ```{r rintro-data-dollar, echo=TRUE, eval=TRUE, comment = NA}
@@ -202,15 +198,15 @@ rain_df$PRECIP[5]
 rain_df[5, 2]
 ```
 
-Accessing a random variable, an observation or a specific value coming from observation are all useful for data management and manipulation purpose. 
+Accessing a random variable, an observation or a specific value coming from an observation are all useful for data management and manipulation purpose. 
 
 #### Modifying the Data Frame
 
 Sometimes, we want to make changes to the data frame such as
 
-- make changes to existing records,
-- add new observations or variables, or
-- remove outliers from the data set.
+- making changes to existing records,
+- adding new observations or variables, or
+- removing outliers from the data set.
 
 If we want to change the existing records, we need to identify which records we are interested to change.
 
@@ -240,7 +236,7 @@ To modify a specific observation, we need to
 - decide on the modification, and 
 - decide on how to store the new variable. 
 
-Suppose the distance for \texttt{Eureka} station is entered incorrectly and is supposed to be 1.5 feet instead. To replace this value, type
+Suppose the distance for Eureka station is entered incorrectly and is supposed to be 1.5 feet instead. To replace this value, type
 ```{r rintro-data-modcell, echo=TRUE, eval=TRUE,comment=NA}
 rain_df$DISTANCE[1] <- 1.5
 ```
@@ -310,11 +306,11 @@ range(rain_df$PRECIP)
     
 ### Data Visualization
 
-There are a wide variety of plots that can be created using R, but we will focus on some of our favorites:
+There is a wide variety of plots that can be created using R, but we will focus on some of our favorites:
 
-- bar graphs: show the distribution of categorical variables,
+- bar graphs: show the distributions of categorical variables,
 - boxplots: show the five-number summaries of continuous variables, and
-- histograms: show the distribution of continuous variables.
+- histograms: show the distributions of continuous variables.
 
 #### Categorical Variables
 
@@ -339,12 +335,6 @@ Sometimes it is more useful to report the proportions, which can be converted in
 ```{r rintro-data-table-shadow-prop, echo=TRUE, eval=TRUE, comment=NA}
 prop.table(count_of_shadow)
 ```
-
-<!--- The proportions can be converted into percentages, and round the values to 2 decimal places using
-```{r rintro-data-table-shadow-per, echo=TRUE, eval=TRUE, comment=NA}
-round(100 * prop.table(count_of_shadow), 2) 
-```
---->
 
 For a contingency table, the default `prop.table()` function will output the proportions based on the entire data set.
 ```{r rintro-data-table-milk-prop, echo=TRUE, eval=TRUE, comment=NA}
@@ -432,7 +422,7 @@ plot(rain_df$DISTANCE, rain_df$PRECIP,
 
 #### A Fancy Visualization Library
 
-The `r cran_link("ggplot2")` library is a package created by Hadley Wickham. It offers a powerful language to create elegant graphs. A basic introduction of this package can be found in later [section][Introduction to ggplot2].
+The `r cran_link("ggplot2")` library is a package created by Hadley Wickham. It offers a powerful language to create elegant graphs. A basic introduction of this package can be found in a later [section][Introduction to ggplot2].
 
 ## Some Coding Tips
 
@@ -504,7 +494,7 @@ This command needs to be run every time you want to use the package in a new R s
 
 ## Getting Help
 
-Before getting others for help, it is generally a good idea for you to try to help yourself.
+Before asking others for help, it is generally a good idea for you to try to help yourself.
 
 ### R Documentation
 

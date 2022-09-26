@@ -1,10 +1,9 @@
 # Introduction to Longitudinal Data
 
 *Author: Grace Tompkins*
-
 *Last Updated: August 10, 2022*
 
---- 
+---
 
 ## Introduction {#long-intro}
 
@@ -24,6 +23,7 @@ While longitudinal studies can either be prospective (subjects are followed forw
 
 A challenge of longitudinal data is that observations taken within each subject are correlated. For example, weather patterns tend to be correlated at a given location, in the sense that if today is rainy then we are more likely to have a rainy day tomorrow than a sunny day. In general, even when we have a great amount of time separation between observations, the correlation between a pair of responses on the same subject rarely approaches zero [@fitzmaurice11]. We refer to the correlation of responses within the same individual as the **intra-subject correlation**. This implies that our typical statistical modeling tools which assume independence among observations are inappropriate for this type of data. Methods that account for intra-subject correlation will be discussed further in the following sections, and include linear models (Section \@ref(long-linear)), linear mixed effect (LME) models (Section \@ref(long-linearmixed)),  and generalized linear mixed-effects models (GLMMs) (Section \@ref(long-glmm)). 
 
+
 While longitudinal analysis is often used in the context of health data involving repeated measurements from patients, it can also be found in a variety of disciplines, including (but not limited to) [economics](https://www150.statcan.gc.ca/n1/en/pub/11f0019m/11f0019m2004227-eng.pdf?st=aVJbOo9q), [finance](https://www.sciencedirect.com/science/article/pii/S0167487018301648?casa_token=Zu4t8ubyZPAAAAAA:geM4RGeihOj0gGWgPeZ_xnNBB2ZA3nnOeYzlvSHHuCnEbbd9mmi-5iuR7ysEh_6Zm5_uaatnhKB_), [environmental studies](https://www.mdpi.com/2071-1050/9/6/913), and [education](https://www.tandfonline.com/doi/abs/10.1080/00220973.1997.9943456?casa_token=KBEjZbk9xRAAAAAA:INEZk1fuIr0H59P9fl0ykz5qWKxzXnR1PZ_6H0MHwvgCnjXWC8D0A5xbLadXutbsUJx3lvKF1yXj5QE). 
 
 A working example of a dentistry data set with a continuous outcome will be carried through this module, with R code accompanying the theory presented. If the statistical theory presented in each section is not of interest to the reader, the working example should be able to be followed on its own. At the end of each section that presents new methodology, a second example will be fully worked through using the methods presented. 
@@ -31,6 +31,7 @@ A working example of a dentistry data set with a continuous outcome will be carr
 ### List of R packages Used {#long-rpackages}
 
 In this chapter, we will be using the packages `r cran_link("geesmv")`, `r cran_link("nmle")`, `r cran_link("ggplot2")`, `r cran_link("emdbook")`, `r cran_link("lattice")`, `r cran_link("lme4")`,`r cran_link("dplyr")`, `r cran_link("HSAUR2")`, `r cran_link("performance")`.
+
 
 
 ```{r long-library, warning=FALSE, message=FALSE}
@@ -994,6 +995,7 @@ where $Y_{ij}$ is the orthodontic measurement of subject $i$ at occasion $j$, $z
 
 We can interpret $\beta_1$ and $\beta_2$ as the expected change in the outcome for a one unit increase in the covariate, controlling for the other covariates in the mode.
 
+
 ### Random Intercept and Slope Models {#long-linearmixed-randominterceptslope}
 
 We can also consider random slopes along with the random intercepts in LME models. In this model, we assume that the response (or outcome) of interest varies not only at baseline (the intercept) but also in terms of the rate of change over time (the slope). We also generalize this to incorporate additional randomly varying regression coefficients that allow the random effects to depend on a set of covariates. That is, we can consider a collection of covariates for the random effects, $Z$, that are typically a subset of our fixed effects $X$. 
@@ -1085,7 +1087,9 @@ We can use both ML and REML to perform LRT comparing nested random effects struc
 
 ### Modelling in R {#long-linearmixed-R}
 
+
 Linear mixed-effects models can fit in R by using the `lme()` function from the  `r cran_link("nlme")`  library. This function has a number of parameters, including:
+
 
 - `fixed`: a two-sided linear formula for the fixed effects of the form `response ~ fixedeffect1 + ... + fixedeffectp` where fixedeffect1, ..., fixedeffectp are the names of the desired covariates for the fixed effects in the model;
 
@@ -1108,6 +1112,9 @@ where $Y_{ij}$ is the orthodontic measurement of subject $i$ at occasion $j$, $z
 
 To fit this, we do the following:
 ```{r long-lme-randominterceptdent}
+# load required package for fitting mixed effects model
+library(nlme)
+
 # fit the random intercept only model
 fitLME_intercept <- lme(
   fixed = distance ~ age + sex, # specify fixed effects
@@ -1176,6 +1183,7 @@ ggplot(data = dental_long, aes(x = age, y = distance, group = subject)) +
 In Figure \@ref(fig:long-lme-spaghettiplotdent), each line is one subject's observations over time (age). The groups are stratified by sex to account for differences in trajectory by sex, which was a statistically significant factor in our model. We see that subjects within each strata have very different baseline measurements, but see similar trajectories (slopes) over time. This is particularly evident in the subset of females enrolled in the study. Our random intercept model thus makes sense for this setting. 
 
 ### Model Diagnostics for Linear Mixed-Effects Models {#long-linearmixed-diagnostics}
+
 
 After fitting our LME model, we need to assess the model fit to make sure it is appropriate for the data. 
 
@@ -1265,6 +1273,7 @@ Finding the estimates and 95% confidence intervals for fixed and random effects 
 intervals(fitLME_intercept)
 ```
 
+
 From this output, we can make inferences. For example, we see that the an increase of one year in age corresponds to an estimated increase in the distance of 0.6602 (95% CI: 0.5376, 0.7823), controlling for sex.
 
 We can also gain insights on the variability in the data. For example, we have an estimated standard error of the random intercept of 1.807 and an estimated within-group standard error of 1.4312. this tells us that we have stronger between subject variability in this model. 
@@ -1282,7 +1291,9 @@ We estimate the distance for a 13 year old male to be 26.2891.
 
 ### Hypothesis Testing for Fixed Effects {#long-linearmixed-ht}
 
+
 We may be interested in performing hypothesis tests on the fixed effects' parameters ($\bm{\beta}$) of the linear mixed-effects model. For tests on single parameters, we can employ the `summary()` function to perform a t-test.
+
 ```{r long-lme-singleht}
 summary(fitLME_intercept)
 ```
@@ -2155,7 +2166,9 @@ fitaids6_combtreatments <- lme(
 summary(fitaids6_combtreatments)
 
 ```
+
 Under this parameterization, we do see that the interaction terms are individually significant. This indicates that there is a difference in time trend by dual versus triple therapy, controlling for age. For example, we see that the effect of time on the triple action treatment on log(CD4 counts + 1) is greater by 0.035 units compared to dual action therapy, controlling for age. We also see that the squared time effect interaction is significant but the effect size is small (-0.001). We can interpret this that the effect of the squared time term on log(CD4 counts + 1) is smaller by 0.001 units for the triple action therapy compared to dual action therapy controlling for other factors.
+
 
 We can see if this model is more adequate, indicating that treatments 1, 2, and 3 have the same treatment effect over time. 
 
@@ -2164,6 +2177,7 @@ anova(fitaids6, fitaids6_combtreatments)
 ```
 
 We reject the null hypothesis that the model that combines treatments 1, 2 and 3 is adequate compared to the original model. This indicates that there exists at least one dual-treatment therapy that has a different time effect on the log(1 + CD4 counts). Looking at the LOESS curves from Figure \@ref(fig:long-lme-ex3-ggplotloess), this is unsurprising as treatment 3 appears to have a different time trend than treatments 1 and 2, which are similar. 
+
 
 
 <!-- ## Generalized Estimating Equations {#long-gee} -->
@@ -2477,5 +2491,6 @@ As previously mentioned, we frequently encounter studies where the observation t
 
 ## Further Reading
 Readers are directed to [@fitzmaurice11] and [@diggle02] for more information on longitudinal data analysis.
+
 
 
