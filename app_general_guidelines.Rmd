@@ -75,7 +75,7 @@ For this you will need to install the following packages:
 ```{r app-gen-pkgs, eval = FALSE}
 install.packages(c("bookdown", "tidyverse", "wooldridge", "corrplot", "lmtest",
                    "caret", "PMCMRplus", "dunn.test", "geesmv",
-                   "emdbook"),
+                   "emdbook", "catdata", "AER", "performance", "faraway", "MASS", "lme4", "dplyr", "HSAUR2"),
                  dependencies = TRUE)
 ```
 
